@@ -6,6 +6,7 @@ import { Resolver } from './resolve.mjs';
 import { pickMode, renderError } from './format.mjs';
 import { CybError, EXIT } from './errors.mjs';
 import { doctor } from './commands/doctor.mjs';
+import * as project from './commands/project.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -25,6 +26,25 @@ export const REGISTRY = {
       options: { probe: { type: 'boolean', default: false } },
       handler: doctor,
     },
+  },
+  project: {
+    list: { summary: 'List all projects', options: {}, handler: project.list },
+    show: { summary: 'Show one project', options: {}, handler: project.show },
+    create: {
+      summary: 'Create a project',
+      options: {
+        name: { type: 'string' },
+        identifier: { type: 'string' },
+        description: { type: 'string' },
+      },
+      handler: project.create,
+    },
+    update: {
+      summary: 'Update a project',
+      options: { name: { type: 'string' }, description: { type: 'string' } },
+      handler: project.update,
+    },
+    delete: { summary: 'Delete a project (needs --yes)', options: {}, handler: project.remove },
   },
 };
 
