@@ -9,6 +9,7 @@ import { doctor } from './commands/doctor.mjs';
 import * as project from './commands/project.mjs';
 import * as item from './commands/item.mjs';
 import * as meta from './commands/meta.mjs';
+import * as planning from './commands/planning.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -106,6 +107,34 @@ export const REGISTRY = {
   },
   member: {
     list: { summary: 'List workspace members', options: {}, handler: meta.memberList },
+  },
+  cycle: {
+    list: { summary: 'List cycles', options: {}, handler: planning.cycleList },
+    create: {
+      summary: 'Create a cycle',
+      options: { name: { type: 'string' }, start: { type: 'string' }, end: { type: 'string' } },
+      handler: planning.cycleCreate,
+    },
+    'add-item': {
+      summary: 'Add an existing work item to a cycle',
+      options: { cycle: { type: 'string' } },
+      handler: planning.cycleAddItem,
+    },
+    delete: { summary: 'Delete a cycle (needs --yes)', options: {}, handler: planning.cycleRemove },
+  },
+  module: {
+    list: { summary: 'List modules', options: {}, handler: planning.moduleList },
+    create: {
+      summary: 'Create a module',
+      options: { name: { type: 'string' }, description: { type: 'string' } },
+      handler: planning.moduleCreate,
+    },
+    'add-item': {
+      summary: 'Add an existing work item to a module',
+      options: { module: { type: 'string' } },
+      handler: planning.moduleAddItem,
+    },
+    delete: { summary: 'Delete a module (needs --yes)', options: {}, handler: planning.moduleRemove },
   },
 };
 
