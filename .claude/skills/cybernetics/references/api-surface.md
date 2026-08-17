@@ -9,8 +9,14 @@ self-managed Plane fork.
   `/work-items/` path on this fork.
 - Auth header is `X-Api-Key`. `Authorization: Bearer` returns 401 — never use it.
 - Rate limit 60 req/min, reported via `x-ratelimit-remaining` and `x-ratelimit-reset`.
-- `?fields=a,b` projects the response down to those keys — the CLI uses this
-  on every list/read call to keep payloads small.
+- `?fields=a,b` projects the response down to those keys. The CLI sends it on
+  `item list`, `project list`, and `label list` (unless `--full` is passed),
+  and always on the three composites — `board`, `my`, `search` — since
+  keeping those payloads small is the whole point of a composite. It does
+  *not* send `fields` on `member list`, `cycle list`, `module list`, or
+  `comment list` (small metadata lists, not worth projecting), nor on the two
+  detail views `item show` / `project show` (a detail view returning the
+  full record is the point of it).
 - `?expand=`, `?per_page=`, `?order_by=`, and cursor pagination (`?cursor=`)
   are all accepted.
 
