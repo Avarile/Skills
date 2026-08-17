@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { list, show, decorate, ITEM_COLUMNS, LIST_FIELDS } from '../src/commands/item.mjs';
+import { EXIT } from '../src/errors.mjs';
 import { makeCtx, STATE_LIST, UUID_STATE_PROGRESS, UUID_PROJECT } from './helpers/ctx.mjs';
+
+const RAW_ITEM_UUID = '11111111-1111-1111-1111-111111111111';
 
 test('LIST_FIELDS is the token-bounded projection from the spec', () => {
   assert.deepEqual(LIST_FIELDS, ['id', 'sequence_id', 'name', 'state', 'priority', 'assignees']);
@@ -77,6 +80,53 @@ test('item list caches the sequence-to-uuid mapping it saw', async () => {
   assert.equal(ctx.cache.byProject[UUID_PROJECT].items[42], 'item-uuid');
 });
 
+test('item list --json emits a clean array on stdout and the truncation notice on stderr', async () => {
+  const { ctx, outText } = makeCtx([
+    { status: 200, body: { total_count: 77, results: [{ id: 'a', sequence_id: 1, name: 'x', state: UUID_STATE_PROGRESS }], next_page_results: false } },
+  ], { positionals: ['CYB'], mode: 'json' });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await list(ctx);
+
+  const parsed = JSON.parse(outText());
+  assert.ok(Array.isArray(parsed));
+  assert.equal(parsed.length, 1);
+  assert.match(stderrOut.join(''), /more \(--limit/);
+});
+
+test('item list --json leaves stderr empty when nothing was withheld', async () => {
+  const { ctx, outText } = makeCtx([
+    { status: 200, body: { total_count: 1, results: [{ id: 'a', sequence_id: 1, name: 'x', state: UUID_STATE_PROGRESS }], next_page_results: false } },
+  ], { positionals: ['CYB'], mode: 'json' });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await list(ctx);
+
+  assert.equal(JSON.parse(outText()).length, 1);
+  assert.equal(stderrOut.join(''), '');
+});
+
+test('item list stamps itemsFetchedAt so the cache it writes is actually usable', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { total_count: 1, results: [{ id: 'item-uuid', sequence_id: 42, name: 'x', state: UUID_STATE_PROGRESS }], next_page_results: false } },
+  ], { positionals: ['CYB'] });
+  // Force the cold-cache state a real first run starts from — `projectBucket`
+  // defaults `itemsFetchedAt` to null (cache.mjs) — rather than relying on
+  // makeCtx's warmed stamp, which would make this indistinguishable from
+  // "the stamp was already fresh and list() never touched it".
+  ctx.cache.byProject[UUID_PROJECT].itemsFetchedAt = null;
+
+  await list(ctx);
+  assert.ok(ctx.cache.byProject[UUID_PROJECT].itemsFetchedAt, 'itemsFetchedAt must be stamped');
+
+  const callsBeforeResolve = calls.length;
+  const resolved = await ctx.resolver.item('CYB-42');
+  assert.equal(calls.length, callsBeforeResolve, 'resolver.item should hit the cache, not the network');
+  assert.equal(resolved.id, 'item-uuid');
+});
+
 test('item show resolves CYB-42 and fetches the full record', async () => {
   const { ctx, outText } = makeCtx([
     { status: 200, body: { results: [{ id: 'item-uuid', sequence_id: 42 }] } },
@@ -84,4 +134,31 @@ test('item show resolves CYB-42 and fetches the full record', async () => {
   ], { positionals: ['CYB-42'] });
   await show(ctx);
   assert.equal(JSON.parse(outText()).name, 'Fix auth');
+});
+
+test('item show <uuid> with --project resolves the project instead of building /projects/null/', async () => {
+  const { ctx, calls, outText } = makeCtx([
+    { status: 200, body: { id: RAW_ITEM_UUID, sequence_id: 42, name: 'Fix auth', state: UUID_STATE_PROGRESS } },
+  ], { positionals: [RAW_ITEM_UUID], values: { project: 'CYB' } });
+
+  await show(ctx);
+
+  const path = new URL(calls[0].url).pathname;
+  assert.equal(path, `/api/v1/workspaces/cybernetics/projects/${UUID_PROJECT}/issues/${RAW_ITEM_UUID}/`);
+  assert.doesNotMatch(path, /projects\/null/);
+  assert.equal(JSON.parse(outText()).name, 'Fix auth');
+});
+
+test('item show <uuid> with no project available fails with a clear hint, not a null-project request', async () => {
+  const { ctx, calls } = makeCtx([], { positionals: [RAW_ITEM_UUID] });
+
+  await assert.rejects(
+    () => show(ctx),
+    (err) => {
+      assert.equal(err.code, EXIT.GENERAL);
+      assert.match(err.message, /project/i);
+      return true;
+    },
+  );
+  assert.equal(calls.length, 0, 'must fail before sending any request');
 });
