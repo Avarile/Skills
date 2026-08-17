@@ -58,6 +58,38 @@ export const REGISTRY = {
       handler: item.list,
     },
     show: { summary: 'Show one work item', options: {}, handler: item.show },
+    create: {
+      summary: 'Create a work item',
+      options: {
+        name: { type: 'string' },
+        description: { type: 'string' },
+        state: { type: 'string' },
+        priority: { type: 'string' },
+        assignee: { type: 'string' },
+        label: { type: 'string' },
+        parent: { type: 'string' },
+        'target-date': { type: 'string' },
+        'start-date': { type: 'string' },
+      },
+      handler: item.create,
+    },
+    update: {
+      summary: 'Update a work item',
+      options: {
+        name: { type: 'string' },
+        description: { type: 'string' },
+        state: { type: 'string' },
+        priority: { type: 'string' },
+        assignee: { type: 'string' },
+        label: { type: 'string' },
+        'target-date': { type: 'string' },
+        'start-date': { type: 'string' },
+      },
+      handler: item.update,
+    },
+    move: { summary: 'Move a work item to a state', options: {}, handler: item.move },
+    assign: { summary: 'Assign a work item to a member', options: {}, handler: item.assign },
+    delete: { summary: 'Delete a work item (needs --yes)', options: {}, handler: item.remove },
   },
 };
 

@@ -2,6 +2,7 @@ import { emit, truncationNotice, renderTable } from '../format.mjs';
 import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 import { projectBucket } from '../cache.mjs';
+import { parseItemRef } from '../resolve.mjs';
 
 export const PRIORITIES = Object.freeze(['urgent', 'high', 'medium', 'low', 'none']);
 
@@ -125,15 +126,183 @@ async function resolveItemProjectId(ctx, item) {
   return project.id;
 }
 
-export async function show(ctx) {
-  const ref = ctx.positionals[0];
-  if (!ref) throw new CybError(EXIT.GENERAL, 'no work item given', 'example: cyb item show CYB-42');
+function itemRef(ctx, index = 0) {
+  const ref = ctx.positionals[index];
+  if (!ref) {
+    throw new CybError(EXIT.GENERAL, 'no work item given', 'example: cyb item show CYB-42');
+  }
+  return ref;
+}
 
-  const item = await ctx.resolver.item(ref);
-  const projectId = await resolveItemProjectId(ctx, item);
-  const { data } = await ctx.client.request(
-    'GET',
-    `${ctx.client.projectPath(projectId)}/issues/${item.id}/`,
+// A cached item UUID can be stale — the work item may have been deleted in the
+// web UI since we cached it. Resolve, act, and on a 404 drop the mapping and
+// retry exactly once against a freshly-resolved UUID. Every mutating command
+// (and `show`) routes through this so the spec's "a 404 against a cached UUID
+// triggers exactly one refresh-and-retry, then fails" holds everywhere a
+// cached item id is used, not just in the resolver primitives.
+export async function mutateItem(ctx, ref, act) {
+  return ctx.resolver.withRefresh(
+    async () => {
+      const item = await ctx.resolver.item(ref);
+      return act(item);
+    },
+    () => {
+      const parsed = parseItemRef(ref);
+      if (parsed) {
+        const project = ctx.cache.projects[parsed.identifier];
+        if (project) ctx.resolver.invalidate('item', project.id, parsed.sequence);
+      }
+    },
   );
+}
+
+export async function show(ctx) {
+  const ref = itemRef(ctx);
+  return mutateItem(ctx, ref, async (item) => {
+    const projectId = await resolveItemProjectId(ctx, item);
+    const { data } = await ctx.client.request(
+      'GET',
+      `${ctx.client.projectPath(projectId)}/issues/${item.id}/`,
+    );
+    emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    return data;
+  });
+}
+
+export async function buildItemBody(ctx, { project }) {
+  const body = {};
+
+  if (ctx.values.name) body.name = ctx.values.name;
+  if (ctx.values.description) body.description_html = `<p>${ctx.values.description}</p>`;
+
+  const priority = validatePriority(ctx.values.priority);
+  if (priority !== undefined) body.priority = priority;
+
+  if (ctx.values.state) body.state = await ctx.resolver.state(project.id, ctx.values.state);
+
+  if (ctx.values.assignee) {
+    body.assignees = [await ctx.resolver.member(ctx.values.assignee)];
+  }
+  if (ctx.values.label) {
+    body.labels = [await ctx.resolver.label(project.id, ctx.values.label)];
+  }
+  if (ctx.values.parent) {
+    body.parent = (await ctx.resolver.item(ctx.values.parent)).id;
+  }
+  if (ctx.values['target-date']) body.target_date = ctx.values['target-date'];
+  if (ctx.values['start-date']) body.start_date = ctx.values['start-date'];
+
+  return body;
+}
+
+export async function create(ctx) {
+  const project = await ctx.resolver.project(projectRef(ctx));
+
+  if (!ctx.values.name) {
+    throw new CybError(
+      EXIT.GENERAL,
+      'work item needs a name',
+      'pass --name, e.g. cyb item create CYB --name "Fix auth"',
+    );
+  }
+  validatePriority(ctx.values.priority);
+
+  const body = await buildItemBody(ctx, { project });
+  const { data } = await ctx.client.request(
+    'POST',
+    `${ctx.client.projectPath(project.id)}/issues/`,
+    { body },
+  );
+
+  const bucket = projectBucket(ctx.cache, project.id);
+  bucket.items[data.sequence_id] = data.id;
+  ctx.save();
+
   emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
+}
+
+export async function update(ctx) {
+  const ref = itemRef(ctx);
+  return mutateItem(ctx, ref, async (item) => {
+    const projectId = await resolveItemProjectId(ctx, item);
+    const body = await buildItemBody(ctx, { project: { id: projectId } });
+    if (!Object.keys(body).length) {
+      throw new CybError(
+        EXIT.GENERAL,
+        'nothing to update',
+        'pass at least one of --name --state --priority --assignee --label --description',
+      );
+    }
+
+    const { data } = await ctx.client.request(
+      'PATCH',
+      `${ctx.client.projectPath(projectId)}/issues/${item.id}/`,
+      { body },
+    );
+    emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    return data;
+  });
+}
+
+export async function move(ctx) {
+  const stateName = ctx.positionals[1];
+  if (!stateName) {
+    throw new CybError(
+      EXIT.GENERAL,
+      'no target state given',
+      'example: cyb item move CYB-42 "In Progress"',
+    );
+  }
+  const ref = itemRef(ctx);
+  return mutateItem(ctx, ref, async (item) => {
+    const projectId = await resolveItemProjectId(ctx, item);
+    const state = await ctx.resolver.state(projectId, stateName);
+
+    const { data } = await ctx.client.request(
+      'PATCH',
+      `${ctx.client.projectPath(projectId)}/issues/${item.id}/`,
+      { body: { state } },
+    );
+    emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    return data;
+  });
+}
+
+export async function assign(ctx) {
+  const who = ctx.positionals[1];
+  if (!who) {
+    throw new CybError(EXIT.GENERAL, 'no assignee given', 'example: cyb item assign CYB-42 avarile');
+  }
+  const ref = itemRef(ctx);
+  return mutateItem(ctx, ref, async (item) => {
+    const projectId = await resolveItemProjectId(ctx, item);
+    const member = await ctx.resolver.member(who);
+
+    const { data } = await ctx.client.request(
+      'PATCH',
+      `${ctx.client.projectPath(projectId)}/issues/${item.id}/`,
+      { body: { assignees: [member] } },
+    );
+    emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    return data;
+  });
+}
+
+export async function remove(ctx) {
+  const ref = itemRef(ctx);
+  return mutateItem(ctx, ref, async (item) => {
+    const projectId = await resolveItemProjectId(ctx, item);
+    requireConfirmation(ctx, { action: 'delete work item', targets: [ref] });
+
+    await ctx.client.request(
+      'DELETE',
+      `${ctx.client.projectPath(projectId)}/issues/${item.id}/`,
+    );
+
+    const bucket = projectBucket(ctx.cache, projectId);
+    delete bucket.items[item.sequence_id];
+    ctx.save();
+
+    emit({ deleted: ref }, { mode: ctx.mode, stdout: ctx.streams.stdout });
+  });
 }
