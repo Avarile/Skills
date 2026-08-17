@@ -69,13 +69,22 @@ export async function list(ctx) {
   if (ctx.values.assignee) query.assignees = await ctx.resolver.member(ctx.values.assignee);
 
   const path = `${ctx.client.projectPath(project.id)}/issues/`;
-  const { data } = await ctx.client.request('GET', path, {
-    query: { ...query, per_page: limit },
+  // Page up to `limit` rather than sending it as a single `per_page` — the
+  // client's own paginate() clamps each request to PAGE_CEILING, so a
+  // single request can silently return fewer rows than --limit asked for
+  // even when more exist. Paging costs more requests for a large --limit,
+  // but it's the only way the result can actually reach it (Important 7).
+  let total = null;
+  const raw = [];
+  for await (const item of ctx.client.paginate(path, {
+    query,
     fields: ctx.values.full ? undefined : LIST_FIELDS,
-  });
-
-  const raw = data?.results ?? [];
-  const total = data?.total_count ?? raw.length;
+    limit,
+    onPage: (data) => { if (data?.total_count !== undefined) total = data.total_count; },
+  })) {
+    raw.push(item);
+  }
+  total = total ?? raw.length;
 
   const bucket = projectBucket(ctx.cache, project.id);
   for (const item of raw) bucket.items[item.sequence_id] = item.id;

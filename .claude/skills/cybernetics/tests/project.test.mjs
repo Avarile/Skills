@@ -48,6 +48,25 @@ test('project list reports an empty workspace without crashing', async () => {
   assert.match(outText(), /no results/);
 });
 
+// Important 1: `project list` sent no per_page and emitted no notice, so
+// --limit was silently ignored and a truncated response looked complete —
+// unlike `item list`, which already has both. Give it the same three
+// things: per_page from limitOf, a total_count comparison, and the shared
+// notice channel.
+test('project list passes --limit as per_page and reports what was withheld', async () => {
+  const { ctx, calls, outText } = makeCtx([
+    { status: 200, body: { total_count: 250, results: [{ id: UUID_A, identifier: 'CYB', name: 'Core' }] } },
+  ], { values: { limit: 5 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await list(ctx);
+
+  assert.equal(new URL(calls[0].url).searchParams.get('per_page'), '5');
+  assert.equal(JSON.parse(outText()).length, 1);
+  assert.match(stderrOut.join(''), /249 more \(--limit 250\)/);
+});
+
 test('project show resolves an identifier then fetches the record', async () => {
   const { ctx, outText } = makeCtx([
     { status: 200, body: { results: [{ id: UUID_A, identifier: 'CYB', name: 'Core' }] } },

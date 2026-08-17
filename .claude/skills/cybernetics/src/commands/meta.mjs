@@ -1,5 +1,5 @@
-import { emit } from '../format.mjs';
-import { projectRef } from './item.mjs';
+import { emit, truncationNotice, emitNotice } from '../format.mjs';
+import { projectRef, limitOf } from './item.mjs';
 import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 
@@ -21,6 +21,13 @@ export const MEMBER_COLUMNS = [
   { key: 'id', label: 'ID' },
 ];
 
+// Not bounded by --limit (Important 1): `statesFor` caches and hands back
+// the *complete* state list, and other resolution — `resolver.state()`'s
+// name matching, its "valid: ..." not-found hint — depends on that list
+// being the whole set, not a page of it. There is no server-side total to
+// compare against here either; the resolver treats whatever it fetched as
+// authoritative. A real work-management project's states are also a small,
+// bounded set in practice, unlike labels/items/members.
 export async function stateList(ctx) {
   const project = await ctx.resolver.project(projectRef(ctx));
   const states = await ctx.resolver.statesFor(project.id);
@@ -29,10 +36,18 @@ export async function stateList(ctx) {
 
 export async function labelList(ctx) {
   const project = await ctx.resolver.project(projectRef(ctx));
+  const limit = limitOf(ctx);
   const { data } = await ctx.client.request('GET', `${ctx.client.projectPath(project.id)}/labels/`, {
+    query: { per_page: limit },
     fields: ctx.values.full ? undefined : ['id', 'name', 'color'],
   });
-  emit(data?.results ?? [], { mode: ctx.mode, columns: LABEL_COLUMNS, stdout: ctx.streams.stdout });
+  const rows = data?.results ?? [];
+  const total = data?.total_count ?? rows.length;
+
+  emit(rows, { mode: ctx.mode, columns: LABEL_COLUMNS, stdout: ctx.streams.stdout });
+  emitNotice(truncationNotice(rows.length, total, limit), {
+    mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr,
+  });
 }
 
 export async function labelCreate(ctx) {
@@ -94,7 +109,15 @@ export async function labelRemove(ctx) {
 }
 
 export async function memberList(ctx) {
-  const { data } = await ctx.client.request('GET', `${ctx.client.wsPath}/members/`);
+  const limit = limitOf(ctx);
+  const { data } = await ctx.client.request('GET', `${ctx.client.wsPath}/members/`, {
+    query: { per_page: limit },
+  });
   const members = data?.results ?? data ?? [];
+  const total = data?.total_count ?? members.length;
+
   emit(members, { mode: ctx.mode, columns: MEMBER_COLUMNS, stdout: ctx.streams.stdout });
+  emitNotice(truncationNotice(members.length, total, limit), {
+    mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr,
+  });
 }

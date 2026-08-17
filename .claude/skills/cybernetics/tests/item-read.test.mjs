@@ -108,6 +108,39 @@ test('item list --json leaves stderr empty when nothing was withheld', async () 
   assert.equal(stderrOut.join(''), '');
 });
 
+// Important 7: `list` used to send `per_page: limit` straight through,
+// unclamped, so `--limit 250` sent per_page=250, got back only
+// PAGE_CEILING (100) rows from the server, and the truncation notice then
+// recommended `--limit 250` again — advice that can never succeed. Routing
+// through paginate() means a --limit above the ceiling costs more requests
+// but is actually reachable.
+test('item list pages past the per-request ceiling to reach a --limit above it', async () => {
+  const page = (n, cursor, hasNext) => ({
+    status: 200,
+    body: {
+      total_count: 250,
+      results: Array.from({ length: 100 }, (_, i) => ({
+        id: `i${n}-${i}`, sequence_id: n * 100 + i, name: `x${n}-${i}`, state: UUID_STATE_PROGRESS,
+      })),
+      next_page_results: hasNext,
+      next_cursor: hasNext ? cursor : undefined,
+    },
+  });
+  const { ctx, calls, outText } = makeCtx([
+    page(0, 'c1', true),
+    page(1, 'c2', true),
+    { status: 200, body: { total_count: 250, results: [{ id: 'i2-0', sequence_id: 200, name: 'x', state: UUID_STATE_PROGRESS }], next_page_results: false } },
+  ], { positionals: ['CYB'], values: { limit: 250 } });
+
+  await list(ctx);
+
+  assert.equal(calls.length, 3, 'reached the requested limit by paging, not by one oversized request');
+  for (const call of calls) {
+    assert.ok(Number(new URL(call.url).searchParams.get('per_page')) <= 100, 'no single request exceeds the page ceiling');
+  }
+  assert.equal(JSON.parse(outText()).length, 201);
+});
+
 test('item list stamps itemsFetchedAt so the cache it writes is actually usable', async () => {
   const { ctx, calls } = makeCtx([
     { status: 200, body: { total_count: 1, results: [{ id: 'item-uuid', sequence_id: 42, name: 'x', state: UUID_STATE_PROGRESS }], next_page_results: false } },

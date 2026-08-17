@@ -4,6 +4,14 @@ const MAX_ATTEMPTS = 3;
 const BACKOFF_MS = [500, 1000, 2000];
 const LOW_BUDGET = 5;
 
+// The page size this API actually honours per request. `paginate` already
+// clamps to it; anything that fetches a single page directly (item.mjs's
+// `list`, composite.mjs's `board`) must clamp to the same value instead of
+// passing --limit straight through, or it ends up sending a per_page the
+// server can't satisfy and then recommending that same unusable value back
+// in a truncation notice (Important 7).
+export const PAGE_CEILING = 100;
+
 const defaultSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class Client {
@@ -137,16 +145,17 @@ export class Client {
     throw lastError;
   }
 
-  async *paginate(path, { query = {}, fields, limit = Infinity } = {}) {
+  async *paginate(path, { query = {}, fields, limit = Infinity, onPage } = {}) {
     let cursor = null;
     let yielded = 0;
 
     while (yielded < limit) {
-      const perPage = Math.max(1, Math.min(100, limit - yielded));
+      const perPage = Math.max(1, Math.min(PAGE_CEILING, limit - yielded));
       const pageQuery = { ...query, per_page: perPage };
       if (cursor) pageQuery.cursor = cursor;
 
       const { data } = await this.request('GET', path, { query: pageQuery, fields });
+      onPage?.(data);
       const results = data?.results ?? [];
 
       if (results.length === 0) return;

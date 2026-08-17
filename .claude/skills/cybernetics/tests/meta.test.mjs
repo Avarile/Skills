@@ -20,6 +20,20 @@ test('label list emits labels', async () => {
   assert.equal(JSON.parse(outText())[0].name, 'bug');
 });
 
+// Important 1: labelList sent no per_page and emitted no notice.
+test('label list passes --limit as per_page and reports what was withheld', async () => {
+  const { ctx, calls, outText } = makeCtx([
+    { status: 200, body: { total_count: 40, results: [{ id: 'l1', name: 'bug', color: '#f00' }] } },
+  ], { positionals: ['CYB'], values: { limit: 5 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await labelList(ctx);
+
+  assert.equal(new URL(calls[0].url).searchParams.get('per_page'), '5');
+  assert.match(stderrOut.join(''), /39 more \(--limit 40\)/);
+});
+
 test('label create posts name and colour', async () => {
   const { ctx, calls } = makeCtx([
     { status: 201, body: { id: 'l1', name: 'bug', color: '#ff0000' } },
@@ -97,4 +111,18 @@ test('member list never emits raw emails in table mode', async () => {
   await memberList(ctx);
   assert.match(outText(), /avarile/);
   assert.doesNotMatch(outText(), /a@b\.c/);
+});
+
+// Important 1: memberList sent no per_page and emitted no notice.
+test('member list passes --limit as per_page and reports what was withheld', async () => {
+  const { ctx, calls, outText } = makeCtx([
+    { status: 200, body: { total_count: 40, results: [{ id: 'm1', display_name: 'avarile', role: 20 }] } },
+  ], { values: { limit: 5 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await memberList(ctx);
+
+  assert.equal(new URL(calls[0].url).searchParams.get('per_page'), '5');
+  assert.match(stderrOut.join(''), /39 more \(--limit 40\)/);
 });

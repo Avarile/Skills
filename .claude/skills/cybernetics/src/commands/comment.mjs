@@ -1,7 +1,7 @@
-import { emit } from '../format.mjs';
+import { emit, truncationNotice, emitNotice } from '../format.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 import { escapeHtml } from '../html.mjs';
-import { resolveItemProjectId } from './item.mjs';
+import { resolveItemProjectId, limitOf } from './item.mjs';
 
 export const COMMENT_COLUMNS = [
   { key: 'created_at', label: 'WHEN' },
@@ -21,16 +21,23 @@ function itemRef(ctx) {
 export async function commentList(ctx) {
   const item = await ctx.resolver.item(itemRef(ctx));
   const projectId = await resolveItemProjectId(ctx, item);
+  const limit = limitOf(ctx);
   const { data } = await ctx.client.request(
     'GET',
     `${ctx.client.projectPath(projectId)}/issues/${item.id}/comments/`,
+    { query: { per_page: limit } },
   );
-  const rows = (data?.results ?? []).map((c) => ({
+  const raw = data?.results ?? [];
+  const total = data?.total_count ?? raw.length;
+  const rows = raw.map((c) => ({
     id: c.id,
     created_at: c.created_at,
     text: stripHtml(c.comment_html),
   }));
   emit(rows, { mode: ctx.mode, columns: COMMENT_COLUMNS, stdout: ctx.streams.stdout });
+  emitNotice(truncationNotice(rows.length, total, limit), {
+    mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr,
+  });
 }
 
 export async function commentAdd(ctx) {

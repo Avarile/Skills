@@ -61,7 +61,20 @@ test('board emits a truncation notice on stderr when the project has more items 
   assert.equal(calls.length, 1);
   const report = JSON.parse(outText());
   assert.equal(report.Backlog.length, 1);
-  assert.match(stderrOut.join(''), /more \(--limit/);
+  // Important 7: board's own --limit can never widen its single-page fetch
+  // past the client's page ceiling, so the notice must not recommend
+  // `--limit <total>` on board itself (that advice could never succeed) —
+  // it must point at `item list`, which actually pages.
+  assert.match(stderrOut.join(''), /3 more/);
+  assert.match(stderrOut.join(''), /item list CYB --limit 5/);
+});
+
+test('board clamps its fetch to the page ceiling regardless of --limit', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { total_count: 2, results: [], next_page_results: false } },
+  ], { positionals: ['CYB'], values: { limit: 250 } });
+  await board(ctx);
+  assert.equal(new URL(calls[0].url).searchParams.get('per_page'), '100');
 });
 
 test('my filters to items assigned to the current user', async () => {
@@ -127,6 +140,37 @@ test('my caps project fan-out at MY_PROJECT_SCAN_CAP and reports the skipped pro
   assert.match(stderrOut.join(''), /5 more projects not scanned/);
 });
 
+// Important 2: `my` only ever noticed a project-scan-cap shortfall, so
+// simply hitting --limit on rows — the common case — produced exactly
+// `limit` rows with no notice, indistinguishable from "that's everything
+// assigned to me".
+test('my emits a truncation notice when a single project alone exceeds --limit', async () => {
+  const project = { id: 'p0', identifier: 'P0', name: 'Proj 0' };
+  const { ctx, outText } = makeCtx([
+    { status: 200, body: { id: 'me-uuid', display_name: 'avarile' } },
+    { status: 200, body: { total_count: 1, results: [project] } },
+    {
+      status: 200,
+      body: {
+        // The fake per_page isn't enforced by makeFakeFetch, so a single
+        // project can hand back more than --limit assigned rows in one
+        // response — exactly the shape that used to slip through silently.
+        results: Array.from({ length: 5 }, (_, i) => ({
+          id: `i${i}`, sequence_id: i, name: `mine ${i}`, state: UUID_STATE_BACKLOG, assignees: ['me-uuid'],
+        })),
+        next_page_results: false,
+      },
+    },
+  ], { positionals: [], warmCache: false, values: { limit: 2 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await my(ctx);
+
+  assert.equal(JSON.parse(outText()).length, 2);
+  assert.match(stderrOut.join(''), /3 more \(--limit 5\)/);
+});
+
 test('my stays silent about project count when the workspace is within the scan cap', async () => {
   const projects = Array.from({ length: 3 }, (_, i) => ({ id: `p${i}`, identifier: `P${i}`, name: `Proj ${i}` }));
   const responses = [
@@ -143,6 +187,34 @@ test('my stays silent about project count when the workspace is within the scan 
   assert.equal(calls.length, 2 + 3);
   assert.equal(JSON.parse(outText()).length, 0);
   assert.equal(stderrOut.join(''), '');
+});
+
+// Important 2: `search` used to break out of its scan the instant it had
+// `limit` matches, so hitting the row limit looked identical to "that's
+// every match" — no notice, ever, for what is the common case (the scan-cap
+// notice only ever covered a much rarer situation). It must keep scanning
+// the already-fetched data to learn the true match count even once enough
+// rows have been collected to show.
+test('search stops collecting at --limit but keeps scanning for a true match count', async () => {
+  const { ctx, outText } = makeCtx([
+    {
+      status: 200,
+      body: {
+        results: Array.from({ length: 10 }, (_, i) => ({
+          id: `i${i}`, sequence_id: i, name: `auth item ${i}`, state: UUID_STATE_BACKLOG,
+        })),
+        next_page_results: false,
+      },
+    },
+  ], { positionals: ['auth'], values: { project: 'CYB', limit: 3 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await search(ctx);
+
+  const rows = JSON.parse(outText());
+  assert.equal(rows.length, 3);
+  assert.match(stderrOut.join(''), /7 more \(--limit 10\)/);
 });
 
 test('search matches names case-insensitively', async () => {

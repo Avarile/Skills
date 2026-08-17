@@ -16,6 +16,21 @@ test('comment list fetches the comments for a resolved item', async () => {
   assert.equal(JSON.parse(outText()).length, 1);
 });
 
+// Important 1: commentList sent no per_page and emitted no notice.
+test('comment list passes --limit as per_page and reports what was withheld', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { results: [{ id: 'item-uuid', sequence_id: 42 }] } },
+    { status: 200, body: { total_count: 40, results: [{ id: 'c1', comment_html: '<p>hi</p>', created_at: 't' }] } },
+  ], { positionals: ['CYB-42'], values: { limit: 5 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await commentList(ctx);
+
+  assert.equal(new URL(calls.at(-1).url).searchParams.get('per_page'), '5');
+  assert.match(stderrOut.join(''), /39 more \(--limit 40\)/);
+});
+
 test('comment add posts comment_html wrapped from plain text', async () => {
   const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'item-uuid', sequence_id: 42 }] } },

@@ -17,6 +17,21 @@ test('cycle list emits cycles', async () => {
   assert.equal(JSON.parse(outText())[0].name, 'Sprint 1');
 });
 
+// Important 1: cycleList (via collectionList) sent no per_page and emitted
+// no notice.
+test('cycle list passes --limit as per_page and reports what was withheld', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { total_count: 40, results: [{ id: 'c1', name: 'Sprint 1' }] } },
+  ], { positionals: ['CYB'], values: { limit: 5 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await cycleList(ctx);
+
+  assert.equal(new URL(calls[0].url).searchParams.get('per_page'), '5');
+  assert.match(stderrOut.join(''), /39 more \(--limit 40\)/);
+});
+
 test('cycle create posts name with start and end dates', async () => {
   const { ctx, calls } = makeCtx([
     { status: 201, body: { id: 'c1', name: 'Sprint 1' } },
@@ -91,6 +106,19 @@ test('module list emits modules', async () => {
   ], { positionals: ['CYB'] });
   await moduleList(ctx);
   assert.equal(JSON.parse(outText())[0].name, 'Auth');
+});
+
+test('module list passes --limit as per_page and reports what was withheld', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { total_count: 40, results: [{ id: 'm1', name: 'Auth' }] } },
+  ], { positionals: ['CYB'], values: { limit: 5 } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await moduleList(ctx);
+
+  assert.equal(new URL(calls[0].url).searchParams.get('per_page'), '5');
+  assert.match(stderrOut.join(''), /39 more \(--limit 40\)/);
 });
 
 test('module create posts a name', async () => {

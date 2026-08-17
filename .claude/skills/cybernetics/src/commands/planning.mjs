@@ -1,5 +1,5 @@
-import { emit } from '../format.mjs';
-import { projectRef, resolveItemProjectId } from './item.mjs';
+import { emit, truncationNotice, emitNotice } from '../format.mjs';
+import { projectRef, resolveItemProjectId, limitOf } from './item.mjs';
 import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 
@@ -12,8 +12,13 @@ export const PLANNING_COLUMNS = [
 
 async function collectionList(ctx, kind) {
   const project = await ctx.resolver.project(projectRef(ctx));
-  const { data } = await ctx.client.request('GET', `${ctx.client.projectPath(project.id)}/${kind}/`);
-  return { project, rows: data?.results ?? [] };
+  const limit = limitOf(ctx);
+  const { data } = await ctx.client.request('GET', `${ctx.client.projectPath(project.id)}/${kind}/`, {
+    query: { per_page: limit },
+  });
+  const rows = data?.results ?? [];
+  const total = data?.total_count ?? rows.length;
+  return { project, rows, total, limit };
 }
 
 async function findByName(ctx, projectId, kind, name) {
@@ -33,8 +38,11 @@ async function findByName(ctx, projectId, kind, name) {
 }
 
 export async function cycleList(ctx) {
-  const { rows } = await collectionList(ctx, 'cycles');
+  const { rows, total, limit } = await collectionList(ctx, 'cycles');
   emit(rows, { mode: ctx.mode, columns: PLANNING_COLUMNS, stdout: ctx.streams.stdout });
+  emitNotice(truncationNotice(rows.length, total, limit), {
+    mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr,
+  });
 }
 
 export async function cycleCreate(ctx) {
@@ -101,8 +109,11 @@ export async function cycleRemove(ctx) {
 }
 
 export async function moduleList(ctx) {
-  const { rows } = await collectionList(ctx, 'modules');
+  const { rows, total, limit } = await collectionList(ctx, 'modules');
   emit(rows, { mode: ctx.mode, columns: PLANNING_COLUMNS, stdout: ctx.streams.stdout });
+  emitNotice(truncationNotice(rows.length, total, limit), {
+    mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr,
+  });
 }
 
 export async function moduleCreate(ctx) {

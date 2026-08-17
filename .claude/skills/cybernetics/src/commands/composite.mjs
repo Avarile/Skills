@@ -6,6 +6,7 @@
 import { emit, renderTable, truncationNotice, emitNotice } from '../format.mjs';
 import { decorate, LIST_FIELDS, ITEM_COLUMNS, projectRef, limitOf } from './item.mjs';
 import { CybError, EXIT } from '../errors.mjs';
+import { PAGE_CEILING } from '../client.mjs';
 
 const GROUP_ORDER = ['backlog', 'unstarted', 'started', 'completed', 'cancelled'];
 
@@ -50,23 +51,29 @@ export function groupByState(rows, states) {
 export async function board(ctx) {
   const project = await ctx.resolver.project(projectRef(ctx));
   const states = await ctx.resolver.statesFor(project.id);
-  const limit = limitOf(ctx);
-  const perPage = Math.max(limit, 100);
+  // Validated even though board's single-page fetch below doesn't size
+  // itself off it (see PAGE_CEILING note) — a garbage --limit should still
+  // be rejected here rather than silently ignored.
+  limitOf(ctx);
 
-  // One request for the entire project. This is the whole point of `board`:
-  // an agent asking "what's the state of this project?" pays once, not once
-  // per state and not once per item. That single-page fetch can still fall
-  // short of the project's real size, though — same tradeoff `item.list()`
-  // already makes for the same endpoint — so the incompleteness has to be
-  // surfaced the same way `list()` does rather than silently dropped.
+  // One request for the entire project, capped at PAGE_CEILING — the actual
+  // ceiling the client enforces elsewhere (client.mjs's paginate). Sending
+  // more than that used to buy nothing (the server still only returns
+  // PAGE_CEILING rows) while making the notice below recommend a --limit
+  // board can never satisfy (Important 7). board stays single-page by
+  // design — see the module comment — so a project bigger than the ceiling
+  // needs `item list`, which pages; the notice says so.
   const { data } = await ctx.client.request('GET', `${ctx.client.projectPath(project.id)}/issues/`, {
-    query: { per_page: perPage },
+    query: { per_page: PAGE_CEILING },
     fields: LIST_FIELDS,
   });
 
   const raw = data?.results ?? [];
   const total = data?.total_count ?? raw.length;
-  const notice = truncationNotice(raw.length, total, perPage);
+  const notice = total > raw.length
+    ? `… ${total - raw.length} more — board shows a single page of up to ${PAGE_CEILING}; ` +
+      `run: cyb item list ${project.identifier ?? project.id} --limit ${total} to see the rest`
+    : null;
   const grouped = groupByState(raw, states);
 
   const decorated = {};
@@ -140,9 +147,17 @@ export async function my(ctx) {
   }
 
   const trimmed = rows.slice(0, limit);
-  const notice = skipped > 0
-    ? `… ${skipped} more project${skipped === 1 ? '' : 's'} not scanned (project cap ${MY_PROJECT_SCAN_CAP})`
+  // Important 2: the old notice only ever fired on the project-scan cap, so
+  // simply reaching --limit — the far more common case — was silent. Reuse
+  // truncationNotice (same convention as item list/board) for that case, and
+  // combine it with the project-cap notice rather than one replacing the
+  // other; either, both, or neither can apply independently.
+  const rowNotice = rows.length > limit ? truncationNotice(trimmed.length, rows.length, limit) : null;
+  const skipNotice = skipped > 0
+    ? `${skipped} more project${skipped === 1 ? '' : 's'} not scanned (project cap ${MY_PROJECT_SCAN_CAP})`
     : null;
+  const parts = [rowNotice, skipNotice].filter(Boolean).map((p) => p.replace(/^…\s*/, ''));
+  const notice = parts.length ? `… ${parts.join('; ')}` : null;
 
   if (ctx.mode === 'json') {
     emit(trimmed, { mode: ctx.mode, stdout: ctx.streams.stdout });
@@ -188,24 +203,36 @@ export async function search(ctx) {
   // before that extra item is ever requested, so `scanned` stays at or below
   // the cap — the "fully scanned, nothing left" case is distinguishable from
   // "cap hit, more left unscanned" instead of both looking identical.
+  // Important 2: stop *collecting* once `matches` reaches `limit`, but keep
+  // scanning (up to the cap) so `matchCount` — the true number found — stays
+  // accurate. The old code broke out of the loop the moment it had `limit`
+  // rows, which was cheaper but meant hitting --limit was indistinguishable
+  // from "that's every match" — the far more common case than the scan cap
+  // below, and the one with no notice at all.
   let scanned = 0;
+  let matchCount = 0;
   const matches = [];
   for await (const item of ctx.client.paginate(`${ctx.client.projectPath(project.id)}/issues/`, {
     fields: LIST_FIELDS,
     limit: SEARCH_SCAN_CAP + 1,
   })) {
     scanned++;
-    if (String(item.name).toLowerCase().includes(needle)) matches.push(item);
-    if (matches.length >= limit) break;
+    if (String(item.name).toLowerCase().includes(needle)) {
+      matchCount++;
+      if (matches.length < limit) matches.push(item);
+    }
   }
 
   const rows = decorate(matches, { project, states });
   // `scanned` can only exceed the cap if the extra (cap + 1)th item was
   // actually fetched, which only happens when the project has more left
   // after the cap — a project that ends exactly at the cap never reaches it.
-  const notice = scanned > SEARCH_SCAN_CAP
-    ? `… scan cap of ${SEARCH_SCAN_CAP} items reached before the project was fully scanned`
+  const rowNotice = matchCount > rows.length ? truncationNotice(rows.length, matchCount, limit) : null;
+  const capNotice = scanned > SEARCH_SCAN_CAP
+    ? `scan cap of ${SEARCH_SCAN_CAP} items reached before the project was fully scanned`
     : null;
+  const parts = [rowNotice, capNotice].filter(Boolean).map((p) => p.replace(/^…\s*/, ''));
+  const notice = parts.length ? `… ${parts.join('; ')}` : null;
 
   if (ctx.mode === 'json') {
     emit(rows, { mode: ctx.mode, stdout: ctx.streams.stdout });

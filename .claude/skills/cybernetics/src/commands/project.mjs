@@ -1,6 +1,7 @@
-import { emit } from '../format.mjs';
+import { emit, truncationNotice, emitNotice } from '../format.mjs';
 import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
+import { limitOf } from './item.mjs';
 
 export const PROJECT_COLUMNS = [
   { key: 'identifier', label: 'KEY' },
@@ -19,11 +20,18 @@ function requiredProject(ctx) {
 }
 
 export async function list(ctx) {
+  const limit = limitOf(ctx);
   const { data } = await ctx.client.request('GET', `${ctx.client.wsPath}/projects/`, {
+    query: { per_page: limit },
     fields: ctx.values.full ? undefined : ['id', 'identifier', 'name'],
   });
   const rows = data?.results ?? [];
+  const total = data?.total_count ?? rows.length;
+
   emit(rows, { mode: ctx.mode, columns: PROJECT_COLUMNS, stdout: ctx.streams.stdout });
+  emitNotice(truncationNotice(rows.length, total, limit), {
+    mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr,
+  });
 }
 
 export async function show(ctx) {
