@@ -1206,3 +1206,15 @@ This step is not optional. The repository is public.
 - `SKILL.md` is under 6KB, has valid two-field frontmatter, and is discoverable by Claude Code.
 - No tracked file contains an API token.
 - The design-time token has been rotated.
+
+## Post-implementation amendments
+
+| Task | Defect found in review | Commit |
+|---|---|---|
+| pre-flight | the completer test set a bucket-wide `fetchedAt`, renamed to per-region keys in Phase 1 | plan amended |
+| 16 | required pre-work added from Phase 2's review: `dispatch` seam, `positionals` metadata, completer warm-up decision | plan amended, `b550731` |
+| — | `cyb <group> --help` failed for the 9 groups without a `__default` (pre-existing since Phase 1) | `780c0a2` |
+| 17 | `references/api-surface.md` claimed the CLI sends `?fields=` on every list/read call; five paths do not | `449f1db` |
+| 18 | cleanup failures were invisible, so a failed delete left a project on the live instance while tests reported PASS; test 3 never asserted creation succeeded | `a06ae00` |
+| final | `cyb ui --json` exited 0 with prose and no data — the only undetectable "success" on the surface; README contradicted itself about the integration suite; ambiguous-name detection was silently unimplemented (spec line 173) | `03f643f`, `1e8c8e6`, `85fb456` |
+| final | the ambiguity hint promised "pass the UUID to disambiguate", which did not work — `state`/`label`/`member` lacked the UUID short-circuit `project`/`item` already had | `c39a959` |
