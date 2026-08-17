@@ -831,6 +831,10 @@ export class Client {
       const { data } = await this.request('GET', path, { query: pageQuery, fields });
       const results = data?.results ?? [];
 
+      // No forward progress is possible from an empty page, whatever
+      // next_page_results claims. Without this, limit=Infinity spins forever.
+      if (results.length === 0) return;
+
       for (const item of results) {
         if (yielded >= limit) return;
         yield item;
@@ -838,6 +842,8 @@ export class Client {
       }
 
       if (!data?.next_page_results || !data?.next_cursor) return;
+      // A repeated cursor means the server is not advancing; stop rather than refetch.
+      if (data.next_cursor === cursor) return;
       cursor = data.next_cursor;
     }
   }
