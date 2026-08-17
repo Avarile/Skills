@@ -1,14 +1,19 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { main } from '../../src/cli.mjs';
+import { EXIT } from '../../src/errors.mjs';
+import { captureStreams } from '../helpers/capture-streams.mjs';
 
 const ENABLED = Boolean(process.env.CYB_TOKEN) && process.env.CYB_RUN_INTEGRATION === '1';
 const IDENTIFIER = 'ZZITEST';
 
-const scratch = mkdtempSync(join(tmpdir(), 'cyb-int-'));
+// Only created when the live suite can actually run: an offline run (the
+// common case, including CI without CYB_TOKEN) must not touch the real
+// filesystem at all.
+const scratch = ENABLED ? mkdtempSync(join(tmpdir(), 'cyb-int-')) : null;
 const deps = () => ({
   env: { CYB_TOKEN: process.env.CYB_TOKEN },
   cwd: scratch,
@@ -16,25 +21,26 @@ const deps = () => ({
   cachePath: join(scratch, 'cache.json'),
 });
 
-function capture() {
-  const out = [];
-  const err = [];
-  return {
-    stdout: { write: (s) => out.push(s), isTTY: false },
-    stderr: { write: (s) => err.push(s) },
-    outText: () => out.join(''),
-    errText: () => err.join(''),
-  };
-}
-
 async function run(argv) {
-  const streams = capture();
+  const streams = captureStreams();
   const code = await main([...argv, '--json'], { ...deps(), streams });
   return { code, out: streams.outText(), err: streams.errText() };
 }
 
+// main() always resolves to an exit code (it never rejects), so cleanup()
+// can't swallow a failure by accident here. What it must not swallow is a
+// *non-zero* exit: a delete that failed for a real reason (429, 500, auth)
+// still leaves the scratch project on the live workspace, and the tests
+// would report PASS regardless. 0 (deleted) and 3 (not found, i.e. already
+// gone) are the only acceptable outcomes; anything else gets surfaced.
 async function cleanup() {
-  await run(['project', 'delete', IDENTIFIER, '--yes']).catch(() => {});
+  const { code, err } = await run(['project', 'delete', IDENTIFIER, '--yes']);
+  if (code !== EXIT.OK && code !== EXIT.NOT_FOUND) {
+    console.error(
+      `[live.test] WARNING: cleanup of scratch project ${IDENTIFIER} exited with code ${code} ` +
+        `(expected ${EXIT.OK} or ${EXIT.NOT_FOUND}); it may still exist on the live workspace. stderr: ${err}`,
+    );
+  }
 }
 
 before(async () => {
@@ -45,6 +51,7 @@ before(async () => {
 after(async () => {
   if (!ENABLED) return;
   await cleanup();
+  rmSync(scratch, { recursive: true, force: true });
 });
 
 test('doctor authenticates against the live instance', { skip: !ENABLED }, async () => {
@@ -104,7 +111,8 @@ test('full work item lifecycle against the live instance', { skip: !ENABLED }, a
 
 test('an unresolvable state name fails with exit 3 and lists valid states', { skip: !ENABLED }, async () => {
   try {
-    await run(['project', 'create', '--name', 'ZZ Integration Test', '--identifier', IDENTIFIER]);
+    const created = await run(['project', 'create', '--name', 'ZZ Integration Test', '--identifier', IDENTIFIER]);
+    assert.equal(created.code, 0);
     const bad = await run(['item', 'create', IDENTIFIER, '--name', 'x', '--state', 'Nonexistent']);
     assert.equal(bad.code, 3);
     assert.match(JSON.parse(bad.err).error.hint, /Backlog|In Progress/);
