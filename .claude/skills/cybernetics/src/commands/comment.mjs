@@ -1,6 +1,7 @@
 import { emit } from '../format.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 import { escapeHtml } from '../html.mjs';
+import { resolveItemProjectId } from './item.mjs';
 
 export const COMMENT_COLUMNS = [
   { key: 'created_at', label: 'WHEN' },
@@ -19,9 +20,10 @@ function itemRef(ctx) {
 
 export async function commentList(ctx) {
   const item = await ctx.resolver.item(itemRef(ctx));
+  const projectId = await resolveItemProjectId(ctx, item);
   const { data } = await ctx.client.request(
     'GET',
-    `${ctx.client.projectPath(item.projectId)}/issues/${item.id}/comments/`,
+    `${ctx.client.projectPath(projectId)}/issues/${item.id}/comments/`,
   );
   const rows = (data?.results ?? []).map((c) => ({
     id: c.id,
@@ -43,9 +45,10 @@ export async function commentAdd(ctx) {
   }
 
   const item = await ctx.resolver.item(ref);
+  const projectId = await resolveItemProjectId(ctx, item);
   const { data } = await ctx.client.request(
     'POST',
-    `${ctx.client.projectPath(item.projectId)}/issues/${item.id}/comments/`,
+    `${ctx.client.projectPath(projectId)}/issues/${item.id}/comments/`,
     { body: { comment_html: `<p>${escapeHtml(text)}</p>` } },
   );
   emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });

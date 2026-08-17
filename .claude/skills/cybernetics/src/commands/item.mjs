@@ -113,7 +113,7 @@ export async function list(ctx) {
 // `/projects/null/issues/...` URL, so fall back to an explicit project
 // (`--project` or the configured default) and resolve it, or fail with a
 // clear hint rather than sending a request that can't succeed.
-async function resolveItemProjectId(ctx, item) {
+export async function resolveItemProjectId(ctx, item) {
   if (item.projectId) return item.projectId;
   const ref = ctx.values.project ?? ctx.config.defaultProject;
   if (!ref) {

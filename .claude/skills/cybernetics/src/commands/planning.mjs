@@ -1,5 +1,5 @@
 import { emit } from '../format.mjs';
-import { projectRef } from './item.mjs';
+import { projectRef, resolveItemProjectId } from './item.mjs';
 import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 
@@ -76,11 +76,12 @@ export async function cycleAddItem(ctx) {
   if (!ref) throw new CybError(EXIT.GENERAL, 'no work item given', 'example: cyb cycle add-item CYB-42 --cycle "Sprint 1"');
 
   const item = await ctx.resolver.item(ref);
-  const cycle = await findByName(ctx, item.projectId, 'cycles', ctx.values.cycle);
+  const projectId = await resolveItemProjectId(ctx, item);
+  const cycle = await findByName(ctx, projectId, 'cycles', ctx.values.cycle);
 
   await ctx.client.request(
     'POST',
-    `${ctx.client.projectPath(item.projectId)}/cycles/${cycle.id}/cycle-issues/`,
+    `${ctx.client.projectPath(projectId)}/cycles/${cycle.id}/cycle-issues/`,
     { body: { issues: [item.id] } },
   );
   emit({ added: ref, cycle: cycle.name }, { mode: ctx.mode, stdout: ctx.streams.stdout });
@@ -135,11 +136,12 @@ export async function moduleAddItem(ctx) {
   if (!ref) throw new CybError(EXIT.GENERAL, 'no work item given', 'example: cyb module add-item CYB-42 --module Auth');
 
   const item = await ctx.resolver.item(ref);
-  const mod = await findByName(ctx, item.projectId, 'modules', ctx.values.module);
+  const projectId = await resolveItemProjectId(ctx, item);
+  const mod = await findByName(ctx, projectId, 'modules', ctx.values.module);
 
   await ctx.client.request(
     'POST',
-    `${ctx.client.projectPath(item.projectId)}/modules/${mod.id}/module-issues/`,
+    `${ctx.client.projectPath(projectId)}/modules/${mod.id}/module-issues/`,
     { body: { issues: [item.id] } },
   );
   emit({ added: ref, module: mod.name }, { mode: ctx.mode, stdout: ctx.streams.stdout });

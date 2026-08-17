@@ -4,8 +4,10 @@ import {
   cycleList, cycleCreate, cycleAddItem, cycleRemove,
   moduleList, moduleCreate, moduleAddItem, moduleRemove,
 } from '../src/commands/planning.mjs';
-import { makeCtx } from './helpers/ctx.mjs';
+import { makeCtx, UUID_PROJECT } from './helpers/ctx.mjs';
 import { EXIT } from '../src/errors.mjs';
+
+const RAW_ITEM_UUID = '7c9cd656-c9cf-4622-9d2a-b44ad1766113';
 
 test('cycle list emits cycles', async () => {
   const { ctx, outText } = makeCtx([
@@ -57,6 +59,24 @@ test('cycle add-item reports an unknown cycle by name', async () => {
   await assert.rejects(() => cycleAddItem(ctx), (err) => err.code === EXIT.NOT_FOUND);
 });
 
+// Important 3: cycleAddItem read `item.projectId` directly, which is null
+// for a raw UUID ref (resolver.item() can't know the project without an
+// extra request), building a request path containing the literal "null".
+// Must fall back to --project via item.mjs's resolveItemProjectId.
+test('cycle add-item <uuid> with --project resolves the project instead of building /projects/null/', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { results: [{ id: 'c1', name: 'Sprint 1' }] } },
+    { status: 201, body: {} },
+  ], { positionals: [RAW_ITEM_UUID], values: { cycle: 'Sprint 1', project: 'CYB' } });
+
+  await cycleAddItem(ctx);
+
+  for (const call of calls) {
+    assert.doesNotMatch(new URL(call.url).pathname, /projects\/null/);
+  }
+  assert.match(calls.at(-1).url, new RegExp(`projects/${UUID_PROJECT}/cycles/c1/cycle-issues`));
+});
+
 test('cycle delete without --yes refuses', async () => {
   const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'c1', name: 'Sprint 1' }] } },
@@ -97,6 +117,20 @@ test('module add-item posts to module-issues', async () => {
   const post = calls.at(-1);
   assert.match(post.url, /module-issues/);
   assert.deepEqual(JSON.parse(post.init.body), { issues: ['item-uuid'] });
+});
+
+test('module add-item <uuid> with --project resolves the project instead of building /projects/null/', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { results: [{ id: 'm1', name: 'Auth' }] } },
+    { status: 201, body: {} },
+  ], { positionals: [RAW_ITEM_UUID], values: { module: 'Auth', project: 'CYB' } });
+
+  await moduleAddItem(ctx);
+
+  for (const call of calls) {
+    assert.doesNotMatch(new URL(call.url).pathname, /projects\/null/);
+  }
+  assert.match(calls.at(-1).url, new RegExp(`projects/${UUID_PROJECT}/modules/m1/module-issues`));
 });
 
 test('module delete without --yes refuses and issues no DELETE', async () => {
