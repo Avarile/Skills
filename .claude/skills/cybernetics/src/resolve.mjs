@@ -56,6 +56,37 @@ function nameHint(input, names) {
   return guess ? `did you mean "${guess}"? valid: ${list}` : `valid: ${list}`;
 }
 
+// Groups a fetched list by the case-insensitive key each item's display name
+// normalises to. Two source entries that collide on the same key but carry
+// different ids are ambiguous — the returned `collisions` map records every
+// such key against all of its candidates, but building the map never throws
+// by itself: an unrelated ambiguous pair elsewhere in the same list must not
+// break every other lookup against it. Callers raise only when the specific
+// ambiguous key is actually requested — see `ambiguousError` and
+// Resolver#state/label/member below.
+export function buildNameMap(items, nameOf) {
+  const byKey = {};
+  for (const item of items) {
+    const name = nameOf(item);
+    if (!name) continue;
+    const key = String(name).toLowerCase();
+    (byKey[key] ??= []).push({ name, id: item.id });
+  }
+  const map = {};
+  const collisions = {};
+  for (const [key, entries] of Object.entries(byKey)) {
+    const distinctIds = new Set(entries.map((e) => e.id));
+    if (distinctIds.size > 1) collisions[key] = entries;
+    else map[key] = entries[0].id;
+  }
+  return { map, collisions };
+}
+
+function ambiguousError(kind, name, entries) {
+  const list = entries.map((e) => `"${e.name}" (${e.id})`).join(', ');
+  return notFound(`ambiguous ${kind}: ${name}`, `matches: ${list} — pass the UUID to disambiguate`);
+}
+
 export class Resolver {
   constructor({ client, cache, persist, now = Date.now, noCache = false }) {
     this.client = client;
@@ -126,8 +157,9 @@ export class Resolver {
     });
     const states = data?.results ?? [];
     bucket.stateList = states;
-    bucket.states = {};
-    for (const state of states) bucket.states[state.name.toLowerCase()] = state.id;
+    const { map, collisions } = buildNameMap(states, (s) => s.name);
+    bucket.states = map;
+    bucket.stateCollisions = collisions;
     bucket.statesFetchedAt = this.stamp();
     this.save();
     return states;
@@ -135,7 +167,12 @@ export class Resolver {
 
   async state(projectId, name) {
     const states = await this.statesFor(projectId);
-    const hit = states.find((s) => s.name.toLowerCase() === String(name).toLowerCase());
+    const bucket = projectBucket(this.cache, projectId);
+    const key = String(name).toLowerCase();
+    if (bucket.stateCollisions?.[key]) {
+      throw ambiguousError('state', name, bucket.stateCollisions[key]);
+    }
+    const hit = states.find((s) => s.name.toLowerCase() === key);
     if (!hit) {
       throw notFound(`no such state: ${name}`, nameHint(name, states.map((s) => s.name)));
     }
@@ -145,19 +182,27 @@ export class Resolver {
   async label(projectId, name) {
     const bucket = projectBucket(this.cache, projectId);
     const key = String(name).toLowerCase();
-    if (!this.noCache && bucket.labels[key] && isFresh(bucket.labelsFetchedAt, { now: this.now })) {
-      return bucket.labels[key];
+    const fresh = !this.noCache && isFresh(bucket.labelsFetchedAt, { now: this.now });
+    if (fresh) {
+      if (bucket.labelCollisions?.[key]) {
+        throw ambiguousError('label', name, bucket.labelCollisions[key]);
+      }
+      if (bucket.labels[key]) return bucket.labels[key];
     }
 
     const { data } = await this.client.request('GET', `${this.client.projectPath(projectId)}/labels/`, {
       fields: ['id', 'name'],
     });
     const labels = data?.results ?? [];
-    bucket.labels = {};
-    for (const label of labels) bucket.labels[label.name.toLowerCase()] = label.id;
+    const { map, collisions } = buildNameMap(labels, (l) => l.name);
+    bucket.labels = map;
+    bucket.labelCollisions = collisions;
     bucket.labelsFetchedAt = this.stamp();
     this.save();
 
+    if (collisions[key]) {
+      throw ambiguousError('label', name, collisions[key]);
+    }
     if (!bucket.labels[key]) {
       throw notFound(`no such label: ${name}`, nameHint(name, labels.map((l) => l.name)));
     }
@@ -167,20 +212,34 @@ export class Resolver {
   async member(name) {
     const key = String(name).toLowerCase();
     this.cache.members ??= {};
-    if (!this.noCache && this.cache.members[key] && isFresh(this.cache.membersFetchedAt, { now: this.now })) {
-      return this.cache.members[key];
+    const fresh = !this.noCache && isFresh(this.cache.membersFetchedAt, { now: this.now });
+    if (fresh) {
+      if (this.cache.memberCollisions?.[key]) {
+        throw ambiguousError('member', name, this.cache.memberCollisions[key]);
+      }
+      if (this.cache.members[key]) return this.cache.members[key];
     }
 
     const { data } = await this.client.request('GET', `${this.client.wsPath}/members/`);
     const members = data?.results ?? data ?? [];
-    this.cache.members = {};
+    // Each member contributes up to two keys (display name and email) onto
+    // the same id — flattened here so buildNameMap's collision detection
+    // catches a name/email collision between two different members exactly
+    // like a name/name collision, without duplicating its logic per key kind.
+    const keyed = [];
     for (const member of members) {
-      if (member.display_name) this.cache.members[member.display_name.toLowerCase()] = member.id;
-      if (member.email) this.cache.members[member.email.toLowerCase()] = member.id;
+      if (member.display_name) keyed.push({ name: member.display_name, id: member.id });
+      if (member.email) keyed.push({ name: member.email, id: member.id });
     }
+    const { map, collisions } = buildNameMap(keyed, (e) => e.name);
+    this.cache.members = map;
+    this.cache.memberCollisions = collisions;
     this.cache.membersFetchedAt = this.stamp();
     this.save();
 
+    if (collisions[key]) {
+      throw ambiguousError('member', name, collisions[key]);
+    }
     if (!this.cache.members[key]) {
       const names = members.map((m) => m.display_name).filter(Boolean);
       throw notFound(`no such member: ${name}`, nameHint(name, names));
@@ -309,6 +368,7 @@ export class Resolver {
         const bucket = projectBucket(this.cache, projectId);
         bucket.stateList = null;
         bucket.states = {};
+        bucket.stateCollisions = {};
         bucket.statesFetchedAt = null;
         break;
       }
