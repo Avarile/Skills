@@ -1608,7 +1608,7 @@ test('renderTable renders missing values as a dash', () => {
 });
 
 test('truncationNotice appears only when results were withheld', () => {
-  assert.equal(truncationNotice(30, 77, 30), '… 47 more (--limit 100)');
+  assert.equal(truncationNotice(30, 77, 30), '… 47 more (--limit 77)');
   assert.equal(truncationNotice(12, 12, 30), null);
   assert.equal(truncationNotice(30, 30, 30), null);
 });
@@ -1680,7 +1680,10 @@ export function renderTable(rows, columns, { mode = 'plain' } = {}) {
 export function truncationNotice(shown, total, limit) {
   if (total <= shown) return null;
   const more = total - shown;
-  return `… ${more} more (--limit ${Math.max(limit * 2, 100)})`;
+  // Suggest the exact total: the message claims these rows exist, so the
+  // limit it prints must actually reveal them. A doubled-limit heuristic
+  // under-delivers badly at scale (500 total -> "--limit 100").
+  return `… ${more} more (--limit ${total})`;
 }
 
 export function renderError(err, { mode = 'plain' } = {}) {
@@ -2266,6 +2269,24 @@ git commit -m "feat(cyb): add CLI router with global flags and working doctor co
 ```
 
 ---
+
+## Post-implementation amendments
+
+Review during execution found defects in this plan's own reference code. The
+shipped implementation is authoritative where it differs from the code blocks
+above; the blocks have been corrected inline for the items marked ✎, and the
+rest are recorded here.
+
+| Task | Defect found in review | Resolution | Commit |
+|---|---|---|---|
+| all | `node --test tests/` throws MODULE_NOT_FOUND on Node 24 — it loads the directory as a module | ✎ switched to bare `node --test`; integration script to a glob | `18279bd` |
+| 2 | `saveConfig` applied `mode` only at creation, so a pre-existing loose-permissioned config file kept the token world-readable | unconditional `chmodSync` on dir and file, plus a regression test | `d1b7ea6` |
+| 3 | `paginate` looped forever on an empty page reported as `next_page_results: true`, or a repeated cursor | ✎ bail on empty results and on a non-advancing cursor | `c4e0153` |
+| 4 | `loadCache`'s `??` guards let a wrong-typed `byProject` through, so `projectBucket` threw and broke the never-throw contract | ✎ `isPlainObject` validation on `parsed` and each sub-key | `d877b23` |
+| 5 | `label()`/`member()` ignored the 15-minute TTL, trusting a cached name forever | added `labelsFetchedAt`/`membersFetchedAt` gated by `isFresh` | `12d530d` |
+| 5 | the `CYB-42` fallback scan was unbounded and could consume the whole 60 req/min budget | bounded at 2000 items, over-fetching by one so truncation is detectable | `12d530d`, `baa9224` |
+| 6 | `truncationNotice` suggested a limit derived from the current limit, not `total`, under-delivering at scale | ✎ suggest `total` exactly | `25e4ce7` |
+| 7 | `--json=true` produced an unparseable error; `--help` never listed a `__default` action's options; `doctor` bumped `checkedAt` without probing and replaced rather than merged capabilities; `save()` swallowed every error | tolerant pre-parse for the json flag, options pass-through in help, merge + gated `checkedAt`, narrowed catch whitelist | `96eb03a` |
 
 ## Phase 1 Exit Criteria
 
