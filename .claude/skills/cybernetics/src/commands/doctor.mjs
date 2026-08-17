@@ -51,14 +51,19 @@ export async function doctor(ctx) {
   if (values?.probe) {
     const firstProject = data?.results?.[0]?.id ?? null;
     report.capabilities = await probeCapabilities(client, firstProject);
-    ctx.cache.capabilities = report.capabilities;
+    // Merge, never replace: a probe against a workspace with no project skips
+    // project-scoped targets entirely, and a full replace would wipe out
+    // issues/states/labels/cycles/modules statuses recorded by an earlier
+    // probe that did have a project. checkedAt only moves when we actually
+    // probed — a bare `doctor` must not claim freshness it didn't earn.
+    ctx.cache.capabilities = {
+      ...ctx.cache.capabilities,
+      ...report.capabilities,
+      checkedAt: new Date().toISOString(),
+    };
     report.calls = client.callCount;
   }
 
-  ctx.cache.capabilities = {
-    ...ctx.cache.capabilities,
-    checkedAt: new Date().toISOString(),
-  };
   ctx.save();
 
   if (mode === 'json') {

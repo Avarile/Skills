@@ -1,20 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { main } from '../src/cli.mjs';
-import { PROBE_TARGETS, probeCapabilities } from '../src/commands/doctor.mjs';
+import { main, buildContext } from '../src/cli.mjs';
+import { PROBE_TARGETS, probeCapabilities, doctor } from '../src/commands/doctor.mjs';
 import { Client } from '../src/client.mjs';
 import { makeFakeFetch } from './helpers/fake-fetch.mjs';
-
-function captureStreams() {
-  const out = [];
-  const err = [];
-  return {
-    stdout: { write: (s) => out.push(s), isTTY: false },
-    stderr: { write: (s) => err.push(s) },
-    outText: () => out.join(''),
-    errText: () => err.join(''),
-  };
-}
+import { captureStreams } from './helpers/capture-streams.mjs';
 
 test('PROBE_TARGETS covers the endpoints recorded in the spec', () => {
   const names = PROBE_TARGETS.map((t) => t.name);
@@ -133,4 +123,61 @@ test('doctor surfaces an auth failure as exit code 4', async () => {
     sleep: async () => {},
   });
   assert.equal(code, 4);
+});
+
+test('a bare doctor call does not set or bump checkedAt on the cache', async () => {
+  const s = captureStreams();
+  const { fetchImpl } = makeFakeFetch([
+    { status: 200, body: { id: 'me-uuid', display_name: 'avarile' } },
+    { status: 200, body: { total_count: 0, results: [] } },
+  ]);
+  const ctx = buildContext({
+    values: { json: true },
+    positionals: [],
+    deps: {
+      streams: s,
+      env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+      cwd: '/nonexistent-cyb-dir',
+      configPath: '/nonexistent-cyb-dir/config.json',
+      fetchImpl,
+      cachePath: '/nonexistent-cyb-dir/cache-bare.json',
+      sleep: async () => {},
+    },
+  });
+  await doctor(ctx);
+  assert.equal(ctx.cache.capabilities.checkedAt, undefined);
+});
+
+test('doctor --probe merges new results into the cache instead of replacing it', async () => {
+  const s = captureStreams();
+  const { fetchImpl } = makeFakeFetch([
+    { status: 200, body: { id: 'me-uuid', display_name: 'avarile' } },
+    { status: 200, body: { total_count: 0, results: [] } }, // no projects: project-scoped probes skip
+    { status: 200, body: { results: [] } }, // members
+    { status: 200, body: { results: [] } }, // pages
+  ]);
+  const ctx = buildContext({
+    values: { json: true, probe: true },
+    positionals: [],
+    deps: {
+      streams: s,
+      env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+      cwd: '/nonexistent-cyb-dir',
+      configPath: '/nonexistent-cyb-dir/config.json',
+      fetchImpl,
+      cachePath: '/nonexistent-cyb-dir/cache-merge.json',
+      sleep: async () => {},
+    },
+  });
+  // Simulate an earlier probe that ran against a workspace that did have a
+  // project — these entries must survive a probe that has none to check.
+  ctx.cache.capabilities = { issues: 200, states: 200, labels: 200, cycles: 200, modules: 200 };
+  await doctor(ctx);
+  assert.equal(ctx.cache.capabilities.issues, 200);
+  assert.equal(ctx.cache.capabilities.states, 200);
+  assert.equal(ctx.cache.capabilities.labels, 200);
+  assert.equal(ctx.cache.capabilities.cycles, 200);
+  assert.equal(ctx.cache.capabilities.modules, 200);
+  assert.equal(ctx.cache.capabilities.members, 200);
+  assert.ok(ctx.cache.capabilities.checkedAt);
 });

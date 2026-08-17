@@ -50,7 +50,8 @@ export function renderHelp(group, action) {
     lines.push(`  ${label.padEnd(12)} ${def.summary ?? ''}`);
   }
   if (action && actions[action]?.options) {
-    lines.push('', `Options for ${group} ${action}:`);
+    const label = action === '__default' ? '(default)' : action;
+    lines.push('', `Options for ${group} ${label}:`);
     for (const flag of Object.keys(actions[action].options)) lines.push(`  --${flag}`);
   }
   return lines.join('\n');
@@ -84,11 +85,18 @@ export function buildContext({ values, positionals, deps }) {
 
   const cachePath = deps.cachePath ?? CACHE_PATH;
   const cache = loadCache({ path: cachePath, workspace: config.workspace });
+  const SWALLOWED_SAVE_CODES = ['ENOENT', 'EACCES', 'EROFS', 'EPERM', 'ENOSPC'];
   const save = () => {
     try {
       saveCache(cache, { path: cachePath });
-    } catch {
-      // A read-only cache location must never fail a command.
+    } catch (err) {
+      // A read-only or otherwise unwritable cache location must never fail a
+      // command — but only for recognised filesystem errors. Anything else
+      // (a bug in saveCache) should surface, not vanish silently.
+      if (!SWALLOWED_SAVE_CODES.includes(err?.code)) throw err;
+      if (values.verbose) {
+        streams.stderr.write(`note: cache not saved (${err.code}): ${cachePath}\n`);
+      }
     }
   };
 
@@ -99,9 +107,23 @@ export function buildContext({ values, positionals, deps }) {
   return { config, client, cache, resolver, save, mode, streams, values, positionals };
 }
 
+// A tolerant pre-parse used only to decide the error-path output mode. It
+// must not throw on `--json=true` the way a strict, boolean-typed parseArgs
+// pass would (ERR_PARSE_ARGS_INVALID_OPTION_VALUE) — an agent must always be
+// able to tell whether to expect a JSON error envelope, even when the real
+// dispatch below is about to fail on that very argument.
+function detectJsonFlag(argv) {
+  try {
+    const { values } = parseArgs({ args: argv, strict: false, allowPositionals: true });
+    return Boolean(values.json);
+  } catch {
+    return false;
+  }
+}
+
 export async function main(argv, deps = {}) {
   const streams = deps.streams ?? { stdout: process.stdout, stderr: process.stderr };
-  const jsonFlag = argv.includes('--json');
+  const jsonFlag = detectJsonFlag(argv);
 
   try {
     const [group, ...rest] = argv;
@@ -122,6 +144,15 @@ export async function main(argv, deps = {}) {
 
     const maybeAction = rest[0];
     const usesDefault = Boolean(actions.__default) && (!maybeAction || maybeAction.startsWith('-'));
+
+    if (!maybeAction && !usesDefault) {
+      throw new CybError(
+        EXIT.GENERAL,
+        `no action specified for ${group}`,
+        `run: cyb ${group} --help`,
+      );
+    }
+
     const actionName = usesDefault ? '__default' : maybeAction;
     const argsForParse = usesDefault ? rest : rest.slice(1);
 
@@ -141,7 +172,7 @@ export async function main(argv, deps = {}) {
     });
 
     if (values.help) {
-      streams.stdout.write(`${renderHelp(group, usesDefault ? undefined : actionName)}\n`);
+      streams.stdout.write(`${renderHelp(group, actionName)}\n`);
       return EXIT.OK;
     }
 
