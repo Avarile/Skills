@@ -180,11 +180,19 @@ export async function search(ctx) {
   // has fewer than the cap", and a rare-term match past position 500 would
   // come back as zero results with no hint that only the first 500 were
   // ever looked at.
+  //
+  // The request asks for one item past the cap (`SEARCH_SCAN_CAP + 1`), same
+  // over-fetch-by-one used by `resolve.mjs`'s sequence scan
+  // (`SEQUENCE_SCAN_LIMIT + 1` / `scanned > SEQUENCE_SCAN_LIMIT`). A project
+  // with exactly `SEARCH_SCAN_CAP` items then naturally exhausts its pages
+  // before that extra item is ever requested, so `scanned` stays at or below
+  // the cap — the "fully scanned, nothing left" case is distinguishable from
+  // "cap hit, more left unscanned" instead of both looking identical.
   let scanned = 0;
   const matches = [];
   for await (const item of ctx.client.paginate(`${ctx.client.projectPath(project.id)}/issues/`, {
     fields: LIST_FIELDS,
-    limit: SEARCH_SCAN_CAP,
+    limit: SEARCH_SCAN_CAP + 1,
   })) {
     scanned++;
     if (String(item.name).toLowerCase().includes(needle)) matches.push(item);
@@ -192,10 +200,10 @@ export async function search(ctx) {
   }
 
   const rows = decorate(matches, { project, states });
-  // Reaching the cap exactly is the only signal available without an extra
-  // request to confirm the project's true size — so it's treated as "may not
-  // be exhausted" rather than staying silent about it.
-  const notice = scanned >= SEARCH_SCAN_CAP
+  // `scanned` can only exceed the cap if the extra (cap + 1)th item was
+  // actually fetched, which only happens when the project has more left
+  // after the cap — a project that ends exactly at the cap never reaches it.
+  const notice = scanned > SEARCH_SCAN_CAP
     ? `… scan cap of ${SEARCH_SCAN_CAP} items reached before the project was fully scanned`
     : null;
 

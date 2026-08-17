@@ -172,7 +172,11 @@ test('search requires a query', async () => {
   assert.equal(calls.length, 0);
 });
 
-test('search reports a notice when the scan cap is reached before the project is exhausted', async () => {
+test('search stays silent when the project has exactly SEARCH_SCAN_CAP items', async () => {
+  // A project whose true size is exactly the cap is fully scanned by the
+  // 5th page (next_page_results: false) — the over-fetch-by-one request for
+  // a 501st item is never issued, so `scanned` never exceeds the cap and
+  // the cap notice, which would be false here, must not fire.
   const CAP = 500;
   const pageOf = (n, cursor, hasNext) => ({
     status: 200,
@@ -198,6 +202,47 @@ test('search reports a notice when the scan cap is reached before the project is
   await search(ctx);
 
   assert.equal(calls.length, 5);
+  assert.equal(JSON.parse(outText()).length, 0);
+  assert.equal(stderrOut.join(''), '');
+});
+
+test('search reports a notice when the scan cap is reached before the project is exhausted', async () => {
+  // 501 items total: five full pages of 100, then a final page with just
+  // the one item past the cap. The over-fetch-by-one request only happens
+  // because there genuinely is more left unscanned, proving the "more
+  // exist" case the cap notice is meant to distinguish from "exactly full".
+  const CAP = 500;
+  const pageOf = (n, cursor, hasNext) => ({
+    status: 200,
+    body: {
+      results: Array.from({ length: 100 }, (_, i) => ({
+        id: `i${n}-${i}`, sequence_id: n * 100 + i, name: `unrelated item ${n}-${i}`, state: UUID_STATE_BACKLOG,
+      })),
+      next_page_results: hasNext,
+      next_cursor: hasNext ? cursor : undefined,
+    },
+  });
+  const responses = [
+    pageOf(0, 'c1', true),
+    pageOf(1, 'c2', true),
+    pageOf(2, 'c3', true),
+    pageOf(3, 'c4', true),
+    pageOf(4, 'c5', true),
+    {
+      status: 200,
+      body: {
+        results: [{ id: 'i5-0', sequence_id: 500, name: 'unrelated item 5-0', state: UUID_STATE_BACKLOG }],
+        next_page_results: false,
+      },
+    },
+  ];
+  const { ctx, calls, outText } = makeCtx(responses, { positionals: ['zzzznomatch'], values: { project: 'CYB' } });
+  const stderrOut = [];
+  ctx.streams.stderr.write = (s) => stderrOut.push(s);
+
+  await search(ctx);
+
+  assert.equal(calls.length, 6);
   assert.equal(JSON.parse(outText()).length, 0);
   assert.match(stderrOut.join(''), new RegExp(`scan cap of ${CAP}`));
 });
