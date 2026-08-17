@@ -258,11 +258,15 @@ test('cyb ui launches the interactive REPL via main()', async () => {
     const input = Readable.from([]); // ends immediately: no lines typed
     const output = { write: () => {}, isTTY: false };
 
+    // isTTY: true is required since the I1 fix (main() rejects `ui` on a
+    // non-TTY stdin) — see the guard tests in cli.test.mjs. Injected rather
+    // than faked via a real terminal, per the review's instruction.
     const code = await main(['ui'], {
       env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
       cwd: base,
       configPath: join(base, 'config.json'),
       cachePath: join(base, 'cache.json'),
+      isTTY: true,
       input,
       output,
       streams: { stdout: output, stderr: output },

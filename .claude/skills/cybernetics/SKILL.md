@@ -31,6 +31,10 @@ node .claude/skills/cybernetics/bin/cyb --help          # all 15 groups
 node .claude/skills/cybernetics/bin/cyb item --help      # actions + positionals for one group
 ```
 
+`cyb --help` lists a `ui` group — that is a human-only interactive REPL that
+reads from stdin. Never run it: it refuses `--json` and a non-terminal stdin
+with a clear error, but use the one-shot commands above instead of trying it.
+
 ## Output contract
 
 - Add `--json` whenever you intend to parse the result. Human tables are for people.

@@ -424,6 +424,20 @@ export async function main(argv, deps = {}) {
     // would build for a single call, so it bypasses buildContext/dispatch
     // here rather than going through them like every other group.
     if (invocation.group === 'ui') {
+      // `ui` reads from stdin and never produces JSON — an agent that
+      // invokes it (deliberately, or by following `cyb --help`'s listing)
+      // must get a loud, immediate refusal instead of exit 0 with prose on
+      // stdout where JSON was expected, or a hang reading a pipe that never
+      // closes. `deps.isTTY` lets tests exercise both branches without a
+      // real terminal.
+      const isTTY = deps.isTTY ?? Boolean(process.stdin.isTTY);
+      if (invocation.values.json || !isTTY) {
+        throw new CybError(
+          EXIT.GENERAL,
+          'ui is interactive-only',
+          'it reads stdin and cannot be scripted or run with --json — use the one-shot commands instead, e.g. cyb item list --json, cyb board --json, cyb my --json',
+        );
+      }
       const { startRepl } = await import('./repl.mjs');
       return await startRepl(deps);
     }

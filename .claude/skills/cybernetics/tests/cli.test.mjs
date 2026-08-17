@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, chmodSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { main, buildContext, parseInvocation, dispatch, GLOBAL_OPTIONS, renderHelp, REGISTRY } from '../src/cli.mjs';
 import { EXIT } from '../src/errors.mjs';
 import { captureStreams } from './helpers/capture-streams.mjs';
@@ -399,6 +400,53 @@ test('renderHelp renders each action\'s positional syntax', () => {
   assert.match(help, /move\s+<itemRef>\s+<state>/);
   const boardHelp = renderHelp('board');
   assert.match(boardHelp, /<project>/);
+});
+
+// --- I1: `cyb ui` must never silently no-op for a caller expecting JSON ----
+//
+// `ui` bypasses buildContext/dispatch entirely (see main() above), so
+// nothing in the ordinary handler pipeline could ever catch a caller who
+// runs it with --json or a non-terminal stdin. Both must be rejected before
+// startRepl() is ever reached, and neither needs a token — the rejection
+// happens before buildContext() would be called.
+
+test('cyb ui --json is rejected before the REPL starts, with a parseable error envelope', async () => {
+  const s = captureStreams();
+  const code = await main(['ui', '--json'], { streams: s, env: {}, isTTY: true });
+  assert.notEqual(code, EXIT.OK);
+  const parsed = JSON.parse(s.errText());
+  assert.match(parsed.error.message, /ui is interactive-only/);
+});
+
+test('cyb ui with a non-TTY stdin is rejected rather than blocking or silently succeeding', async () => {
+  const s = captureStreams();
+  const code = await main(['ui'], { streams: s, env: {}, isTTY: false });
+  assert.notEqual(code, EXIT.OK);
+  assert.match(s.errText(), /ui is interactive-only/);
+});
+
+test('cyb ui with an injected TTY and no --json is not rejected by the guard', async () => {
+  // Doesn't fake a real terminal — injects deps.isTTY instead (per the
+  // review's instruction) — and proves the guard is bypassed by observing
+  // that startRepl() itself ran: an empty input stream makes it return 0
+  // immediately rather than the guard's non-zero rejection.
+  const base = mkdtempSync(join(tmpdir(), 'cyb-ui-tty-test-'));
+  try {
+    const output = { write: () => {}, isTTY: false };
+    const code = await main(['ui'], {
+      env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+      cwd: base,
+      configPath: join(base, 'config.json'),
+      cachePath: join(base, 'cache.json'),
+      isTTY: true,
+      input: Readable.from([]),
+      output,
+      streams: { stdout: output, stderr: output },
+    });
+    assert.equal(code, EXIT.OK);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });
 
 test('save() rethrows an error that is not a recognised filesystem error', () => {
