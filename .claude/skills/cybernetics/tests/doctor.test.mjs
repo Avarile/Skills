@@ -1,10 +1,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { main, buildContext } from '../src/cli.mjs';
 import { PROBE_TARGETS, probeCapabilities, doctor } from '../src/commands/doctor.mjs';
 import { Client } from '../src/client.mjs';
 import { makeFakeFetch } from './helpers/fake-fetch.mjs';
 import { captureStreams } from './helpers/capture-streams.mjs';
+
+// Every test gets its own throwaway directory rather than a shared
+// '/nonexistent-cyb-dir' path. As root (the default in most CI images),
+// `mkdirSync` under `/` succeeds instead of failing, so a shared path would
+// make these tests share one real cache file across the whole file —
+// `resolver.me()` served from an earlier test's cache shifts every
+// subsequent fake-fetch response by one, and it would write a directory to
+// the filesystem root besides.
+function tmpPaths() {
+  const dir = mkdtempSync(join(tmpdir(), 'cyb-doctor-test-'));
+  return { cwd: dir, configPath: join(dir, 'config.json'), cachePath: join(dir, 'cache.json') };
+}
 
 test('PROBE_TARGETS covers the endpoints recorded in the spec', () => {
   const names = PROBE_TARGETS.map((t) => t.name);
@@ -28,7 +43,7 @@ test('probeCapabilities skips project-scoped targets when no project exists', as
     baseUrl: 'https://example.test', workspace: 'cybernetics', token: 'tok',
     fetchImpl, sleep: async () => {}, now: () => 1_000_000,
   });
-  const observed = await probeCapabilities(client, null);
+  const { observed } = await probeCapabilities(client, null);
   assert.equal(calls.length, workspaceTargets.length);
   assert.equal(observed.members, 200);
   assert.equal(observed.issues, undefined);
@@ -43,9 +58,28 @@ test('probeCapabilities records the failing status instead of throwing', async (
     baseUrl: 'https://example.test', workspace: 'cybernetics', token: 'tok',
     fetchImpl, sleep: async () => {}, now: () => 1_000_000,
   });
-  const observed = await probeCapabilities(client, null);
+  const { observed } = await probeCapabilities(client, null);
   assert.equal(observed.members, 200);
   assert.equal(observed.pages, 404);
+});
+
+test('probeCapabilities omits a 5xx status as unknown instead of recording it as a capability', async () => {
+  // 5xx is retryable, so a sustained 500 on `pages` costs all 3 attempts
+  // before the client gives up and throws.
+  const { fetchImpl } = makeFakeFetch([
+    { status: 200, body: { results: [] } }, // members
+    { status: 500, body: {} }, // pages attempt 1
+    { status: 500, body: {} }, // pages attempt 2
+    { status: 500, body: {} }, // pages attempt 3 -> throws
+  ]);
+  const client = new Client({
+    baseUrl: 'https://example.test', workspace: 'cybernetics', token: 'tok',
+    fetchImpl, sleep: async () => {}, now: () => 1_000_000,
+  });
+  const { observed, unknown } = await probeCapabilities(client, null);
+  assert.equal(observed.members, 200);
+  assert.equal(observed.pages, undefined);
+  assert.deepEqual(unknown, ['pages']);
 });
 
 test('doctor --probe reports observed capability statuses', async () => {
@@ -59,10 +93,8 @@ test('doctor --probe reports observed capability statuses', async () => {
   await main(['doctor', '--probe', '--json'], {
     streams: s,
     env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
-    cwd: '/nonexistent-cyb-dir',
-    configPath: '/nonexistent-cyb-dir/config.json',
+    ...tmpPaths(),
     fetchImpl,
-    cachePath: '/nonexistent-cyb-dir/cache.json',
     sleep: async () => {},
   });
   const report = JSON.parse(s.outText());
@@ -78,10 +110,8 @@ test('doctor reports identity, workspace and a token fingerprint only', async ()
   const code = await main(['doctor', '--json'], {
     streams: s,
     env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
-    cwd: '/nonexistent-cyb-dir',
-    configPath: '/nonexistent-cyb-dir/config.json',
+    ...tmpPaths(),
     fetchImpl,
-    cachePath: '/nonexistent-cyb-dir/cache.json',
     sleep: async () => {},
   });
   assert.equal(code, 0);
@@ -101,10 +131,8 @@ test('doctor reports the project count it observed', async () => {
   await main(['doctor', '--json'], {
     streams: s,
     env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
-    cwd: '/nonexistent-cyb-dir',
-    configPath: '/nonexistent-cyb-dir/config.json',
+    ...tmpPaths(),
     fetchImpl,
-    cachePath: '/nonexistent-cyb-dir/cache.json',
     sleep: async () => {},
   });
   assert.equal(JSON.parse(s.outText()).projects, 3);
@@ -116,10 +144,8 @@ test('doctor surfaces an auth failure as exit code 4', async () => {
   const code = await main(['doctor', '--json'], {
     streams: s,
     env: { CYB_TOKEN: 'plane_api_wrong' },
-    cwd: '/nonexistent-cyb-dir',
-    configPath: '/nonexistent-cyb-dir/config.json',
+    ...tmpPaths(),
     fetchImpl,
-    cachePath: '/nonexistent-cyb-dir/cache.json',
     sleep: async () => {},
   });
   assert.equal(code, 4);
@@ -137,10 +163,8 @@ test('a bare doctor call does not set or bump checkedAt on the cache', async () 
     deps: {
       streams: s,
       env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
-      cwd: '/nonexistent-cyb-dir',
-      configPath: '/nonexistent-cyb-dir/config.json',
+      ...tmpPaths(),
       fetchImpl,
-      cachePath: '/nonexistent-cyb-dir/cache-bare.json',
       sleep: async () => {},
     },
   });
@@ -162,10 +186,8 @@ test('doctor --probe merges new results into the cache instead of replacing it',
     deps: {
       streams: s,
       env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
-      cwd: '/nonexistent-cyb-dir',
-      configPath: '/nonexistent-cyb-dir/config.json',
+      ...tmpPaths(),
       fetchImpl,
-      cachePath: '/nonexistent-cyb-dir/cache-merge.json',
       sleep: async () => {},
     },
   });
@@ -180,4 +202,37 @@ test('doctor --probe merges new results into the cache instead of replacing it',
   assert.equal(ctx.cache.capabilities.modules, 200);
   assert.equal(ctx.cache.capabilities.members, 200);
   assert.ok(ctx.cache.capabilities.checkedAt);
+});
+
+test('doctor --probe does not clobber a pre-existing capability entry with an unknown 5xx result', async () => {
+  const s = captureStreams();
+  const { fetchImpl } = makeFakeFetch([
+    { status: 200, body: { id: 'me-uuid', display_name: 'avarile' } },
+    { status: 200, body: { total_count: 0, results: [] } }, // no projects: project-scoped probes skip
+    { status: 200, body: { results: [] } }, // members
+    { status: 500, body: {} }, // pages attempt 1
+    { status: 500, body: {} }, // pages attempt 2
+    { status: 500, body: {} }, // pages attempt 3 -> throws, recorded as unknown
+  ]);
+  const ctx = buildContext({
+    values: { json: true, probe: true },
+    positionals: [],
+    deps: {
+      streams: s,
+      env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+      ...tmpPaths(),
+      fetchImpl,
+      sleep: async () => {},
+    },
+  });
+  // A previous, conclusive probe recorded `pages` as present.
+  ctx.cache.capabilities = { pages: 200 };
+  await doctor(ctx);
+  assert.equal(ctx.cache.capabilities.pages, 200, 'a transient 500 must not clobber the known-good value');
+  assert.equal(ctx.cache.capabilities.members, 200);
+  assert.ok(ctx.cache.capabilities.checkedAt);
+
+  const report = JSON.parse(s.outText());
+  assert.equal(report.capabilities.pages, undefined);
+  assert.deepEqual(report.capabilitiesUnknown, ['pages']);
 });

@@ -182,6 +182,14 @@ export async function main(argv, deps = {}) {
   } catch (err) {
     const mode = jsonFlag ? 'json' : 'plain';
     streams.stderr.write(`${renderError(err, { mode })}\n`);
-    return typeof err?.code === 'number' ? err.code : EXIT.GENERAL;
+    // Only codes the CLI itself owns may be returned. A structural
+    // `typeof === 'number'` test is not sufficient: a DOMException's legacy
+    // numeric `.code` (e.g. AbortError === 20) would otherwise pass through
+    // and contradict the `code` printed in the JSON envelope for the same
+    // error.
+    const code = err?.code;
+    return Number.isInteger(code) && code >= EXIT.OK && code <= EXIT.RATE_LIMIT
+      ? code
+      : EXIT.GENERAL;
   }
 }

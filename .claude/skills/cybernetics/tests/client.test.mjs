@@ -195,3 +195,30 @@ test('verbose is silent when not enabled', async () => {
   await client.request('GET', '/issues/');
   assert.deepEqual(logged, []);
 });
+
+test('a request that times out throws a CybError, not a raw AbortError', async () => {
+  // A real AbortController driven by a short `timeout` — not a 30s wait —
+  // so this stays fast. fetchImpl never resolves on its own; it only
+  // rejects once the internal timer aborts the signal.
+  const fetchImpl = (url, init) => new Promise((resolve, reject) => {
+    init.signal.addEventListener('abort', () => {
+      reject(new DOMException('This operation was aborted', 'AbortError'));
+    });
+  });
+  const client = new Client({
+    baseUrl: 'https://example.test',
+    workspace: 'cybernetics',
+    token: 'tok',
+    fetchImpl,
+    sleep: async () => {},
+    now: () => 1_000_000,
+  });
+  await assert.rejects(
+    () => client.request('GET', '/issues/', { timeout: 5 }),
+    (err) =>
+      err.name === 'CybError' &&
+      err.code === 1 &&
+      /timed out after 5ms on \/issues\//.test(err.message) &&
+      /cyb doctor/.test(err.hint),
+  );
+});

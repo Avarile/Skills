@@ -100,7 +100,15 @@ test('a group invoked with no action token gives a clear error, not a literal un
   }
 });
 
-test('save() swallows a recognised filesystem error from an unwritable cache location', () => {
+test('save() swallows a recognised filesystem error from an unwritable cache location', (t) => {
+  // Root ignores directory mode bits, so chmod 0500 would not actually make
+  // the directory unwritable — mkdirSync/writeFileSync would succeed, and
+  // the "note:" assertion below would fail. Root is the default user in
+  // most CI images, so this must be skipped rather than assumed away.
+  if (process.getuid?.() === 0) {
+    t.skip('root ignores directory mode bits');
+    return;
+  }
   const base = mkdtempSync(join(tmpdir(), 'cyb-cli-test-'));
   chmodSync(base, 0o500);
   const s = captureStreams();
@@ -120,6 +128,38 @@ test('save() swallows a recognised filesystem error from an unwritable cache loc
     assert.match(s.errText(), /note:/);
   } finally {
     chmodSync(base, 0o700);
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('a request timeout exits 1, and the envelope code matches the exit code', async (t) => {
+  const base = mkdtempSync(join(tmpdir(), 'cyb-cli-test-timeout-'));
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const s = captureStreams();
+  // Never resolves on its own — only rejects once the real (mocked)
+  // AbortController timer fires and aborts the signal, exactly like a slow
+  // or unreachable instance would behave under the 30s default timeout.
+  const fetchImpl = (url, init) => new Promise((resolve, reject) => {
+    init.signal.addEventListener('abort', () => {
+      reject(new DOMException('This operation was aborted', 'AbortError'));
+    });
+  });
+  try {
+    const pending = main(['doctor', '--json'], {
+      streams: s,
+      env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+      cwd: base,
+      configPath: join(base, 'config.json'),
+      cachePath: join(base, 'cache.json'),
+      fetchImpl,
+    });
+    t.mock.timers.tick(30_000);
+    const code = await pending;
+    assert.equal(code, 1);
+    const envelope = JSON.parse(s.errText());
+    assert.equal(envelope.error.code, code);
+    assert.match(envelope.error.message, /timed out/);
+  } finally {
     rmSync(base, { recursive: true, force: true });
   }
 });

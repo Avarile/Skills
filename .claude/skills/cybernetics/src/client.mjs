@@ -1,4 +1,4 @@
-import { ApiError } from './errors.mjs';
+import { ApiError, CybError, EXIT } from './errors.mjs';
 
 const MAX_ATTEMPTS = 3;
 const BACKOFF_MS = [500, 1000, 2000];
@@ -75,7 +75,11 @@ export class Client {
     let lastError = null;
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeout);
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, timeout);
       this.callCount++;
       let res;
       try {
@@ -85,6 +89,19 @@ export class Client {
           signal: controller.signal,
           ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
         });
+      } catch (err) {
+        // A DOMException named AbortError carries a legacy numeric `.code`
+        // (20) that main's exit-code selector would otherwise mistake for a
+        // CybError's own exit code. Give it a real identity here, and only
+        // when *our* timer is what fired the abort — not some other cause.
+        if (timedOut && err?.name === 'AbortError') {
+          throw new CybError(
+            EXIT.GENERAL,
+            `request timed out after ${timeout}ms on ${path}`,
+            'the instance may be slow or unreachable — run: cyb doctor',
+          );
+        }
+        throw err;
       } finally {
         clearTimeout(timer);
       }

@@ -60,8 +60,15 @@ export function projectBucket(cache, projectId) {
     labels: {},
     members: {},
     items: {},
-    fetchedAt: null,
+    // Named per cached region rather than one bucket-wide `fetchedAt` — a
+    // generic name reads as "this bucket is fresh" but in practice only
+    // ever meant "states are fresh", which a future `cycles`/`modules`
+    // region would otherwise inherit by mistake.
+    statesFetchedAt: null,
     labelsFetchedAt: null,
+    itemsFetchedAt: null,
+    maxSequence: null,
+    maxSequenceFetchedAt: null,
   };
   return cache.byProject[projectId];
 }
