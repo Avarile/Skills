@@ -1015,18 +1015,24 @@ export function emptyCache(workspace) {
   };
 }
 
+const isPlainObject = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
+
 export function loadCache({ path = CACHE_PATH, workspace } = {}) {
   if (!existsSync(path)) return emptyCache(workspace);
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8'));
-    if (parsed?.version !== CACHE_VERSION) return emptyCache(workspace);
-    if (parsed?.workspace !== workspace) return emptyCache(workspace);
+    if (!isPlainObject(parsed)) return emptyCache(workspace);
+    if (parsed.version !== CACHE_VERSION) return emptyCache(workspace);
+    if (parsed.workspace !== workspace) return emptyCache(workspace);
+    // Validate the TYPE of each sub-key, not just its presence: `??` lets a
+    // wrong-typed value (e.g. byProject: "oops") through, and projectBucket
+    // then throws when it assigns a property to a primitive.
     return {
       ...emptyCache(workspace),
       ...parsed,
-      projects: parsed.projects ?? {},
-      byProject: parsed.byProject ?? {},
-      capabilities: parsed.capabilities ?? {},
+      projects: isPlainObject(parsed.projects) ? parsed.projects : {},
+      byProject: isPlainObject(parsed.byProject) ? parsed.byProject : {},
+      capabilities: isPlainObject(parsed.capabilities) ? parsed.capabilities : {},
     };
   } catch {
     return emptyCache(workspace);
