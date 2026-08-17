@@ -384,6 +384,13 @@ test('a sequence id above the project maximum fails fast with a highest-referenc
   // Exactly the filter attempt plus the one cheap max-sequence check — never
   // a multi-page scan of the project.
   assert.equal(calls.length, 2);
+
+  // The max-check request (the call after the sequence_id filter request)
+  // must ask the API for its documented ordering param, not a made-up one.
+  const maxCheckParams = new URL(calls[1].url).searchParams;
+  assert.equal(maxCheckParams.get('order_by'), '-sequence_id');
+  assert.equal(maxCheckParams.get('per_page'), '1');
+  assert.ok(maxCheckParams.get('fields').includes('sequence_id'));
 });
 
 test('a repeated out-of-range sequence typo costs nothing once the maximum is cached', async () => {

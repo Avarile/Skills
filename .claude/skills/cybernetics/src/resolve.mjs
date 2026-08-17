@@ -275,7 +275,7 @@ export class Resolver {
       return bucket.maxSequence;
     }
     const { data } = await this.client.request('GET', `${this.client.projectPath(projectId)}/issues/`, {
-      query: { ordering: '-sequence_id', per_page: 1 },
+      query: { order_by: '-sequence_id', per_page: 1 },
       fields: ['sequence_id'],
     });
     const top = data?.results?.[0]?.sequence_id ?? null;
