@@ -12,6 +12,7 @@ import * as meta from './commands/meta.mjs';
 import * as planning from './commands/planning.mjs';
 import * as comment from './commands/comment.mjs';
 import * as composite from './commands/composite.mjs';
+import * as setup from './commands/setup.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -167,6 +168,12 @@ export const REGISTRY = {
       takesPositional: true,
     },
   },
+  init: {
+    __default: { summary: 'Write ~/.cybernetics/config.json from the current environment', options: {}, handler: setup.init },
+  },
+  sync: {
+    __default: { summary: 'Discard and rebuild the resolver cache', options: {}, handler: setup.sync },
+  },
 };
 
 export function renderHelp(group, action) {
@@ -245,7 +252,10 @@ export function buildContext({ values, positionals, deps }) {
 
   const mode = pickMode({ json: values.json, isTTY: Boolean(streams.stdout.isTTY) });
 
-  return { config, client, cache, resolver, save, mode, streams, values, positionals };
+  return {
+    config, client, cache, resolver, save, mode, streams, values, positionals,
+    configPath: deps.configPath ?? CONFIG_PATH,
+  };
 }
 
 // A tolerant pre-parse used only to decide the error-path output mode. It
