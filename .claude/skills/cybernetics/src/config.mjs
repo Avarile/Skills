@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, writeFileSync, chmodSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { CybError, EXIT } from './errors.mjs';
@@ -67,7 +67,9 @@ export function loadConfig({ env = process.env, cwd = process.cwd(), configPath 
 export function saveConfig(config, { configPath = CONFIG_PATH } = {}) {
   const dir = dirname(configPath);
   mkdirSync(dir, { recursive: true, mode: 0o700 });
+  chmodSync(dir, 0o700);
   writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+  chmodSync(configPath, 0o600);
 }
 
 export function fingerprint(token) {

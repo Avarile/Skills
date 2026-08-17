@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, statSync, readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, statSync, readFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadConfig, saveConfig, fingerprint, parseDotEnv, DEFAULTS } from '../src/config.mjs';
@@ -94,6 +94,22 @@ test('saveConfig writes the file 0600 and the directory 0700', () => {
   saveConfig({ token: 'secret', workspace: 'cybernetics' }, { configPath: cfgPath });
   assert.equal(statSync(cfgPath).mode & 0o777, 0o600);
   assert.equal(statSync(join(dir, 'nested')).mode & 0o777, 0o700);
+  assert.equal(JSON.parse(readFileSync(cfgPath, 'utf8')).token, 'secret');
+});
+
+test('saveConfig tightens permissions on a pre-existing directory and file', () => {
+  const dir = tmp();
+  const nested = join(dir, 'nested');
+  const cfgPath = join(nested, 'config.json');
+  mkdirSync(nested, { mode: 0o755 });
+  writeFileSync(cfgPath, JSON.stringify({ token: 'stale' }), { mode: 0o644 });
+  chmodSync(nested, 0o755);
+  chmodSync(cfgPath, 0o644);
+
+  saveConfig({ token: 'secret', workspace: 'cybernetics' }, { configPath: cfgPath });
+
+  assert.equal(statSync(nested).mode & 0o777, 0o700);
+  assert.equal(statSync(cfgPath).mode & 0o777, 0o600);
   assert.equal(JSON.parse(readFileSync(cfgPath, 'utf8')).token, 'secret');
 });
 
