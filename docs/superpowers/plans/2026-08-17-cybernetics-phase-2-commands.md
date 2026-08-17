@@ -426,13 +426,22 @@ export function makeCtx(responses, { values = {}, positionals = [], mode = 'json
   if (warmCache) {
     const stamp = new Date(1_000_000).toISOString();
     cache.projects.CYB = { id: UUID_PROJECT, name: 'Core', fetchedAt: stamp };
+    // Per-region freshness keys must match what the shipped `projectBucket`
+    // creates and what `resolve.mjs` gates on. A single bucket-wide
+    // `fetchedAt` was renamed during Phase 1 review precisely because it
+    // silently meant "states are fresh"; setting the old name here would make
+    // every warm-cache test read as stale and fetch, with no queued response.
     cache.byProject[UUID_PROJECT] = {
       states: Object.fromEntries(STATE_LIST.map((s) => [s.name.toLowerCase(), s.id])),
       stateList: STATE_LIST,
       labels: {},
       members: {},
       items: {},
-      fetchedAt: stamp,
+      statesFetchedAt: stamp,
+      labelsFetchedAt: stamp,
+      itemsFetchedAt: stamp,
+      maxSequence: null,
+      maxSequenceFetchedAt: null,
     };
   }
 
@@ -709,8 +718,39 @@ git commit -m "feat(cyb): add work item list and show with bounded projections"
 - Test: `.claude/skills/cybernetics/tests/item-write.test.mjs`
 
 **Interfaces:**
-- Consumes: `projectRef`, `validatePriority`, `decorate` from Task 9; `requireConfirmation`, `BULK_THRESHOLD`
-- Produces: `create(ctx)`, `update(ctx)`, `move(ctx)`, `assign(ctx)`, `remove(ctx)` from `src/commands/item.mjs`, plus `buildItemBody(ctx, { project })` returning the API payload
+- Consumes: `projectRef`, `validatePriority`, `decorate` from Task 9; `requireConfirmation`; `resolver.withRefresh` and `resolver.invalidate` (added to `src/resolve.mjs` during Phase 1's final review)
+- Produces: `create(ctx)`, `update(ctx)`, `move(ctx)`, `assign(ctx)`, `remove(ctx)` from `src/commands/item.mjs`, plus `buildItemBody(ctx, { project })` returning the API payload and `mutateItem(ctx, ref, fn)` described below
+
+**Amendment — wire the spec's refresh-and-retry (added after Phase 1's final review):**
+
+The spec requires: *"A 404 against a cached UUID triggers exactly one refresh-and-retry, then fails."* Phase 1 shipped the primitives (`resolver.withRefresh(fn, onInvalidate)` and `resolver.invalidate(kind, projectId, key)`) but deliberately wired no command to them. Task 10 is where they get used, because a stale item UUID is most likely to bite a mutation.
+
+Add one helper in `src/commands/item.mjs` and route every mutation through it:
+
+```js
+// A cached item UUID can be stale — the work item may have been deleted in the
+// web UI since we cached it. Resolve, act, and on a 404 drop the mapping and
+// retry exactly once against a freshly-resolved UUID.
+export async function mutateItem(ctx, ref, act) {
+  return ctx.resolver.withRefresh(
+    async () => {
+      const item = await ctx.resolver.item(ref);
+      return act(item);
+    },
+    () => {
+      const parsed = parseItemRef(ref);
+      if (parsed) {
+        const project = ctx.cache.projects[parsed.identifier];
+        if (project) ctx.resolver.invalidate('item', project.id, parsed.sequence);
+      }
+    },
+  );
+}
+```
+
+Import `parseItemRef` from `../resolve.mjs`. Use `mutateItem` in `update`, `move`, `assign`, and `remove`, and in Task 9's `show`. `create` does not need it — it resolves no item UUID.
+
+Add a test: a mutation whose first PATCH returns 404 invalidates the cached mapping, re-resolves, and succeeds on the retry; a second 404 propagates as exit 3.
 
 - [ ] **Step 1: Write the failing test**
 
