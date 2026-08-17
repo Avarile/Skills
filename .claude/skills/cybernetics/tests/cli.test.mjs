@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, chmodSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { main, buildContext, GLOBAL_OPTIONS, renderHelp, REGISTRY } from '../src/cli.mjs';
+import { main, buildContext, parseInvocation, dispatch, GLOBAL_OPTIONS, renderHelp, REGISTRY } from '../src/cli.mjs';
 import { EXIT } from '../src/errors.mjs';
 import { captureStreams } from './helpers/capture-streams.mjs';
 
@@ -205,6 +205,149 @@ test('a request timeout exits 1, and the envelope code matches the exit code', a
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
+});
+
+// --- dispatch seam (Task 16 pre-work) -------------------------------------
+//
+// main() used to parse argv, build a context, and dispatch in one function.
+// A REPL calling main() once per typed line would reload config.json and
+// cache.json and rebuild Client/Resolver on every line, discarding the very
+// rate-limit state (Client#remaining/#resetAt) a session needs to track
+// across commands. These tests pin the new seam — parseInvocation() does
+// pure argv -> invocation translation (including every error/help path
+// main() used to own), dispatch() just runs a resolved invocation against a
+// caller-supplied ctx, and main() becomes parseInvocation -> buildContext ->
+// dispatch with no behaviour of its own. The rest of this file (unchanged)
+// is what proves main()'s external behaviour didn't move.
+
+test('parseInvocation resolves a normal command to its REGISTRY definition, values and positionals', () => {
+  const invocation = parseInvocation(['item', 'list', 'CYB', '--state', 'todo']);
+  assert.equal(invocation.group, 'item');
+  assert.equal(invocation.action, 'list');
+  assert.equal(invocation.definition, REGISTRY.item.list);
+  assert.equal(invocation.values.state, 'todo');
+  assert.deepEqual(invocation.positionals, ['CYB']);
+});
+
+test('parseInvocation resolves a __default action that takes a leading positional', () => {
+  const invocation = parseInvocation(['board', 'CYB']);
+  assert.equal(invocation.group, 'board');
+  assert.equal(invocation.action, '__default');
+  assert.equal(invocation.definition, REGISTRY.board.__default);
+  assert.deepEqual(invocation.positionals, ['CYB']);
+});
+
+test('parseInvocation reports no-group and top-level --help alike as a help invocation', () => {
+  assert.deepEqual(parseInvocation([]), { help: true, group: null, action: null });
+  assert.deepEqual(parseInvocation(['--help']), { help: true, group: null, action: null });
+  assert.deepEqual(parseInvocation(['help']), { help: true, group: null, action: null });
+});
+
+test('parseInvocation reports a group/action --help as a help invocation naming that group and action', () => {
+  const invocation = parseInvocation(['doctor', '--help']);
+  assert.deepEqual(invocation, { help: true, group: 'doctor', action: '__default' });
+});
+
+test('parseInvocation throws the same CybErrors main() used to throw directly', () => {
+  assert.throws(() => parseInvocation(['nonsense']), /unknown command group: nonsense/);
+  assert.throws(() => parseInvocation(['doctor', 'bogus']), /unknown action/);
+  assert.throws(() => parseInvocation(['my', 'bogus']), /unknown action/);
+  REGISTRY.__no_default_test__ = { list: { summary: 'list things', handler: async () => {} } };
+  try {
+    assert.throws(() => parseInvocation(['__no_default_test__']), /no action specified/);
+  } finally {
+    delete REGISTRY.__no_default_test__;
+  }
+});
+
+test('dispatch runs the invocation definition\'s handler against the given ctx and returns EXIT.OK', async () => {
+  const seen = [];
+  const invocation = { definition: { handler: async (ctx) => { seen.push(ctx); } } };
+  const ctx = { marker: 'session-ctx' };
+  const code = await dispatch(invocation, ctx);
+  assert.equal(code, EXIT.OK);
+  assert.deepEqual(seen, [ctx]);
+});
+
+test('dispatch propagates a handler rejection rather than swallowing it', async () => {
+  const invocation = { definition: { handler: async () => { throw new Error('boom'); } } };
+  await assert.rejects(() => dispatch(invocation, {}), /boom/);
+});
+
+test('dispatch does not itself touch buildContext, config or cache — it only runs the handler it is given', async () => {
+  // This is the property the REPL depends on: dispatch must accept a ctx the
+  // caller already built (and intends to reuse across lines) without ever
+  // reaching back into loadConfig/loadCache/new Client itself.
+  let handlerRan = false;
+  const invocation = { definition: { handler: async (ctx) => { handlerRan = true; assert.equal(ctx.reused, true); } } };
+  await dispatch(invocation, { reused: true });
+  assert.ok(handlerRan);
+});
+
+test('main is now a one-shot wrapper: parseInvocation -> buildContext -> dispatch, same observable result as before', async () => {
+  // Cross-check against the direct-call path: building the invocation and
+  // ctx by hand and dispatching manually must match what main() itself
+  // returns and writes, for both a plain and a --json invocation.
+  const s1 = captureStreams();
+  const code1 = await main(['doctor'], { streams: s1, env: {} });
+
+  const s2 = captureStreams();
+  const invocation = parseInvocation(['doctor']);
+  let code2;
+  try {
+    const ctx = buildContext({ values: invocation.values, positionals: invocation.positionals, deps: { streams: s2, env: {} } });
+    code2 = await dispatch(invocation, ctx);
+  } catch (err) {
+    s2.stderr.write(`error: ${err.message}\n`);
+    code2 = err.code ?? EXIT.GENERAL;
+  }
+
+  assert.equal(code1, code2);
+  assert.equal(code1, EXIT.AUTH);
+  assert.match(s1.errText(), /no API token/i);
+  assert.match(s2.errText(), /no API token/i);
+});
+
+// --- positionals metadata (Task 16 pre-work) -------------------------------
+//
+// renderHelp emitted prose with no argument syntax, so a REPL completer (or
+// any other caller) would have to re-derive each action's positional shape
+// by reading the handler. `search` is the one action whose first positional
+// is a query, not a project ref — a REPL that always injects the current
+// project as positional[0] must be able to tell that apart from the
+// metadata alone, not by special-casing the word "search".
+
+test('REGISTRY declares positionals metadata for every action', () => {
+  for (const [group, actions] of Object.entries(REGISTRY)) {
+    for (const [name, def] of Object.entries(actions)) {
+      assert.ok(Array.isArray(def.positionals), `${group} ${name} is missing positionals metadata`);
+    }
+  }
+});
+
+test('positionals metadata matches each handler\'s actual positional reads', () => {
+  assert.deepEqual(REGISTRY.item.list.positionals, ['project']);
+  assert.deepEqual(REGISTRY.item.show.positionals, ['itemRef']);
+  assert.deepEqual(REGISTRY.item.move.positionals, ['itemRef', 'state']);
+  assert.deepEqual(REGISTRY.item.assign.positionals, ['itemRef', 'member']);
+  assert.deepEqual(REGISTRY.board.__default.positionals, ['project']);
+  assert.deepEqual(REGISTRY.my.__default.positionals, []);
+});
+
+test('search is flagged as the one action whose first positional is not a project ref', () => {
+  // Everywhere else, positionals[0] is a project ref a REPL could inject
+  // from its current `cd` context. search's is a search query — the '?'
+  // on the second slot also says the project there is optional (falls back
+  // to --project / the configured default).
+  assert.deepEqual(REGISTRY.search.__default.positionals, ['query', 'project?']);
+  assert.notEqual(REGISTRY.search.__default.positionals[0], 'project');
+});
+
+test('renderHelp renders each action\'s positional syntax', () => {
+  const help = renderHelp('item');
+  assert.match(help, /move\s+<itemRef>\s+<state>/);
+  const boardHelp = renderHelp('board');
+  assert.match(boardHelp, /<project>/);
 });
 
 test('save() rethrows an error that is not a recognised filesystem error', () => {

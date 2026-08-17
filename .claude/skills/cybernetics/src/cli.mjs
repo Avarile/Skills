@@ -31,11 +31,12 @@ export const REGISTRY = {
       summary: 'Check auth, workspace access and rate-limit budget',
       options: { probe: { type: 'boolean', default: false } },
       handler: doctor,
+      positionals: [],
     },
   },
   project: {
-    list: { summary: 'List all projects', options: {}, handler: project.list },
-    show: { summary: 'Show one project', options: {}, handler: project.show },
+    list: { summary: 'List all projects', options: {}, handler: project.list, positionals: [] },
+    show: { summary: 'Show one project', options: {}, handler: project.show, positionals: ['project'] },
     create: {
       summary: 'Create a project',
       options: {
@@ -44,13 +45,15 @@ export const REGISTRY = {
         description: { type: 'string' },
       },
       handler: project.create,
+      positionals: [],
     },
     update: {
       summary: 'Update a project',
       options: { name: { type: 'string' }, description: { type: 'string' } },
       handler: project.update,
+      positionals: ['project'],
     },
-    delete: { summary: 'Delete a project (needs --yes)', options: {}, handler: project.remove },
+    delete: { summary: 'Delete a project (needs --yes)', options: {}, handler: project.remove, positionals: ['project'] },
   },
   item: {
     list: {
@@ -61,8 +64,9 @@ export const REGISTRY = {
         assignee: { type: 'string' },
       },
       handler: item.list,
+      positionals: ['project'],
     },
-    show: { summary: 'Show one work item', options: {}, handler: item.show },
+    show: { summary: 'Show one work item', options: {}, handler: item.show, positionals: ['itemRef'] },
     create: {
       summary: 'Create a work item',
       options: {
@@ -77,6 +81,7 @@ export const REGISTRY = {
         'start-date': { type: 'string' },
       },
       handler: item.create,
+      positionals: ['project'],
     },
     update: {
       summary: 'Update a work item',
@@ -91,74 +96,81 @@ export const REGISTRY = {
         'start-date': { type: 'string' },
       },
       handler: item.update,
+      positionals: ['itemRef'],
     },
-    move: { summary: 'Move a work item to a state', options: {}, handler: item.move },
-    assign: { summary: 'Assign a work item to a member', options: {}, handler: item.assign },
-    delete: { summary: 'Delete a work item (needs --yes)', options: {}, handler: item.remove },
+    move: { summary: 'Move a work item to a state', options: {}, handler: item.move, positionals: ['itemRef', 'state'] },
+    assign: { summary: 'Assign a work item to a member', options: {}, handler: item.assign, positionals: ['itemRef', 'member'] },
+    delete: { summary: 'Delete a work item (needs --yes)', options: {}, handler: item.remove, positionals: ['itemRef'] },
   },
   state: {
-    list: { summary: 'List workflow states in a project', options: {}, handler: meta.stateList },
+    list: { summary: 'List workflow states in a project', options: {}, handler: meta.stateList, positionals: ['project'] },
   },
   label: {
-    list: { summary: 'List labels in a project', options: {}, handler: meta.labelList },
+    list: { summary: 'List labels in a project', options: {}, handler: meta.labelList, positionals: ['project'] },
     create: {
       summary: 'Create a label',
       options: { name: { type: 'string' }, color: { type: 'string' } },
       handler: meta.labelCreate,
+      positionals: ['project'],
     },
-    delete: { summary: 'Delete a label (needs --yes)', options: {}, handler: meta.labelRemove },
+    delete: { summary: 'Delete a label (needs --yes)', options: {}, handler: meta.labelRemove, positionals: ['project', 'label'] },
   },
   member: {
-    list: { summary: 'List workspace members', options: {}, handler: meta.memberList },
+    list: { summary: 'List workspace members', options: {}, handler: meta.memberList, positionals: [] },
   },
   cycle: {
-    list: { summary: 'List cycles', options: {}, handler: planning.cycleList },
+    list: { summary: 'List cycles', options: {}, handler: planning.cycleList, positionals: ['project'] },
     create: {
       summary: 'Create a cycle',
       options: { name: { type: 'string' }, start: { type: 'string' }, end: { type: 'string' } },
       handler: planning.cycleCreate,
+      positionals: ['project'],
     },
     'add-item': {
       summary: 'Add an existing work item to a cycle',
       options: { cycle: { type: 'string' } },
       handler: planning.cycleAddItem,
+      positionals: ['itemRef'],
     },
-    delete: { summary: 'Delete a cycle (needs --yes)', options: {}, handler: planning.cycleRemove },
+    delete: { summary: 'Delete a cycle (needs --yes)', options: {}, handler: planning.cycleRemove, positionals: ['project', 'cycle'] },
   },
   module: {
-    list: { summary: 'List modules', options: {}, handler: planning.moduleList },
+    list: { summary: 'List modules', options: {}, handler: planning.moduleList, positionals: ['project'] },
     create: {
       summary: 'Create a module',
       options: { name: { type: 'string' }, description: { type: 'string' } },
       handler: planning.moduleCreate,
+      positionals: ['project'],
     },
     'add-item': {
       summary: 'Add an existing work item to a module',
       options: { module: { type: 'string' } },
       handler: planning.moduleAddItem,
+      positionals: ['itemRef'],
     },
-    delete: { summary: 'Delete a module (needs --yes)', options: {}, handler: planning.moduleRemove },
+    delete: { summary: 'Delete a module (needs --yes)', options: {}, handler: planning.moduleRemove, positionals: ['project', 'module'] },
   },
   comment: {
-    list: { summary: 'List comments on a work item', options: {}, handler: comment.commentList },
-    add: { summary: 'Add a comment to a work item', options: {}, handler: comment.commentAdd },
+    list: { summary: 'List comments on a work item', options: {}, handler: comment.commentList, positionals: ['itemRef'] },
+    add: { summary: 'Add a comment to a work item', options: {}, handler: comment.commentAdd, positionals: ['itemRef', 'text'] },
   },
   // These three exist to defend the 60 req/min budget: each answers a
   // question ("state of this project?", "what's mine?", "where's that
   // item?") in one pass instead of the per-resource loop every other group
-  // above would require. `takesPositional` tells main()'s dispatch that the
+  // above would require. `takesPositional` tells parseInvocation() that the
   // first bare token is real positional data (a project ref or a search
-  // query), not an attempted action name — see the dispatch note below.
+  // query), not an attempted action name — see parseInvocation below.
   board: {
     __default: {
       summary: 'Show a project as a kanban summary',
       options: {},
       handler: composite.board,
       takesPositional: true,
+      positionals: ['project'],
     },
   },
   my: {
-    __default: { summary: 'List work items assigned to you', options: {}, handler: composite.my },
+    __default: { summary: 'List work items assigned to you', options: {}, handler: composite.my, positionals: [] },
   },
   search: {
     __default: {
@@ -166,13 +178,27 @@ export const REGISTRY = {
       options: {},
       handler: composite.search,
       takesPositional: true,
+      // The one action whose positional[0] is not a project ref — a query
+      // instead. `project?` marks the second slot optional: it falls back
+      // to --project / the configured default when omitted. A REPL that
+      // otherwise injects its current project as positional[0] must read
+      // this metadata rather than assume the usual shape.
+      positionals: ['query', 'project?'],
     },
   },
   init: {
-    __default: { summary: 'Write ~/.cybernetics/config.json from the current environment', options: {}, handler: setup.init },
+    __default: { summary: 'Write ~/.cybernetics/config.json from the current environment', options: {}, handler: setup.init, positionals: [] },
   },
   sync: {
-    __default: { summary: 'Discard and rebuild the resolver cache', options: {}, handler: setup.sync },
+    __default: { summary: 'Discard and rebuild the resolver cache', options: {}, handler: setup.sync, positionals: [] },
+  },
+  ui: {
+    __default: {
+      summary: 'Interactive session with a persistent project context',
+      options: {},
+      handler: null,
+      positionals: [],
+    },
   },
 };
 
@@ -195,7 +221,9 @@ export function renderHelp(group, action) {
   const lines = [`Usage: cyb ${group} <action> [options]`, '', 'Actions:'];
   for (const [name, def] of Object.entries(actions)) {
     const label = name === '__default' ? '(default)' : name;
-    lines.push(`  ${label.padEnd(12)} ${def.summary ?? ''}`);
+    const argSyntax = (def.positionals ?? []).map((p) => `<${p}>`).join(' ');
+    const left = argSyntax ? `${label} ${argSyntax}` : label;
+    lines.push(`  ${left.padEnd(28)} ${def.summary ?? ''}`);
   }
   if (action && actions[action]?.options) {
     const label = action === '__default' ? '(default)' : action;
@@ -272,72 +300,119 @@ function detectJsonFlag(argv) {
   }
 }
 
+// Pure argv -> invocation translation. No I/O: it never touches config,
+// cache, the network, or a Client — everything it needs is the static
+// REGISTRY. Split out of main() (Task 16 pre-work) so the REPL can turn each
+// typed line into the same shape main() would build, without re-parsing
+// argv through a function that also reloads config/cache and rebuilds
+// Client/Resolver on every call — see dispatch() and startRepl() in
+// repl.mjs for why that distinction matters for the 60 req/min budget.
+//
+// Returns `{ help: true, group, action }` for every path that used to print
+// help and return early (bare argv, `--help`/`help`, or a resolved action's
+// own `--help`) — `group`/`action` are null for the top-level case. Otherwise
+// returns `{ group, action, definition, values, positionals }`. Throws the
+// same CybErrors main() used to throw directly for an unknown group, an
+// unknown action, or a `__default` group invoked with no action and no
+// positional data.
+export function parseInvocation(argv) {
+  const [group, ...rest] = argv;
+
+  if (!group || group === '--help' || group === 'help') {
+    return { help: true, group: null, action: null };
+  }
+
+  const actions = REGISTRY[group];
+  if (!actions) {
+    throw new CybError(
+      EXIT.GENERAL,
+      `unknown command group: ${group}`,
+      `valid groups: ${Object.keys(REGISTRY).join(', ')}`,
+    );
+  }
+
+  const maybeAction = rest[0];
+  // A bare first token is normally ambiguous for a `__default` group: is it
+  // an attempted (unknown) action name, or data for the default handler?
+  // `doctor` takes no positional args, so treating any bare word as a
+  // typo'd action (the `startsWith('-')` check below) is right for it.
+  // `board`/`search` take a real leading positional (project ref / search
+  // query) that is never a subcommand name, so their `__default` opts in
+  // via `takesPositional` to always dispatch there instead.
+  const usesDefault = Boolean(actions.__default) &&
+    (!maybeAction || maybeAction.startsWith('-') || Boolean(actions.__default.takesPositional));
+
+  if (!maybeAction && !usesDefault) {
+    throw new CybError(
+      EXIT.GENERAL,
+      `no action specified for ${group}`,
+      `run: cyb ${group} --help`,
+    );
+  }
+
+  const actionName = usesDefault ? '__default' : maybeAction;
+  const argsForParse = usesDefault ? rest : rest.slice(1);
+
+  const definition = actions[actionName];
+  if (!definition) {
+    throw new CybError(
+      EXIT.GENERAL,
+      `unknown action: ${group} ${maybeAction}`,
+      `valid actions: ${Object.keys(actions).filter((k) => k !== '__default').join(', ') || '(none)'}`,
+    );
+  }
+
+  const { values, positionals } = parseArgs({
+    args: argsForParse,
+    options: { ...GLOBAL_OPTIONS, ...(definition.options ?? {}) },
+    allowPositionals: true,
+  });
+
+  if (values.help) {
+    return { help: true, group, action: actionName };
+  }
+
+  return { group, action: actionName, definition, values, positionals };
+}
+
+// Runs an already-resolved invocation against an already-built ctx. This is
+// the whole seam: it does not load config or cache, does not construct a
+// Client or Resolver, and does not decide help or exit codes — callers that
+// need those (main() below, or a REPL driving many invocations against one
+// long-lived ctx) own that themselves.
+export async function dispatch(invocation, ctx) {
+  await invocation.definition.handler(ctx);
+  return EXIT.OK;
+}
+
+// One-shot wrapper kept for the plain CLI entry point and for every existing
+// caller/test: parseInvocation -> buildContext -> dispatch, in one process
+// per call. External behaviour (exit codes, the `{"error":{...}}` envelope,
+// `--help` handling) is unchanged from before this split — see
+// task-16-report.md for how that was verified.
 export async function main(argv, deps = {}) {
   const streams = deps.streams ?? { stdout: process.stdout, stderr: process.stderr };
   const jsonFlag = detectJsonFlag(argv);
 
   try {
-    const [group, ...rest] = argv;
+    const invocation = parseInvocation(argv);
 
-    if (!group || group === '--help' || group === 'help') {
-      streams.stdout.write(`${renderHelp()}\n`);
+    if (invocation.help) {
+      streams.stdout.write(`${renderHelp(invocation.group, invocation.action)}\n`);
       return EXIT.OK;
     }
 
-    const actions = REGISTRY[group];
-    if (!actions) {
-      throw new CybError(
-        EXIT.GENERAL,
-        `unknown command group: ${group}`,
-        `valid groups: ${Object.keys(REGISTRY).join(', ')}`,
-      );
+    // `ui` builds and reuses its own session-lifetime ctx per line (that's
+    // the entire point of it existing) rather than the one buildContext()
+    // would build for a single call, so it bypasses buildContext/dispatch
+    // here rather than going through them like every other group.
+    if (invocation.group === 'ui') {
+      const { startRepl } = await import('./repl.mjs');
+      return await startRepl(deps);
     }
 
-    const maybeAction = rest[0];
-    // A bare first token is normally ambiguous for a `__default` group: is it
-    // an attempted (unknown) action name, or data for the default handler?
-    // `doctor` takes no positional args, so treating any bare word as a
-    // typo'd action (the `startsWith('-')` check below) is right for it.
-    // `board`/`search` take a real leading positional (project ref / search
-    // query) that is never a subcommand name, so their `__default` opts in
-    // via `takesPositional` to always dispatch there instead.
-    const usesDefault = Boolean(actions.__default) &&
-      (!maybeAction || maybeAction.startsWith('-') || Boolean(actions.__default.takesPositional));
-
-    if (!maybeAction && !usesDefault) {
-      throw new CybError(
-        EXIT.GENERAL,
-        `no action specified for ${group}`,
-        `run: cyb ${group} --help`,
-      );
-    }
-
-    const actionName = usesDefault ? '__default' : maybeAction;
-    const argsForParse = usesDefault ? rest : rest.slice(1);
-
-    const definition = actions[actionName];
-    if (!definition) {
-      throw new CybError(
-        EXIT.GENERAL,
-        `unknown action: ${group} ${maybeAction}`,
-        `valid actions: ${Object.keys(actions).filter((k) => k !== '__default').join(', ') || '(none)'}`,
-      );
-    }
-
-    const { values, positionals } = parseArgs({
-      args: argsForParse,
-      options: { ...GLOBAL_OPTIONS, ...(definition.options ?? {}) },
-      allowPositionals: true,
-    });
-
-    if (values.help) {
-      streams.stdout.write(`${renderHelp(group, actionName)}\n`);
-      return EXIT.OK;
-    }
-
-    const ctx = buildContext({ values, positionals, deps: { ...deps, streams } });
-    await definition.handler(ctx);
-    return EXIT.OK;
+    const ctx = buildContext({ values: invocation.values, positionals: invocation.positionals, deps: { ...deps, streams } });
+    return await dispatch(invocation, ctx);
   } catch (err) {
     const mode = jsonFlag ? 'json' : 'plain';
     streams.stderr.write(`${renderError(err, { mode })}\n`);
