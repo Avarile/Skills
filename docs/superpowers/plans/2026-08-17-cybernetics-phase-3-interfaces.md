@@ -1043,7 +1043,7 @@ test('an invalid priority is rejected locally with exit 1', { skip: !ENABLED }, 
 
 - [ ] **Step 2: Verify it skips cleanly without a token**
 
-Run: `cd .claude/skills/cybernetics && node --test tests/integration/`
+Run: `cd .claude/skills/cybernetics && node --test tests/integration/*.test.mjs`
 Expected: all tests report as skipped, exit code 0. No network access attempted.
 
 - [ ] **Step 3: Run it against the live instance**
@@ -1051,7 +1051,7 @@ Expected: all tests report as skipped, exit code 0. No network access attempted.
 Run:
 ```bash
 cd .claude/skills/cybernetics
-CYB_TOKEN='<the real token>' CYB_RUN_INTEGRATION=1 node --test tests/integration/
+CYB_TOKEN='<the real token>' CYB_RUN_INTEGRATION=1 node --test tests/integration/*.test.mjs
 ```
 Expected: PASS — 4 tests. Afterwards verify the scratch project is gone:
 ```bash
@@ -1080,7 +1080,7 @@ git commit -m "test(cyb): add token-gated integration suite with scratch project
 
 - [ ] **Step 1: Run the complete unit suite**
 
-Run: `cd .claude/skills/cybernetics && node --test tests/`
+Run: `cd .claude/skills/cybernetics && node --test`
 Expected: PASS — 192 tests across 19 files, no network required, exit code 0.
 
 If any test fails, fix it before continuing. Do not proceed on a red suite.
@@ -1157,7 +1157,7 @@ This step is not optional. The repository is public.
 
 ## Phase 3 Exit Criteria
 
-- `node --test tests/` passes offline with no `CYB_TOKEN` set.
+- `node --test` passes offline with no `CYB_TOKEN` set.
 - The integration suite passes against the live instance and leaves no scratch project behind.
 - `cyb ui` runs an interactive session with tab completion and a persistent project.
 - `SKILL.md` is under 6KB, has valid two-field frontmatter, and is discoverable by Claude Code.

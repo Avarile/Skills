@@ -2196,7 +2196,7 @@ Expected: PASS — 4 tests
 
 - [ ] **Step 5: Run the full Phase 1 + 2 suite**
 
-Run: `cd .claude/skills/cybernetics && node --test tests/`
+Run: `cd .claude/skills/cybernetics && node --test`
 Expected: PASS — 159 tests across 17 files, no network required
 
 - [ ] **Step 6: Smoke test against the live instance**
@@ -2232,7 +2232,7 @@ git commit -m "feat(cyb): add init and sync setup commands"
 ## Phase 2 Exit Criteria
 
 - Every command in the spec's command surface is implemented and unit-tested.
-- `node --test tests/` passes with no network and no `CYB_TOKEN`.
+- `node --test` passes with no network and no `CYB_TOKEN`.
 - Destructive commands refuse without `--yes` and issue no API call when refusing.
 - Invalid priorities and unresolvable names fail before a request, with hints naming the valid values.
 - The live smoke test in Task 15 Step 6 completes end to end.

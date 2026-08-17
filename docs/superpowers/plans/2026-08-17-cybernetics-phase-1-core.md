@@ -136,8 +136,8 @@ Create `.claude/skills/cybernetics/package.json`:
   "bin": { "cyb": "./bin/cyb" },
   "engines": { "node": ">=24" },
   "scripts": {
-    "test": "node --test tests/",
-    "test:integration": "CYB_RUN_INTEGRATION=1 node --test tests/integration/"
+    "test": "node --test",
+    "test:integration": "CYB_RUN_INTEGRATION=1 node --test tests/integration/*.test.mjs"
   }
 }
 ```
@@ -2222,7 +2222,7 @@ Expected: PASS — 16 tests
 
 - [ ] **Step 5: Run the whole Phase 1 suite**
 
-Run: `cd .claude/skills/cybernetics && node --test tests/`
+Run: `cd .claude/skills/cybernetics && node --test`
 Expected: PASS — 91 tests across 8 files, no network access required
 
 - [ ] **Step 6: Verify `doctor` against the live instance**
@@ -2257,7 +2257,7 @@ git commit -m "feat(cyb): add CLI router with global flags and working doctor co
 
 ## Phase 1 Exit Criteria
 
-- `node --test tests/` passes with no network and no `CYB_TOKEN`.
+- `node --test` passes with no network and no `CYB_TOKEN`.
 - `cyb doctor` authenticates against the live instance and prints identity, workspace, project count and rate budget.
 - The token appears nowhere in output except as a fingerprint.
 - `REGISTRY` is ready for Phase 2 to extend with no router changes.
