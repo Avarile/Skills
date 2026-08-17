@@ -147,6 +147,36 @@ test('callCount tracks total requests issued', async () => {
   assert.equal(client.callCount, 2);
 });
 
+test('callCount increments once per fetch attempt, including retries', async () => {
+  const { client } = makeClient([
+    { status: 500, body: {} },
+    { status: 200, body: { ok: true } },
+  ]);
+  await client.request('GET', '/issues/');
+  assert.equal(client.callCount, 2);
+});
+
+test('paginate stops when a page returns empty results despite next_page_results being true', async () => {
+  const { client, calls } = makeClient([
+    { status: 200, body: { results: [], next_page_results: true, next_cursor: 'c2' } },
+  ]);
+  const seen = [];
+  for await (const item of client.paginate('/issues/')) seen.push(item.id);
+  assert.deepEqual(seen, []);
+  assert.equal(calls.length, 1);
+});
+
+test('paginate stops when next_cursor does not advance between pages', async () => {
+  const { client, calls } = makeClient([
+    { status: 200, body: { results: [{ id: 1 }], next_page_results: true, next_cursor: 'c2' } },
+    { status: 200, body: { results: [{ id: 2 }], next_page_results: true, next_cursor: 'c2' } },
+  ]);
+  const seen = [];
+  for await (const item of client.paginate('/issues/')) seen.push(item.id);
+  assert.deepEqual(seen, [1, 2]);
+  assert.equal(calls.length, 2);
+});
+
 test('verbose logs a request line to the supplied stream', async () => {
   const logged = [];
   const { client } = makeClient([{ status: 200, body: {} }], {
