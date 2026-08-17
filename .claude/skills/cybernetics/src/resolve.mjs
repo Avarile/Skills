@@ -333,6 +333,15 @@ export class Resolver {
   // `fn` exactly once. A second failure, 404 or otherwise, propagates. Per
   // spec: "a 404 against a cached UUID triggers exactly one
   // refresh-and-retry, then fails."
+  //
+  // Deliberately not used for states or members: a stale state/member UUID
+  // isn't a path segment (there's no `/states/<uuid>/` request to 404) — it's
+  // a body field on `item create`/`item update` (`--state`, `--assignee`), so
+  // an unresolvable one surfaces from `/issues/` as a 400 body-validation
+  // error, not a 404. The `err.status === 404` gate here would never fire for
+  // that shape, so wrapping those calls would add retry machinery that can
+  // never trigger. Labels and projects, by contrast, are resolved onto a URL
+  // path and genuinely 404 when stale.
   async withRefresh(fn, onInvalidate) {
     try {
       return await fn();

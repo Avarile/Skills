@@ -24,7 +24,7 @@ const HINTS = {
   401: 'token rejected — check CYB_TOKEN or run: cyb doctor',
   402: 'this feature is not licensed on this instance',
   403: 'not permitted for this token, or the feature is gated on this instance',
-  404: 'endpoint or record not found — run: cyb doctor to refresh capabilities',
+  404: 'record may be gone (try: cyb sync, or --no-cache) or the endpoint may not exist on this instance (try: cyb doctor)',
   429: 'rate limited (60 req/min) — retry shortly or reduce --limit',
 };
 
