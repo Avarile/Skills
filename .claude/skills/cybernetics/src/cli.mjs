@@ -7,6 +7,7 @@ import { pickMode, renderError } from './format.mjs';
 import { CybError, EXIT } from './errors.mjs';
 import { doctor } from './commands/doctor.mjs';
 import * as project from './commands/project.mjs';
+import * as item from './commands/item.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -45,6 +46,18 @@ export const REGISTRY = {
       handler: project.update,
     },
     delete: { summary: 'Delete a project (needs --yes)', options: {}, handler: project.remove },
+  },
+  item: {
+    list: {
+      summary: 'List work items in a project',
+      options: {
+        state: { type: 'string' },
+        priority: { type: 'string' },
+        assignee: { type: 'string' },
+      },
+      handler: item.list,
+    },
+    show: { summary: 'Show one work item', options: {}, handler: item.show },
   },
 };
 
