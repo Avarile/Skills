@@ -10,6 +10,7 @@ import * as project from './commands/project.mjs';
 import * as item from './commands/item.mjs';
 import * as meta from './commands/meta.mjs';
 import * as planning from './commands/planning.mjs';
+import * as comment from './commands/comment.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -135,6 +136,10 @@ export const REGISTRY = {
       handler: planning.moduleAddItem,
     },
     delete: { summary: 'Delete a module (needs --yes)', options: {}, handler: planning.moduleRemove },
+  },
+  comment: {
+    list: { summary: 'List comments on a work item', options: {}, handler: comment.commentList },
+    add: { summary: 'Add a comment to a work item', options: {}, handler: comment.commentAdd },
   },
 };
 
