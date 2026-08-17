@@ -69,10 +69,27 @@ export async function labelRemove(ctx) {
   }
 
   const project = await ctx.resolver.project(projectRef(ctx));
-  const labelId = await ctx.resolver.label(project.id, name);
+  // Resolves (or throws a proper not-found) before the confirmation gate, so
+  // a bad label name never gets as far as "are you sure?".
+  await ctx.resolver.label(project.id, name);
   requireConfirmation(ctx, { action: 'delete label', targets: [name] });
 
-  await ctx.client.request('DELETE', `${ctx.client.projectPath(project.id)}/labels/${labelId}/`);
+  // A cached label uuid can be stale (edited or deleted elsewhere inside the
+  // TTL); route the DELETE through the same refresh-and-retry contract items
+  // already have (Important 5) — on a 404, drop the mapping, re-resolve the
+  // name, and retry exactly once before failing.
+  await ctx.resolver.withCachedRetry(
+    () => ctx.resolver.label(project.id, name),
+    (labelId) => ctx.client.request('DELETE', `${ctx.client.projectPath(project.id)}/labels/${labelId}/`),
+    () => ctx.resolver.invalidate('label', project.id, name),
+  );
+
+  // The delete is also self-inflicted staleness: it just deleted the label
+  // server-side, so the mapping resolved above (fresh a moment ago) is now
+  // stale too. Drop it immediately rather than leaving it for the next
+  // command to discover via a 400.
+  ctx.resolver.invalidate('label', project.id, name);
+
   emit({ deleted: name }, { mode: ctx.mode, stdout: ctx.streams.stdout });
 }
 

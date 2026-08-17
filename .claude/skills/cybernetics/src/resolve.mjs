@@ -344,4 +344,19 @@ export class Resolver {
       throw err;
     }
   }
+
+  // Generalises `withRefresh` to the "resolve a cached id, then act on it"
+  // shape used everywhere a resolved label/state/member/project/item UUID
+  // ends up in a request path. item.mjs's `mutateItem` was the original,
+  // item-specific instance of exactly this pattern (resolve the item, then
+  // act on it); this is that shape with the item-specific parts pulled out,
+  // so labels/states/members/projects get the same refresh-and-retry
+  // contract without five near-copies of `mutateItem`. `resolve()` produces
+  // whatever `act()` needs; if `act()` throws a 404 (the resolved id no
+  // longer refers to anything), `invalidate()` drops the stale cache entry
+  // and the whole resolve+act cycle runs exactly once more before the error
+  // propagates.
+  async withCachedRetry(resolve, act, invalidate) {
+    return this.withRefresh(async () => act(await resolve()), invalidate);
+  }
 }

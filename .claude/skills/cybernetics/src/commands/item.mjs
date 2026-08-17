@@ -142,11 +142,9 @@ function itemRef(ctx, index = 0) {
 // triggers exactly one refresh-and-retry, then fails" holds everywhere a
 // cached item id is used, not just in the resolver primitives.
 export async function mutateItem(ctx, ref, act) {
-  return ctx.resolver.withRefresh(
-    async () => {
-      const item = await ctx.resolver.item(ref);
-      return act(item);
-    },
+  return ctx.resolver.withCachedRetry(
+    () => ctx.resolver.item(ref),
+    act,
     () => {
       const parsed = parseItemRef(ref);
       if (parsed) {

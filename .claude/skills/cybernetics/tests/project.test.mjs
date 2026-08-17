@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { list, show, create, remove, PROJECT_COLUMNS } from '../src/commands/project.mjs';
+import { list, show, create, update, remove, PROJECT_COLUMNS } from '../src/commands/project.mjs';
 import { Client } from '../src/client.mjs';
 import { Resolver } from '../src/resolve.mjs';
 import { emptyCache } from '../src/cache.mjs';
@@ -91,4 +91,76 @@ test('project delete with --yes issues the DELETE', async () => {
   ], { positionals: ['CYB'], values: { yes: true } });
   await remove(ctx);
   assert.equal(calls.at(-1).init.method, 'DELETE');
+});
+
+test('project update patches the resolved project', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { results: [{ id: UUID_A, identifier: 'CYB', name: 'Core' }] } },
+    { status: 200, body: { id: UUID_A, identifier: 'CYB', name: 'Renamed' } },
+  ], { positionals: ['CYB'], values: { name: 'Renamed' } });
+  await update(ctx);
+  const patch = calls.at(-1);
+  assert.equal(patch.init.method, 'PATCH');
+  assert.deepEqual(JSON.parse(patch.init.body), { name: 'Renamed' });
+});
+
+test('project update requires --name or --description', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { results: [{ id: UUID_A, identifier: 'CYB', name: 'Core' }] } },
+  ], { positionals: ['CYB'], values: {} });
+  await assert.rejects(() => update(ctx), (err) => /nothing to update/.test(err.message));
+  assert.ok(calls.every((c) => c.init.method !== 'PATCH'));
+});
+
+// Important 5: a cached project uuid can go stale (the project was deleted
+// or its id otherwise changed outside this CLI within the TTL). `update`
+// and `remove` now route through the same refresh-and-retry contract items
+// already have — on a 404, drop the mapping, re-resolve by ref, and retry
+// exactly once before failing.
+test('project update retries once on a stale cached uuid and succeeds', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 404, body: {} },
+    { status: 200, body: { total_count: 1, results: [{ id: UUID_A, identifier: 'CYB', name: 'Core' }] } },
+    { status: 200, body: { id: UUID_A, identifier: 'CYB', name: 'Renamed' } },
+  ], { positionals: ['CYB'], values: { name: 'Renamed' } });
+  ctx.cache.projects.CYB = { id: 'stale-project-uuid', name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  await update(ctx);
+
+  assert.match(calls[0].url, /stale-project-uuid/, 'first PATCH hits the stale cached uuid');
+  assert.match(calls.at(-1).url, new RegExp(UUID_A), 'retry PATCH hits the freshly resolved uuid');
+  assert.equal(calls.at(-1).init.method, 'PATCH');
+});
+
+test('project delete retries once on a stale cached uuid, succeeds, and cleans up the fresh mapping', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 404, body: {} },
+    { status: 200, body: { total_count: 1, results: [{ id: UUID_A, identifier: 'CYB', name: 'Core' }] } },
+    { status: 204, body: undefined },
+  ], { positionals: ['CYB'], values: { yes: true } });
+  ctx.cache.projects.CYB = { id: 'stale-project-uuid', name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  await remove(ctx);
+
+  assert.match(calls[0].url, /stale-project-uuid/, 'first DELETE hits the stale cached uuid');
+  assert.match(calls.at(-1).url, new RegExp(UUID_A), 'retry DELETE hits the freshly resolved uuid');
+  assert.equal(calls.at(-1).init.method, 'DELETE');
+  assert.equal(ctx.cache.projects.CYB, undefined, 'the mapping to the deleted project must not survive');
+});
+
+// The "worst residue" case from the review: resolving a project by
+// identifier caches identifier -> uuid, and then deleting *that same
+// project* by its raw uuid used to key the cache cleanup off
+// `project.identifier`, which is null for a uuid ref — deleting
+// cache.projects[''], a no-op, and leaving the stale identifier mapping in
+// place pointing at a now-deleted project.
+test('project delete by uuid cleans up the identifier cache entry that pointed at it', async () => {
+  const { ctx } = makeCtx([
+    { status: 204, body: undefined },
+  ], { positionals: [UUID_A], values: { yes: true } });
+  ctx.cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  await remove(ctx);
+
+  assert.equal(ctx.cache.projects.CYB, undefined);
 });

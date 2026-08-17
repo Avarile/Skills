@@ -66,8 +66,21 @@ export async function create(ctx) {
   emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
 }
 
+// Cache.projects is keyed by uppercased identifier, but a UUID ref resolves
+// to `{ identifier: null }` (resolve.mjs) — deleting `cache.projects[key]`
+// for a null-derived key is a no-op and leaves a since-deleted project's
+// identifier -> uuid mapping behind (Important 5). Key the cleanup off the
+// id actually acted on instead, so it works regardless of which ref form
+// was used to name the project.
+function forgetProject(ctx, projectId) {
+  for (const [key, entry] of Object.entries(ctx.cache.projects)) {
+    if (entry?.id === projectId) delete ctx.cache.projects[key];
+  }
+}
+
 export async function update(ctx) {
-  const project = await ctx.resolver.project(requiredProject(ctx));
+  const ref = requiredProject(ctx);
+  const project = await ctx.resolver.project(ref);
   const body = {};
   if (ctx.values.name) body.name = ctx.values.name;
   if (ctx.values.description) body.description = ctx.values.description;
@@ -76,7 +89,13 @@ export async function update(ctx) {
     throw new CybError(EXIT.GENERAL, 'nothing to update', 'pass --name or --description');
   }
 
-  const { data } = await ctx.client.request('PATCH', `${ctx.client.projectPath(project.id)}/`, { body });
+  // A cached project uuid can be stale; route through the same
+  // refresh-and-retry contract items already have (Important 5).
+  const { data } = await ctx.resolver.withCachedRetry(
+    () => ctx.resolver.project(ref),
+    (resolved) => ctx.client.request('PATCH', `${ctx.client.projectPath(resolved.id)}/`, { body }),
+    () => ctx.resolver.invalidate('project', null, ref),
+  );
   emit(data, { mode: ctx.mode, stdout: ctx.streams.stdout });
 }
 
@@ -89,10 +108,21 @@ export async function remove(ctx) {
     targets: [project.identifier ?? project.id],
   });
 
-  await ctx.client.request('DELETE', `${ctx.client.projectPath(project.id)}/`);
+  // Track the id the DELETE actually succeeds against — on a stale-uuid
+  // retry (Important 5) that can differ from `project.id` above, and the
+  // cache cleanup below must key off whichever id was really deleted.
+  let deletedId = project.id;
+  await ctx.resolver.withCachedRetry(
+    () => ctx.resolver.project(ref),
+    (resolved) => {
+      deletedId = resolved.id;
+      return ctx.client.request('DELETE', `${ctx.client.projectPath(resolved.id)}/`);
+    },
+    () => ctx.resolver.invalidate('project', null, ref),
+  );
 
-  delete ctx.cache.projects[String(project.identifier ?? '').toUpperCase()];
-  delete ctx.cache.byProject[project.id];
+  forgetProject(ctx, deletedId);
+  delete ctx.cache.byProject[deletedId];
   ctx.save();
 
   emit({ deleted: project.identifier ?? project.id }, { mode: ctx.mode, stdout: ctx.streams.stdout });
