@@ -2278,3 +2278,22 @@ git commit -m "feat(cyb): add init and sync setup commands"
 - The live smoke test in Task 15 Step 6 completes end to end.
 
 Phase 3 (`docs/superpowers/plans/2026-08-17-cybernetics-phase-3-interfaces.md`) adds the REPL, the skill documentation, and integration tests.
+
+## Post-implementation amendments
+
+Review during execution found defects in this plan's own reference code. The shipped
+implementation is authoritative where it differs.
+
+| Task | Defect found in review | Commit |
+|---|---|---|
+| 9 | `item list --json` truncated silently; the item cache never stamped `itemsFetchedAt` so it was dead; `item show <uuid>` built `/projects/null/…` | `bc9a0cd` |
+| 10 | `create`/`update`/`move`/`assign` ran locally-checkable validation *after* a network request; the brief's own test masked it with a warm-cache fixture | `6ae97f9` |
+| 11–13 | delete-refusal tests never asserted no DELETE was issued; the validation-ordering fix had no cold-cache regression guard | `6f5f96d` |
+| 14 | `board` dropped everything past one page; `my` fanned out unbounded (52 requests for 50 projects in the sparse case); `search`'s cap was silent, then imprecise at the exact boundary | `c45a757`, `bd79c0b` |
+| 15 | `sync` emptied the cache in place, and `resolver.me()`'s internal `save()` committed that empty state — a transient failure wiped a healthy cache | `a945528` |
+| final | seven list commands truncated silently and ignored `--limit`; `search`/`my` silent at the row limit; four handlers built `/projects/null/…`; `--description` injected raw HTML while `comment add` escaped it; refresh-and-retry existed only for items; `per_page` exceeded the client ceiling and the notice recommended it | `94a1892`, `d9bd94e`, `2716b28`, `e11e2d1`, `9804f40` |
+
+Deferred with rulings (see the SDD ledger): the `--yes` gate is evaluated after 1–2
+resolution requests (safety holds; costs requests), and nothing defends the 60 req/min
+budget across a whole *session* — only per command. Phase 3 partly addresses the latter by
+giving the REPL a session-lifetime `Client`.
