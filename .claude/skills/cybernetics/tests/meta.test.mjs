@@ -31,15 +31,17 @@ test('label create posts name and colour', async () => {
 });
 
 test('label create requires --name', async () => {
-  const { ctx } = makeCtx([], { positionals: ['CYB'], values: {} });
+  const { ctx, calls } = makeCtx([], { positionals: ['CYB'], values: {}, warmCache: false });
   await assert.rejects(() => labelCreate(ctx), (err) => /--name/.test(err.hint));
+  assert.equal(calls.length, 0);
 });
 
 test('label delete without --yes refuses', async () => {
-  const { ctx } = makeCtx([
+  const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'l1', name: 'bug' }] } },
   ], { positionals: ['CYB', 'bug'] });
   await assert.rejects(() => labelRemove(ctx), (err) => err.code === EXIT.REFUSED);
+  assert.ok(calls.every((c) => c.init.method !== 'DELETE'));
 });
 
 test('member list emits workspace members', async () => {
@@ -56,4 +58,5 @@ test('member list never emits raw emails in table mode', async () => {
   ], { mode: 'plain' });
   await memberList(ctx);
   assert.match(outText(), /avarile/);
+  assert.doesNotMatch(outText(), /a@b\.c/);
 });

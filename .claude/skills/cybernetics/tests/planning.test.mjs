@@ -27,8 +27,9 @@ test('cycle create posts name with start and end dates', async () => {
 });
 
 test('cycle create requires --name', async () => {
-  const { ctx } = makeCtx([], { positionals: ['CYB'], values: {} });
+  const { ctx, calls } = makeCtx([], { positionals: ['CYB'], values: {}, warmCache: false });
   await assert.rejects(() => cycleCreate(ctx), (err) => /--name/.test(err.hint));
+  assert.equal(calls.length, 0);
 });
 
 test('cycle add-item posts the issue uuid to cycle-issues', async () => {
@@ -57,10 +58,11 @@ test('cycle add-item reports an unknown cycle by name', async () => {
 });
 
 test('cycle delete without --yes refuses', async () => {
-  const { ctx } = makeCtx([
+  const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'c1', name: 'Sprint 1' }] } },
   ], { positionals: ['CYB', 'Sprint 1'] });
   await assert.rejects(() => cycleRemove(ctx), (err) => err.code === EXIT.REFUSED);
+  assert.ok(calls.every((c) => c.init.method !== 'DELETE'));
 });
 
 test('module list emits modules', async () => {
@@ -79,6 +81,12 @@ test('module create posts a name', async () => {
   assert.equal(JSON.parse(calls.at(-1).init.body).name, 'Auth');
 });
 
+test('module create requires --name', async () => {
+  const { ctx, calls } = makeCtx([], { positionals: ['CYB'], values: {}, warmCache: false });
+  await assert.rejects(() => moduleCreate(ctx), (err) => /--name/.test(err.hint));
+  assert.equal(calls.length, 0);
+});
+
 test('module add-item posts to module-issues', async () => {
   const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'item-uuid', sequence_id: 42 }] } },
@@ -86,7 +94,9 @@ test('module add-item posts to module-issues', async () => {
     { status: 201, body: {} },
   ], { positionals: ['CYB-42'], values: { module: 'Auth' } });
   await moduleAddItem(ctx);
-  assert.match(calls.at(-1).url, /module-issues/);
+  const post = calls.at(-1);
+  assert.match(post.url, /module-issues/);
+  assert.deepEqual(JSON.parse(post.init.body), { issues: ['item-uuid'] });
 });
 
 test('module delete without --yes refuses and issues no DELETE', async () => {
