@@ -34,6 +34,22 @@ test('an unknown action names the valid actions for that group', async () => {
   assert.match(s.errText(), /unknown action/);
 });
 
+test('an unknown action on a group with no __default still fails the same way', async () => {
+  // item has no __default — pins this case separately from doctor's (which
+  // does have one) since that's exactly the branch this fix touches.
+  const s = captureStreams();
+  const code = await main(['item', 'bogus'], { streams: s, env: {} });
+  assert.equal(code, EXIT.GENERAL);
+  assert.match(s.errText(), /unknown action: item bogus/);
+});
+
+test('top-level --help prints the same help as bare invocation and exits 0', async () => {
+  const s = captureStreams();
+  const code = await main(['--help'], { streams: s, env: {} });
+  assert.equal(code, EXIT.OK);
+  assert.match(s.outText(), /Usage: cyb/);
+});
+
 test('--help on a group prints that group help without running it', async () => {
   const s = captureStreams();
   const code = await main(['doctor', '--help'], { streams: s, env: {} });
@@ -83,6 +99,36 @@ test('cyb doctor --help lists the --probe option', async () => {
   const code = await main(['doctor', '--help'], { streams: s, env: {} });
   assert.equal(code, EXIT.OK);
   assert.match(s.outText(), /--probe/);
+});
+
+test('cyb <group> --help on a group with no __default prints group help instead of "unknown action"', async () => {
+  // The bug this fix addresses: `item` has no __default, so a leading
+  // --help used to fall through to `actionName = '--help'`, an unregistered
+  // action, and throw "unknown action: item --help".
+  const s = captureStreams();
+  const code = await main(['item', '--help'], { streams: s, env: {} });
+  assert.equal(code, EXIT.OK);
+  assert.doesNotMatch(s.errText(), /unknown action/);
+  assert.match(s.outText(), /list/);
+  assert.match(s.outText(), /create/);
+});
+
+test('cyb <group> --help is general, not special-cased for item: a second no-__default group works too', async () => {
+  const s = captureStreams();
+  const code = await main(['label', '--help'], { streams: s, env: {} });
+  assert.equal(code, EXIT.OK);
+  assert.doesNotMatch(s.errText(), /unknown action/);
+  assert.match(s.outText(), /list/);
+  assert.match(s.outText(), /create/);
+  assert.match(s.outText(), /<project>/);
+});
+
+test('cyb item list --help prints action-level help and exits 0', async () => {
+  const s = captureStreams();
+  const code = await main(['item', 'list', '--help'], { streams: s, env: {} });
+  assert.equal(code, EXIT.OK);
+  assert.match(s.outText(), /Options for item list/);
+  assert.match(s.outText(), /--state/);
 });
 
 test('board dispatches its positional through __default instead of treating it as an unknown action', async () => {
@@ -246,6 +292,11 @@ test('parseInvocation reports no-group and top-level --help alike as a help invo
 test('parseInvocation reports a group/action --help as a help invocation naming that group and action', () => {
   const invocation = parseInvocation(['doctor', '--help']);
   assert.deepEqual(invocation, { help: true, group: 'doctor', action: '__default' });
+});
+
+test('parseInvocation reports a leading --help on a group with no __default as group-level help, not an unknown action', () => {
+  const invocation = parseInvocation(['item', '--help']);
+  assert.deepEqual(invocation, { help: true, group: 'item', action: null });
 });
 
 test('parseInvocation throws the same CybErrors main() used to throw directly', () => {

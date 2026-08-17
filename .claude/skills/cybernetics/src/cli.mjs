@@ -315,6 +315,12 @@ function detectJsonFlag(argv) {
 // same CybErrors main() used to throw directly for an unknown group, an
 // unknown action, or a `__default` group invoked with no action and no
 // positional data.
+//
+// A leading `--help` on a group with no `__default` (e.g. `cyb item --help`)
+// is also a help invocation, with `action: null` — there is no default
+// action for parseArgs to attach `values.help` to, so it has to be caught
+// here rather than falling out of the parseArgs branch below the way
+// `cyb item list --help` or a `__default` group's own `--help` do.
 export function parseInvocation(argv) {
   const [group, ...rest] = argv;
 
@@ -341,6 +347,17 @@ export function parseInvocation(argv) {
   // via `takesPositional` to always dispatch there instead.
   const usesDefault = Boolean(actions.__default) &&
     (!maybeAction || maybeAction.startsWith('-') || Boolean(actions.__default.takesPositional));
+
+  // A group with no `__default` has no action for a bare leading `--help` to
+  // resolve into — left alone it falls through to `actionName = '--help'`,
+  // an unregistered action, and throws `unknown action`. Catch it here as a
+  // request for the group's own help (action list + positional syntax) —
+  // `__default` groups don't need this: `usesDefault` above already routes
+  // their `--help` into the default action, where it reaches parseArgs and
+  // sets `values.help` below, giving the more specific default-action help.
+  if (!usesDefault && maybeAction === '--help') {
+    return { help: true, group, action: null };
+  }
 
   if (!maybeAction && !usesDefault) {
     throw new CybError(
