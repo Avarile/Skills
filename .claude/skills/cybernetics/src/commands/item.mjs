@@ -196,8 +196,10 @@ export async function buildItemBody(ctx, { project }) {
 }
 
 export async function create(ctx) {
-  const project = await ctx.resolver.project(projectRef(ctx));
-
+  // Both checks are purely local (no project/item context needed), so they
+  // must run before the resolver's `project()` call below, which is a real
+  // GET on a cold cache. Invalid input has to be rejected client-side before
+  // any request is issued — see task-10-review.md's Important finding.
   if (!ctx.values.name) {
     throw new CybError(
       EXIT.GENERAL,
@@ -206,6 +208,8 @@ export async function create(ctx) {
     );
   }
   validatePriority(ctx.values.priority);
+
+  const project = await ctx.resolver.project(projectRef(ctx));
 
   const body = await buildItemBody(ctx, { project });
   const { data } = await ctx.client.request(
@@ -223,6 +227,11 @@ export async function create(ctx) {
 
 export async function update(ctx) {
   const ref = itemRef(ctx);
+  // Purely local check, hoisted above `mutateItem` so a bad --priority is
+  // rejected before the item-resolution GET it would otherwise trigger on a
+  // cold cache. `buildItemBody`'s own call below stays — it's not just
+  // validation, it also produces the body's `priority` field.
+  validatePriority(ctx.values.priority);
   return mutateItem(ctx, ref, async (item) => {
     const projectId = await resolveItemProjectId(ctx, item);
     const body = await buildItemBody(ctx, { project: { id: projectId } });

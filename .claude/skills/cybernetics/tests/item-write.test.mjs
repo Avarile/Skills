@@ -14,13 +14,21 @@ test('item create posts name and resolved state', async () => {
   assert.equal(body.state, UUID_STATE_PROGRESS);
 });
 
-test('item create requires --name', async () => {
-  const { ctx } = makeCtx([], { positionals: ['CYB'], values: {} });
+test('item create requires --name, cold cache, zero requests', async () => {
+  const { ctx, calls } = makeCtx([], { positionals: ['CYB'], values: {}, warmCache: false });
   await assert.rejects(() => create(ctx), (err) => err.code === EXIT.GENERAL && /--name/.test(err.hint));
+  assert.equal(calls.length, 0);
 });
 
+// warmCache: false is load-bearing here: with the default warm cache,
+// `cache.projects.CYB` is already fresh, so the project resolves from cache
+// and the test would pass even if the priority check ran after the resolver
+// call. A cold cache is what actually proves the check runs before any
+// request — see task-10-review.md's Important finding.
 test('item create rejects an invalid priority before any request', async () => {
-  const { ctx, calls } = makeCtx([], { positionals: ['CYB'], values: { name: 'x', priority: 'critical' } });
+  const { ctx, calls } = makeCtx([], {
+    positionals: ['CYB'], values: { name: 'x', priority: 'critical' }, warmCache: false,
+  });
   await assert.rejects(() => create(ctx), (err) => /invalid priority/.test(err.message));
   assert.equal(calls.length, 0);
 });
@@ -60,6 +68,14 @@ test('item update with no fields is rejected', async () => {
   await assert.rejects(() => update(ctx), (err) => /nothing to update/.test(err.message));
 });
 
+test('item update rejects an invalid priority before any request', async () => {
+  const { ctx, calls } = makeCtx([], {
+    positionals: ['CYB-42'], values: { priority: 'bogus' }, warmCache: false,
+  });
+  await assert.rejects(() => update(ctx), (err) => /invalid priority/.test(err.message));
+  assert.equal(calls.length, 0, 'must reject before the item-resolution GET');
+});
+
 test('item move is sugar for updating the state', async () => {
   const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'item-uuid', sequence_id: 42 }] } },
@@ -69,9 +85,20 @@ test('item move is sugar for updating the state', async () => {
   assert.deepEqual(JSON.parse(calls.at(-1).init.body), { state: UUID_STATE_PROGRESS });
 });
 
-test('item move requires a target state', async () => {
-  const { ctx } = makeCtx([], { positionals: ['CYB-42'] });
+// `move` and `assign` have no --priority option (src/cli.mjs registers
+// `options: {}` for both), so the equivalent locally-checkable input for
+// them is the required positional (target state / assignee). warmCache:
+// false proves the check runs before mutateItem's item-resolution GET.
+test('item move requires a target state, cold cache, zero requests', async () => {
+  const { ctx, calls } = makeCtx([], { positionals: ['CYB-42'], warmCache: false });
   await assert.rejects(() => move(ctx), (err) => /state/.test(err.message));
+  assert.equal(calls.length, 0);
+});
+
+test('item assign requires an assignee, cold cache, zero requests', async () => {
+  const { ctx, calls } = makeCtx([], { positionals: ['CYB-42'], warmCache: false });
+  await assert.rejects(() => assign(ctx), (err) => /assignee/.test(err.message));
+  assert.equal(calls.length, 0);
 });
 
 test('item assign resolves the member and PATCHes assignees', async () => {
