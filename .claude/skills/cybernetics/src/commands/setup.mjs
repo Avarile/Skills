@@ -1,5 +1,5 @@
 import { saveConfig, CONFIG_PATH, fingerprint } from '../config.mjs';
-import { emptyCache, projectBucket } from '../cache.mjs';
+import { projectBucket } from '../cache.mjs';
 import { emit } from '../format.mjs';
 
 // Non-interactive: writes whatever buildContext already resolved (env,
@@ -32,54 +32,84 @@ export async function init(ctx) {
 }
 
 // Discards and rebuilds the resolver cache: projects, per-project states,
-// and workspace members. Mutates ctx.cache's fields in place rather than
+// and workspace members. The rebuild is assembled entirely in local
+// variables — nothing is written onto ctx.cache, and ctx.save() is called
+// exactly once, after every fetch below has succeeded. That's why this goes
+// straight through ctx.client rather than ctx.resolver: Resolver.me() and
+// Resolver.statesFor() write through to the shared ctx.cache and call
+// save() as a side effect of their own success, which would commit a
+// half-rebuilt cache the moment the first sub-request succeeded — and if a
+// later request then failed (a 404, a rate limit, a network blip), the
+// on-disk cache would be left wiped for reasons unconnected to whether the
+// rebuild as a whole succeeded. Building locally and committing once makes
+// the operation atomic by construction: if sync throws partway, ctx.cache
+// and the on-disk cache are exactly what they were before it was called.
+//
+// Once committed, ctx.cache's fields are mutated in place rather than
 // reassigning ctx.cache itself — the resolver was constructed against this
 // same object, so replacing the reference here would leave it reading and
 // writing a stale copy for the rest of the process.
 //
-// Every region written below is stamped fresh so the resolver's freshness
-// checks (isFresh, gated on statesFetchedAt / membersFetchedAt) read the
-// just-synced cache as fresh instead of immediately re-fetching on the next
-// command. The stamp comes from ctx.resolver's injected clock, not wall-clock
-// time, so it lines up with the fake clocks tests inject elsewhere.
+// Every region written below is stamped with the same instant so the
+// resolver's freshness checks (isFresh, gated on statesFetchedAt /
+// membersFetchedAt) read the just-synced cache as fresh instead of
+// immediately re-fetching on the next command. The stamp comes from
+// ctx.resolver's injected clock, not wall-clock time, so it lines up with
+// the fake clocks tests inject elsewhere.
 export async function sync(ctx) {
-  const fresh = emptyCache(ctx.config.workspace);
-  ctx.cache.projects = fresh.projects;
-  ctx.cache.byProject = fresh.byProject;
-  ctx.cache.members = {};
-  ctx.cache.membersFetchedAt = null;
-  ctx.cache.me = null;
+  const stamp = ctx.resolver.stamp();
 
-  const me = await ctx.resolver.me();
+  const { data: meData } = await ctx.client.request('GET', '/users/me/');
+  const me = { id: meData.id, display_name: meData.display_name };
 
   const { data } = await ctx.client.request('GET', `${ctx.client.wsPath}/projects/`, {
     fields: ['id', 'identifier', 'name'],
   });
   const projects = data?.results ?? [];
-  const stamp = ctx.resolver.stamp();
+
+  const newProjects = {};
+  const newByProject = {};
 
   // One states request per project — see the request-cost note in the task
   // report: this scales linearly with project count and can exceed the
   // 60 req/min budget on its own for a large-enough workspace.
   for (const project of projects) {
-    ctx.cache.projects[String(project.identifier).toUpperCase()] = {
+    newProjects[String(project.identifier).toUpperCase()] = {
       id: project.id,
       name: project.name,
       fetchedAt: stamp,
     };
-    projectBucket(ctx.cache, project.id);
-    await ctx.resolver.statesFor(project.id);
+
+    // projectBucket only touches the `byProject` field of whatever it's
+    // given, so handing it a scratch object here gives each project the
+    // same full bucket shape (labels/items/maxSequence included) that
+    // resolve.mjs expects, without writing through to ctx.cache.
+    const bucket = projectBucket({ byProject: newByProject }, project.id);
+    const { data: statesData } = await ctx.client.request(
+      'GET',
+      `${ctx.client.projectPath(project.id)}/states/`,
+      { fields: ['id', 'name', 'group'] },
+    );
+    const states = statesData?.results ?? [];
+    bucket.stateList = states;
+    for (const state of states) bucket.states[state.name.toLowerCase()] = state.id;
+    bucket.statesFetchedAt = stamp;
   }
 
   const members = await ctx.client.request('GET', `${ctx.client.wsPath}/members/`);
   const memberRows = members.data?.results ?? members.data ?? [];
-  ctx.cache.members = {};
+  const newMembers = {};
   for (const member of memberRows) {
-    if (member.display_name) ctx.cache.members[member.display_name.toLowerCase()] = member.id;
-    if (member.email) ctx.cache.members[member.email.toLowerCase()] = member.id;
+    if (member.display_name) newMembers[member.display_name.toLowerCase()] = member.id;
+    if (member.email) newMembers[member.email.toLowerCase()] = member.id;
   }
-  ctx.cache.membersFetchedAt = stamp;
 
+  // Every fetch above succeeded — commit the rebuild in one shot.
+  ctx.cache.me = me;
+  ctx.cache.projects = newProjects;
+  ctx.cache.byProject = newByProject;
+  ctx.cache.members = newMembers;
+  ctx.cache.membersFetchedAt = stamp;
   ctx.save();
 
   emit(
