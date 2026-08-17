@@ -6,6 +6,11 @@ A zero-dependency Node CLI for the Cybernetics project instance
 One codebase serves two audiences: agents invoke it with `--json`, humans use
 the tables and the interactive session.
 
+**Status:** verified against Plane v2.6.3 at `projects.avarile.com` on 2026-08-17.
+303 unit tests run offline with no token and no network; 4 integration tests run
+against the live instance when `CYB_TOKEN` and `CYB_RUN_INTEGRATION=1` are both
+set, and delete their scratch project afterwards.
+
 ## Requirements
 
 Node 24 or newer. No `npm install` — there are no dependencies.
