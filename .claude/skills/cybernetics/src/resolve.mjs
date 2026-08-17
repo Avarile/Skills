@@ -219,7 +219,7 @@ export class Resolver {
     let scanned = 0;
     for await (const item of this.client.paginate(path, {
       fields: ['id', 'sequence_id'],
-      limit: SEQUENCE_SCAN_LIMIT,
+      limit: SEQUENCE_SCAN_LIMIT + 1,
     })) {
       bucket.items[item.sequence_id] = item.id;
       scanned++;
@@ -228,7 +228,7 @@ export class Resolver {
 
     const found = bucket.items[parsed.sequence];
     if (!found) {
-      if (scanned >= SEQUENCE_SCAN_LIMIT) {
+      if (scanned > SEQUENCE_SCAN_LIMIT) {
         throw notFound(
           `no such work item: ${ref}`,
           `project too large for a sequence scan (scanned ${SEQUENCE_SCAN_LIMIT} items) — pass the item's UUID directly`,

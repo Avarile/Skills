@@ -262,23 +262,69 @@ test('a UUID passed as an item ref is returned without a lookup', async () => {
   assert.equal(calls.length, 0);
 });
 
-test('item scan bails out with a too-large hint once the 2000-item bound is reached', async () => {
+// Builds fake paginate response pages covering `totalItems` sequence ids (0..totalItems-1),
+// `pageSize` items per page. The final page reports exhaustion (no next page) when
+// `exhausted` is true, or claims more data is available otherwise.
+function makeItemPages(totalItems, { pageSize = 100, exhausted } = {}) {
+  const pages = [];
+  let emitted = 0;
+  let pageIndex = 0;
+  while (emitted < totalItems) {
+    const count = Math.min(pageSize, totalItems - emitted);
+    const results = Array.from({ length: count }, (_, i) => ({
+      id: `item-${emitted + i}`,
+      sequence_id: emitted + i,
+    }));
+    emitted += count;
+    const isLastPage = emitted >= totalItems;
+    pages.push({
+      status: 200,
+      body: {
+        results,
+        next_page_results: isLastPage ? !exhausted : true,
+        next_cursor: isLastPage ? (exhausted ? null : `cursor-${pageIndex + 1}`) : `cursor-${pageIndex + 1}`,
+      },
+    });
+    pageIndex++;
+  }
+  return pages;
+}
+
+test('item scan at exactly the 2000-item bound falls through to the ordinary not-found error', async () => {
   const cache = emptyCache('cybernetics');
   cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
 
-  const PAGE_SIZE = 100;
-  const PAGE_COUNT = 20; // 20 * 100 = 2000, the scan bound
-  const pages = [];
-  for (let page = 0; page < PAGE_COUNT; page++) {
-    const results = Array.from({ length: PAGE_SIZE }, (_, i) => ({
-      id: `item-${page * PAGE_SIZE + i}`,
-      sequence_id: page * PAGE_SIZE + i,
-    }));
-    pages.push({
-      status: 200,
-      body: { results, next_page_results: true, next_cursor: `cursor-${page + 1}` },
-    });
-  }
+  // The project has exactly 2000 items (none matching), and pagination exhausts naturally —
+  // this must NOT be confused with a truncated scan.
+  const pages = makeItemPages(2000, { exhausted: true });
+
+  const { resolver, calls } = makeResolver(
+    [
+      // sequence_id filter call fails to narrow (no such item exists)
+      { status: 200, body: { results: [] } },
+      ...pages,
+    ],
+    { cache },
+  );
+
+  await assert.rejects(
+    () => resolver.item('CYB-9999'),
+    (err) =>
+      err.name === 'CybError' &&
+      err.code === 3 &&
+      /CYB-9999/.test(err.message) &&
+      /run: cyb item list/.test(err.hint) &&
+      !/too large/.test(err.hint),
+  );
+  assert.equal(calls.length, 1 + pages.length);
+});
+
+test('item scan over the 2000-item bound bails out with a too-large hint', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  // The project has 2001+ items (none matching) — the scan was genuinely truncated.
+  const pages = makeItemPages(2001, { exhausted: false });
 
   const { resolver, calls } = makeResolver(
     [
@@ -293,7 +339,7 @@ test('item scan bails out with a too-large hint once the 2000-item bound is reac
     () => resolver.item('CYB-9999'),
     (err) => err.name === 'CybError' && err.code === 3 && /CYB-9999/.test(err.message) && /too large/.test(err.hint) && /UUID/.test(err.hint),
   );
-  assert.equal(calls.length, 1 + PAGE_COUNT);
+  assert.equal(calls.length, 1 + pages.length);
 });
 
 test('a cached item sequence costs no request', async () => {
