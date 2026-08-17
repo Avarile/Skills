@@ -6,6 +6,10 @@ export const CACHE_PATH = join(CONFIG_DIR, 'cache.json');
 export const CACHE_VERSION = 1;
 export const METADATA_TTL_MS = 15 * 60 * 1000;
 
+function isPlainObject(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export function emptyCache(workspace) {
   return {
     version: CACHE_VERSION,
@@ -26,9 +30,9 @@ export function loadCache({ path = CACHE_PATH, workspace } = {}) {
     return {
       ...emptyCache(workspace),
       ...parsed,
-      projects: parsed.projects ?? {},
-      byProject: parsed.byProject ?? {},
-      capabilities: parsed.capabilities ?? {},
+      projects: isPlainObject(parsed.projects) ? parsed.projects : {},
+      byProject: isPlainObject(parsed.byProject) ? parsed.byProject : {},
+      capabilities: isPlainObject(parsed.capabilities) ? parsed.capabilities : {},
     };
   } catch {
     return emptyCache(workspace);
