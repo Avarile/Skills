@@ -11,6 +11,7 @@ import * as item from './commands/item.mjs';
 import * as meta from './commands/meta.mjs';
 import * as planning from './commands/planning.mjs';
 import * as comment from './commands/comment.mjs';
+import * as composite from './commands/composite.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -141,6 +142,31 @@ export const REGISTRY = {
     list: { summary: 'List comments on a work item', options: {}, handler: comment.commentList },
     add: { summary: 'Add a comment to a work item', options: {}, handler: comment.commentAdd },
   },
+  // These three exist to defend the 60 req/min budget: each answers a
+  // question ("state of this project?", "what's mine?", "where's that
+  // item?") in one pass instead of the per-resource loop every other group
+  // above would require. `takesPositional` tells main()'s dispatch that the
+  // first bare token is real positional data (a project ref or a search
+  // query), not an attempted action name — see the dispatch note below.
+  board: {
+    __default: {
+      summary: 'Show a project as a kanban summary',
+      options: {},
+      handler: composite.board,
+      takesPositional: true,
+    },
+  },
+  my: {
+    __default: { summary: 'List work items assigned to you', options: {}, handler: composite.my },
+  },
+  search: {
+    __default: {
+      summary: 'Search work item names in a project',
+      options: {},
+      handler: composite.search,
+      takesPositional: true,
+    },
+  },
 };
 
 export function renderHelp(group, action) {
@@ -258,7 +284,15 @@ export async function main(argv, deps = {}) {
     }
 
     const maybeAction = rest[0];
-    const usesDefault = Boolean(actions.__default) && (!maybeAction || maybeAction.startsWith('-'));
+    // A bare first token is normally ambiguous for a `__default` group: is it
+    // an attempted (unknown) action name, or data for the default handler?
+    // `doctor` takes no positional args, so treating any bare word as a
+    // typo'd action (the `startsWith('-')` check below) is right for it.
+    // `board`/`search` take a real leading positional (project ref / search
+    // query) that is never a subcommand name, so their `__default` opts in
+    // via `takesPositional` to always dispatch there instead.
+    const usesDefault = Boolean(actions.__default) &&
+      (!maybeAction || maybeAction.startsWith('-') || Boolean(actions.__default.takesPositional));
 
     if (!maybeAction && !usesDefault) {
       throw new CybError(

@@ -85,6 +85,49 @@ test('cyb doctor --help lists the --probe option', async () => {
   assert.match(s.outText(), /--probe/);
 });
 
+test('board dispatches its positional through __default instead of treating it as an unknown action', async () => {
+  // board/search take a real leading positional (project ref / search
+  // query) that is never a subcommand name — unlike doctor, whose __default
+  // takes no positional args at all. Confirms the `takesPositional` opt-in
+  // in cli.mjs's REGISTRY actually reaches the handler rather than being
+  // misread as `cyb board CYB` attempting an unknown action named "CYB".
+  const s = captureStreams();
+  const code = await main(['board', 'CYB'], {
+    streams: s,
+    env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+    cwd: '/nonexistent-cyb-dir',
+    configPath: '/nonexistent-cyb-dir/config.json',
+    fetchImpl: async () => { throw new Error('sentinel: reached the network layer'); },
+  });
+  assert.notEqual(code, EXIT.OK);
+  assert.doesNotMatch(s.errText(), /unknown action/);
+  assert.match(s.errText(), /sentinel: reached the network layer/);
+});
+
+test('search dispatches its query positional through __default instead of treating it as an unknown action', async () => {
+  const s = captureStreams();
+  const code = await main(['search', 'auth', '--project', 'CYB'], {
+    streams: s,
+    env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+    cwd: '/nonexistent-cyb-dir',
+    configPath: '/nonexistent-cyb-dir/config.json',
+    fetchImpl: async () => { throw new Error('sentinel: reached the network layer'); },
+  });
+  assert.notEqual(code, EXIT.OK);
+  assert.doesNotMatch(s.errText(), /unknown action/);
+  assert.match(s.errText(), /sentinel: reached the network layer/);
+});
+
+test('my still rejects an unknown action rather than silently treating it as positional data', async () => {
+  // my's __default has no `takesPositional` — it takes no positional
+  // grammar at all, so a stray bare word after it should behave like
+  // doctor's "unknown action", not be swallowed as data.
+  const s = captureStreams();
+  const code = await main(['my', 'bogus'], { streams: s, env: {} });
+  assert.equal(code, EXIT.GENERAL);
+  assert.match(s.errText(), /unknown action/);
+});
+
 test('a group invoked with no action token gives a clear error, not a literal undefined', async () => {
   const s = captureStreams();
   REGISTRY.__no_default_test__ = {
