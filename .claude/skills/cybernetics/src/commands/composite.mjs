@@ -3,7 +3,7 @@
 // This instance allows 60 req/min and every other command surface here is
 // per-resource, so these three are the primary defence of that budget — the
 // request cost of each is a correctness property, not an optimisation.
-import { emit, renderTable } from '../format.mjs';
+import { emit, renderTable, truncationNotice, emitNotice } from '../format.mjs';
 import { decorate, LIST_FIELDS, ITEM_COLUMNS, projectRef, limitOf } from './item.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 
@@ -16,6 +16,15 @@ const GROUP_ORDER = ['backlog', 'unstarted', 'started', 'completed', 'cancelled'
 // Deliberately fixed: don't raise it, and don't add a smaller/implicit cap
 // either. Narrow with --project (already required) rather than widen it.
 const SEARCH_SCAN_CAP = 500;
+
+// A hard cap on how many projects `my` will fan out to. Without one, a
+// workspace where the current user is assigned to few or no items (the
+// sparse case — the one that actually stresses the budget, since the
+// rows-accumulated bailout never fires) issues one issues-request per
+// project with no upper bound: 1 (me) + 1 (project list) + P. Fixed
+// independent of --limit, which governs how many *rows* come back, not how
+// many *projects* get scanned.
+export const MY_PROJECT_SCAN_CAP = 15;
 
 export function groupByState(rows, states) {
   const ordered = [...states].sort(
@@ -42,16 +51,22 @@ export async function board(ctx) {
   const project = await ctx.resolver.project(projectRef(ctx));
   const states = await ctx.resolver.statesFor(project.id);
   const limit = limitOf(ctx);
+  const perPage = Math.max(limit, 100);
 
   // One request for the entire project. This is the whole point of `board`:
   // an agent asking "what's the state of this project?" pays once, not once
-  // per state and not once per item.
+  // per state and not once per item. That single-page fetch can still fall
+  // short of the project's real size, though — same tradeoff `item.list()`
+  // already makes for the same endpoint — so the incompleteness has to be
+  // surfaced the same way `list()` does rather than silently dropped.
   const { data } = await ctx.client.request('GET', `${ctx.client.projectPath(project.id)}/issues/`, {
-    query: { per_page: Math.max(limit, 100) },
+    query: { per_page: perPage },
     fields: LIST_FIELDS,
   });
 
   const raw = data?.results ?? [];
+  const total = data?.total_count ?? raw.length;
+  const notice = truncationNotice(raw.length, total, perPage);
   const grouped = groupByState(raw, states);
 
   const decorated = {};
@@ -61,6 +76,7 @@ export async function board(ctx) {
 
   if (ctx.mode === 'json') {
     emit(decorated, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
     return;
   }
 
@@ -71,6 +87,7 @@ export async function board(ctx) {
     lines.push('');
   }
   ctx.streams.stdout.write(`${lines.join('\n').trimEnd()}\n`);
+  emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
 }
 
 export async function my(ctx) {
@@ -87,8 +104,16 @@ export async function my(ctx) {
   });
   const projects = data?.results ?? [];
 
+  // Cap the fan-out at a fixed number of projects, independent of --limit.
+  // --limit bounds how many *rows* come back, which only helps once matches
+  // are found — in the sparse case (assigned to few or none of a large
+  // workspace's projects) `rows.length` never reaches it, so that bailout
+  // alone doesn't stop the loop from touching every project. This cap does.
+  const scanned = projects.slice(0, MY_PROJECT_SCAN_CAP);
+  const skipped = projects.length - scanned.length;
+
   const rows = [];
-  for (const project of projects) {
+  for (const project of scanned) {
     if (rows.length >= limit) break;
 
     const page = await ctx.client.request('GET', `${ctx.client.projectPath(project.id)}/issues/`, {
@@ -115,12 +140,17 @@ export async function my(ctx) {
   }
 
   const trimmed = rows.slice(0, limit);
+  const notice = skipped > 0
+    ? `… ${skipped} more project${skipped === 1 ? '' : 's'} not scanned (project cap ${MY_PROJECT_SCAN_CAP})`
+    : null;
 
   if (ctx.mode === 'json') {
     emit(trimmed, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
     return;
   }
   ctx.streams.stdout.write(`${renderTable(trimmed, ITEM_COLUMNS, { mode: ctx.mode })}\n`);
+  emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
 }
 
 export async function search(ctx) {
@@ -144,20 +174,36 @@ export async function search(ctx) {
   const limit = limitOf(ctx);
   const needle = query.toLowerCase();
 
+  // `scanned` tracks how many items were actually examined, separately from
+  // how many matched — without it there's no way to tell "the cap was hit
+  // with more of the project left unscanned" apart from "the project simply
+  // has fewer than the cap", and a rare-term match past position 500 would
+  // come back as zero results with no hint that only the first 500 were
+  // ever looked at.
+  let scanned = 0;
   const matches = [];
   for await (const item of ctx.client.paginate(`${ctx.client.projectPath(project.id)}/issues/`, {
     fields: LIST_FIELDS,
     limit: SEARCH_SCAN_CAP,
   })) {
+    scanned++;
     if (String(item.name).toLowerCase().includes(needle)) matches.push(item);
     if (matches.length >= limit) break;
   }
 
   const rows = decorate(matches, { project, states });
+  // Reaching the cap exactly is the only signal available without an extra
+  // request to confirm the project's true size — so it's treated as "may not
+  // be exhausted" rather than staying silent about it.
+  const notice = scanned >= SEARCH_SCAN_CAP
+    ? `… scan cap of ${SEARCH_SCAN_CAP} items reached before the project was fully scanned`
+    : null;
 
   if (ctx.mode === 'json') {
     emit(rows, { mode: ctx.mode, stdout: ctx.streams.stdout });
+    emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
     return;
   }
   ctx.streams.stdout.write(`${renderTable(rows, ITEM_COLUMNS, { mode: ctx.mode })}\n`);
+  emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
 }

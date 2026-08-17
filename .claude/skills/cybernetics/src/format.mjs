@@ -38,6 +38,18 @@ export function truncationNotice(shown, total, limit) {
   return `… ${more} more (--limit ${total})`;
 }
 
+// The one place that decides *where* a notice goes: stderr in JSON mode (so
+// stdout stays a clean, parseable payload), inline on stdout otherwise. Every
+// command that can silently withhold information — `item.list()`'s
+// `--limit` truncation, `board`'s single-page fetch, `my`'s project-scan cap,
+// `search`'s scan cap — must route through this instead of re-deciding the
+// channel itself, so the convention can't drift between call sites.
+export function emitNotice(notice, { mode = 'plain', stdout = process.stdout, stderr = process.stderr } = {}) {
+  if (!notice) return;
+  if (mode === 'json') stderr.write(`${notice}\n`);
+  else stdout.write(`${notice}\n`);
+}
+
 export function renderError(err, { mode = 'plain' } = {}) {
   const payload =
     typeof err?.toJSON === 'function'

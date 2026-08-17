@@ -1,4 +1,4 @@
-import { emit, truncationNotice, renderTable } from '../format.mjs';
+import { emit, truncationNotice, emitNotice, renderTable } from '../format.mjs';
 import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 import { projectBucket } from '../cache.mjs';
@@ -98,12 +98,12 @@ export async function list(ctx) {
     // into a parser still gets a clean array, but withheld rows are never
     // silent: they're on stderr, not swallowed.
     emit(rows, { mode: ctx.mode, stdout: ctx.streams.stdout });
-    if (notice) ctx.streams.stderr.write(`${notice}\n`);
+    emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
     return;
   }
 
   ctx.streams.stdout.write(`${renderTable(rows, ITEM_COLUMNS, { mode: ctx.mode })}\n`);
-  if (notice) ctx.streams.stdout.write(`${notice}\n`);
+  emitNotice(notice, { mode: ctx.mode, stdout: ctx.streams.stdout, stderr: ctx.streams.stderr });
 }
 
 // `resolver.item()` returns `projectId: null` for a raw UUID ref — it can't
