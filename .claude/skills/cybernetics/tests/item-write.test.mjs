@@ -41,6 +41,33 @@ test('item create maps --description to description_html', async () => {
   assert.equal(JSON.parse(calls.at(-1).init.body).description_html, '<p>hello</p>');
 });
 
+// Important 4: `comment add` already escaped its text; `--description` did
+// not, so a description containing markup-looking characters (a pasted
+// stack trace, "a < b", "Foo & Bar") was either corrupted or, worse, stored
+// as literal HTML. Both create and update must escape it the same way.
+test('item create escapes HTML metacharacters in --description', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 201, body: { id: 'a', sequence_id: 1, name: 'x' } },
+  ], { positionals: ['CYB'], values: { name: 'x', description: '<script>x</script> a & b' } });
+  await create(ctx);
+  assert.equal(
+    JSON.parse(calls.at(-1).init.body).description_html,
+    '<p>&lt;script&gt;x&lt;/script&gt; a &amp; b</p>',
+  );
+});
+
+test('item update escapes HTML metacharacters in --description', async () => {
+  const { ctx, calls } = makeCtx([
+    { status: 200, body: { results: [{ id: 'item-uuid', sequence_id: 42 }] } },
+    { status: 200, body: { id: 'item-uuid', sequence_id: 42 } },
+  ], { positionals: ['CYB-42'], values: { description: '<script>x</script> a & b' } });
+  await update(ctx);
+  assert.equal(
+    JSON.parse(calls.at(-1).init.body).description_html,
+    '<p>&lt;script&gt;x&lt;/script&gt; a &amp; b</p>',
+  );
+});
+
 test('item create resolves --parent to a uuid', async () => {
   const { ctx, calls } = makeCtx([
     { status: 200, body: { results: [{ id: 'parent-uuid', sequence_id: 1 }] } },

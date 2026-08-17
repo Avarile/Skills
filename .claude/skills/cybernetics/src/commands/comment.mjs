@@ -1,17 +1,11 @@
 import { emit } from '../format.mjs';
 import { CybError, EXIT } from '../errors.mjs';
+import { escapeHtml } from '../html.mjs';
 
 export const COMMENT_COLUMNS = [
   { key: 'created_at', label: 'WHEN' },
   { key: 'text', label: 'COMMENT' },
 ];
-
-export function escapeHtml(text) {
-  return String(text)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-}
 
 function stripHtml(html) {
   return String(html ?? '').replace(/<[^>]*>/g, '').trim();

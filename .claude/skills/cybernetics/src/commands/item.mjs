@@ -3,6 +3,7 @@ import { requireConfirmation } from '../safety.mjs';
 import { CybError, EXIT } from '../errors.mjs';
 import { projectBucket } from '../cache.mjs';
 import { parseItemRef } from '../resolve.mjs';
+import { escapeHtml } from '../html.mjs';
 
 export const PRIORITIES = Object.freeze(['urgent', 'high', 'medium', 'low', 'none']);
 
@@ -173,7 +174,7 @@ export async function buildItemBody(ctx, { project }) {
   const body = {};
 
   if (ctx.values.name) body.name = ctx.values.name;
-  if (ctx.values.description) body.description_html = `<p>${ctx.values.description}</p>`;
+  if (ctx.values.description) body.description_html = `<p>${escapeHtml(ctx.values.description)}</p>`;
 
   const priority = validatePriority(ctx.values.priority);
   if (priority !== undefined) body.priority = priority;
