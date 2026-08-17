@@ -118,7 +118,7 @@ export class Resolver {
 
   async statesFor(projectId) {
     const bucket = projectBucket(this.cache, projectId);
-    if (!this.noCache && bucket.stateList && isFresh(bucket.fetchedAt, { now: this.now })) {
+    if (!this.noCache && bucket.stateList && isFresh(bucket.statesFetchedAt, { now: this.now })) {
       return bucket.stateList;
     }
     const { data } = await this.client.request('GET', `${this.client.projectPath(projectId)}/states/`, {
@@ -128,7 +128,7 @@ export class Resolver {
     bucket.stateList = states;
     bucket.states = {};
     for (const state of states) bucket.states[state.name.toLowerCase()] = state.id;
-    bucket.fetchedAt = this.stamp();
+    bucket.statesFetchedAt = this.stamp();
     this.save();
     return states;
   }

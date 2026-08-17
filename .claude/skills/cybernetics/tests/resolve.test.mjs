@@ -127,7 +127,7 @@ test('a cached label costs no request', async () => {
     labels: { bug: 'label-uuid' },
     members: {},
     items: {},
-    fetchedAt: null,
+    statesFetchedAt: null,
     labelsFetchedAt: new Date(1_000_000 - 1000).toISOString(),
   };
   const { resolver, calls } = makeResolver([], { cache });
@@ -153,7 +153,7 @@ test('a cached label past the 15-minute TTL triggers a refetch', async () => {
     labels: { bug: 'old-label-uuid' },
     members: {},
     items: {},
-    fetchedAt: null,
+    statesFetchedAt: null,
     labelsFetchedAt: new Date(1_000_000 - 20 * 60 * 1000).toISOString(),
   };
   const { resolver, calls } = makeResolver(
