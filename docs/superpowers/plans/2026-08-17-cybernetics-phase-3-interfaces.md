@@ -28,9 +28,52 @@
 ### Task 16: Interactive REPL
 
 **Files:**
+- Modify: `.claude/skills/cybernetics/src/cli.mjs` (extract the `dispatch` seam, add `positionals` metadata, add the `ui` group)
 - Create: `.claude/skills/cybernetics/src/repl.mjs`
-- Modify: `.claude/skills/cybernetics/src/cli.mjs` (add the `ui` group)
-- Test: `.claude/skills/cybernetics/tests/repl.test.mjs`
+- Test: `.claude/skills/cybernetics/tests/cli.test.mjs` (seam), `.claude/skills/cybernetics/tests/repl.test.mjs`
+
+**Required pre-work, added after Phase 2's final review (do this BEFORE writing `repl.mjs`):**
+
+Phase 2's final review verified the command surface is re-entrant — `main()` was called five
+times in one process with interleaved failures and leaked no state — but flagged three
+changes to make first. They are not optional; retrofitting them after the REPL exists is
+strictly harder.
+
+**1. Extract a `dispatch` seam from `main()`.** Today `main()` parses argv, builds the
+context, and dispatches in one function. A REPL calling `main()` per line would re-read
+`config.json` and `cache.json` from disk, rebuild `Client` and `Resolver`, and rewrite the
+whole cache on every `save()` — once per keystroke-completed line. Split it:
+
+```js
+export function parseInvocation(argv)        // → { group, action, definition, values, positionals }
+export async function dispatch(invocation, ctx)
+export async function main(argv, deps)       // one-shot wrapper: parse → buildContext → dispatch
+```
+
+`main`'s external behaviour must not change — same exit codes, same error envelope, same
+`--help` handling. Every existing `cli.mjs` test must still pass untouched.
+
+This also gives the REPL a **session-lifetime `Client`**, which keeps `remaining`/`resetAt`
+across lines. That is the budget awareness the spec asks for and the one thing the per-call
+design cannot provide — it partly closes a deferred finding, so do not skip it.
+
+**2. Add `positionals` metadata to `REGISTRY` entries.** `renderHelp` emits prose with no
+argument syntax, so a REPL completer would have to re-derive shapes `REGISTRY` almost knows.
+Add a declarative field per action — `['project']`, `['itemRef', 'state']`,
+`['query', 'project?']` — and have `renderHelp` render it. Note `search` is the only action
+whose `positionals[0]` is **not** a project ref; a REPL that injects the current project
+positionally will get that one wrong unless the metadata says so.
+
+**3. Completer warm-up — a decision, not a discovery.** The spec says completion sources
+come from the resolver cache "so it costs no extra calls". But `sync` populates `projects`,
+`stateList` and `members` while leaving `labels` and `items` empty, so TAB completion for
+labels and item ids has nothing to offer immediately after the most natural warm-up.
+
+**Ruling (controller):** the REPL's `cd <PROJECT>` warms that project's labels and items,
+rather than making `sync` fetch labels for every project. `cd` is an explicit, user-initiated
+context switch where one or two requests are expected and affordable; making `sync` pay
+1-more-request-per-project globally taxes every user for a REPL-only benefit. The completer
+itself must **never** issue a request — if the cache is cold it returns no suggestions.
 
 **Interfaces:**
 - Consumes: `main` from `src/cli.mjs`, the cache shape from `src/cache.mjs`
@@ -174,7 +217,7 @@ test('completer suggests state names from the cache after mv', () => {
   cache.byProject.p1 = {
     states: { backlog: 's1', 'in progress': 's2' },
     stateList: [{ id: 's1', name: 'Backlog', group: 'backlog' }, { id: 's2', name: 'In Progress', group: 'started' }],
-    labels: {}, members: {}, items: {}, fetchedAt: new Date().toISOString(),
+    labels: {}, members: {}, items: {}, statesFetchedAt: new Date().toISOString(),
   };
   const [hits] = makeCompleter({ project: 'CYB' }, cache)('mv 42 In');
   assert.ok(hits.some((h) => /In Progress/.test(h)));
