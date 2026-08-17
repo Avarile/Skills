@@ -166,6 +166,7 @@ export class Resolver {
   }
 
   async state(projectId, name) {
+    if (isUuid(name)) return name;
     const states = await this.statesFor(projectId);
     const bucket = projectBucket(this.cache, projectId);
     const key = String(name).toLowerCase();
@@ -180,6 +181,7 @@ export class Resolver {
   }
 
   async label(projectId, name) {
+    if (isUuid(name)) return name;
     const bucket = projectBucket(this.cache, projectId);
     const key = String(name).toLowerCase();
     const fresh = !this.noCache && isFresh(bucket.labelsFetchedAt, { now: this.now });
@@ -210,6 +212,7 @@ export class Resolver {
   }
 
   async member(name) {
+    if (isUuid(name)) return name;
     const key = String(name).toLowerCase();
     this.cache.members ??= {};
     const fresh = !this.noCache && isFresh(this.cache.membersFetchedAt, { now: this.now });
