@@ -237,6 +237,9 @@ test('item falls back to a projected scan when the filter fails to narrow', asyn
   const { resolver, calls } = makeResolver(
     [
       { status: 200, body: { results: [{ id: 'a', sequence_id: 1 }, { id: 'b', sequence_id: 42 }] } },
+      // max-sequence check: the requested sequence (42) is <= the observed
+      // max, so it's plausible and the scan below still runs.
+      { status: 200, body: { results: [{ id: 'b', sequence_id: 42 }] } },
       {
         status: 200,
         body: {
@@ -250,7 +253,7 @@ test('item falls back to a projected scan when the filter fails to narrow', asyn
   );
   const item = await resolver.item('CYB-42');
   assert.equal(item.id, 'b');
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 3);
   assert.equal(cache.byProject[UUID_A].items[1], 'a');
   assert.equal(cache.byProject[UUID_A].items[42], 'b');
 });
@@ -262,18 +265,21 @@ test('a UUID passed as an item ref is returned without a lookup', async () => {
   assert.equal(calls.length, 0);
 });
 
-// Builds fake paginate response pages covering `totalItems` sequence ids (0..totalItems-1),
-// `pageSize` items per page. The final page reports exhaustion (no next page) when
-// `exhausted` is true, or claims more data is available otherwise.
-function makeItemPages(totalItems, { pageSize = 100, exhausted } = {}) {
+// Builds fake paginate response pages covering `totalItems` sequence ids
+// (offset..offset+totalItems-1), `pageSize` items per page. The final page
+// reports exhaustion (no next page) when `exhausted` is true, or claims more
+// data is available otherwise. `offset` defaults to 0 but tests that need a
+// deliberate gap at sequence 0 (to stay under the observed max while still
+// being absent) pass offset: 1.
+function makeItemPages(totalItems, { pageSize = 100, exhausted, offset = 0 } = {}) {
   const pages = [];
   let emitted = 0;
   let pageIndex = 0;
   while (emitted < totalItems) {
     const count = Math.min(pageSize, totalItems - emitted);
     const results = Array.from({ length: count }, (_, i) => ({
-      id: `item-${emitted + i}`,
-      sequence_id: emitted + i,
+      id: `item-${offset + emitted + i}`,
+      sequence_id: offset + emitted + i,
     }));
     emitted += count;
     const isLastPage = emitted >= totalItems;
@@ -294,61 +300,151 @@ test('item scan at exactly the 2000-item bound falls through to the ordinary not
   const cache = emptyCache('cybernetics');
   cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
 
-  // The project has exactly 2000 items (none matching), and pagination exhausts naturally —
-  // this must NOT be confused with a truncated scan.
-  const pages = makeItemPages(2000, { exhausted: true });
+  // The project has exactly 2000 items with sequence ids 1..2000 (0 is a
+  // deliberate gap), and pagination exhausts naturally — this must NOT be
+  // confused with a truncated scan. Requesting sequence 0 stays within the
+  // observed max (2000), so the max-sequence pre-check does not
+  // short-circuit before the scan runs — this test is about the scan's own
+  // boundary, not the pre-check.
+  const pages = makeItemPages(2000, { exhausted: true, offset: 1 });
 
   const { resolver, calls } = makeResolver(
     [
       // sequence_id filter call fails to narrow (no such item exists)
       { status: 200, body: { results: [] } },
+      // max-sequence check: highest observed is 2000, sequence 0 is plausible
+      { status: 200, body: { results: [{ id: 'item-2000', sequence_id: 2000 }] } },
       ...pages,
     ],
     { cache },
   );
 
   await assert.rejects(
-    () => resolver.item('CYB-9999'),
+    () => resolver.item('CYB-0'),
     (err) =>
       err.name === 'CybError' &&
       err.code === 3 &&
-      /CYB-9999/.test(err.message) &&
+      /CYB-0/.test(err.message) &&
       /run: cyb item list/.test(err.hint) &&
       !/too large/.test(err.hint),
   );
-  assert.equal(calls.length, 1 + pages.length);
+  assert.equal(calls.length, 2 + pages.length);
 });
 
 test('item scan over the 2000-item bound bails out with a too-large hint', async () => {
   const cache = emptyCache('cybernetics');
   cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
 
-  // The project has 2001+ items (none matching) — the scan was genuinely truncated.
-  const pages = makeItemPages(2001, { exhausted: false });
+  // The project has 2001+ items with sequence ids 1..2001 (0 is a deliberate
+  // gap) — the scan was genuinely truncated. Requesting sequence 0 stays
+  // within the observed max so the pre-check doesn't short-circuit before
+  // the scan runs.
+  const pages = makeItemPages(2001, { exhausted: false, offset: 1 });
 
   const { resolver, calls } = makeResolver(
     [
       // sequence_id filter call fails to narrow (no such item exists)
       { status: 200, body: { results: [] } },
+      // max-sequence check: highest observed is 2001, sequence 0 is plausible
+      { status: 200, body: { results: [{ id: 'item-2001', sequence_id: 2001 }] } },
       ...pages,
     ],
     { cache },
   );
 
   await assert.rejects(
-    () => resolver.item('CYB-9999'),
-    (err) => err.name === 'CybError' && err.code === 3 && /CYB-9999/.test(err.message) && /too large/.test(err.hint) && /UUID/.test(err.hint),
+    () => resolver.item('CYB-0'),
+    (err) => err.name === 'CybError' && err.code === 3 && /CYB-0/.test(err.message) && /too large/.test(err.hint) && /UUID/.test(err.hint),
   );
-  assert.equal(calls.length, 1 + pages.length);
+  assert.equal(calls.length, 2 + pages.length);
+});
+
+test('a sequence id above the project maximum fails fast with a highest-reference hint, not a scan', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  const { resolver, calls } = makeResolver(
+    [
+      // sequence_id filter fails to narrow (typo: no such item)
+      { status: 200, body: { results: [] } },
+      // max-sequence check: the highest real item in the project is CYB-42
+      { status: 200, body: { results: [{ id: 'item-uuid-42', sequence_id: 42 }] } },
+    ],
+    { cache },
+  );
+
+  await assert.rejects(
+    () => resolver.item('CYB-142'),
+    (err) =>
+      err.name === 'CybError' &&
+      err.code === 3 &&
+      /CYB-142/.test(err.message) &&
+      /CYB-42 is the highest work item in CYB/.test(err.hint),
+  );
+  // Exactly the filter attempt plus the one cheap max-sequence check — never
+  // a multi-page scan of the project.
+  assert.equal(calls.length, 2);
+});
+
+test('a repeated out-of-range sequence typo costs nothing once the maximum is cached', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  const { resolver, calls } = makeResolver(
+    [
+      { status: 200, body: { results: [] } },
+      { status: 200, body: { results: [{ id: 'item-uuid-42', sequence_id: 42 }] } },
+    ],
+    { cache },
+  );
+
+  await assert.rejects(() => resolver.item('CYB-142'), (err) => err.code === 3);
+  assert.equal(calls.length, 2);
+
+  // A second, different typo in the same project reuses the cached maximum
+  // — only the (still-failing) sequence_id filter costs a request.
+  const { fetchImpl: secondFetch, calls: secondCalls } = makeFakeFetch([
+    { status: 200, body: { results: [] } },
+  ]);
+  resolver.client.fetchImpl = secondFetch;
+  await assert.rejects(() => resolver.item('CYB-999'), (err) => err.code === 3);
+  assert.equal(secondCalls.length, 1);
 });
 
 test('a cached item sequence costs no request', async () => {
   const cache = emptyCache('cybernetics');
   cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
-  cache.byProject[UUID_A] = { states: {}, labels: {}, members: {}, items: { 42: 'item-uuid' }, fetchedAt: null };
+  cache.byProject[UUID_A] = {
+    states: {},
+    labels: {},
+    members: {},
+    items: { 42: 'item-uuid' },
+    statesFetchedAt: null,
+    itemsFetchedAt: new Date(1_000_000 - 1000).toISOString(),
+  };
   const { resolver, calls } = makeResolver([], { cache });
   assert.equal((await resolver.item('CYB-42')).id, 'item-uuid');
   assert.equal(calls.length, 0);
+});
+
+test('a cached item sequence past the 15-minute TTL triggers a refetch', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+  cache.byProject[UUID_A] = {
+    states: {},
+    labels: {},
+    members: {},
+    items: { 42: 'stale-item-uuid' },
+    statesFetchedAt: null,
+    itemsFetchedAt: new Date(1_000_000 - 20 * 60 * 1000).toISOString(),
+  };
+  const { resolver, calls } = makeResolver(
+    [{ status: 200, body: { results: [{ id: 'fresh-item-uuid', sequence_id: 42 }] } }],
+    { cache },
+  );
+  const item = await resolver.item('CYB-42');
+  assert.equal(item.id, 'fresh-item-uuid');
+  assert.equal(calls.length, 1);
 });
 
 test('an unparseable item ref is rejected with guidance', async () => {

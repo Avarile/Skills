@@ -1,5 +1,5 @@
 import { projectBucket, isFresh } from './cache.mjs';
-import { CybError, EXIT } from './errors.mjs';
+import { ApiError, CybError, EXIT } from './errors.mjs';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ITEM_REF_RE = /^([A-Za-z][A-Za-z0-9]*)-(\d+)$/;
@@ -199,7 +199,11 @@ export class Resolver {
     const project = await this.project(parsed.identifier);
     const bucket = projectBucket(this.cache, project.id);
 
-    if (!this.noCache && bucket.items[parsed.sequence]) {
+    if (
+      !this.noCache &&
+      bucket.items[parsed.sequence] &&
+      isFresh(bucket.itemsFetchedAt, { now: this.now })
+    ) {
       return { id: bucket.items[parsed.sequence], projectId: project.id, sequence_id: parsed.sequence };
     }
 
@@ -212,8 +216,22 @@ export class Resolver {
     const narrowed = filtered.data?.results ?? [];
     if (narrowed.length === 1 && narrowed[0].sequence_id === parsed.sequence) {
       bucket.items[parsed.sequence] = narrowed[0].id;
+      bucket.itemsFetchedAt = this.stamp();
       this.save();
       return { id: narrowed[0].id, projectId: project.id, sequence_id: parsed.sequence };
+    }
+
+    // The filter didn't narrow to exactly one match — either the server
+    // ignored `?sequence_id=` (the reason the scan fallback below exists at
+    // all), or the item genuinely doesn't exist. Before paying for a full
+    // paginated scan, reject an obviously-impossible sequence id using the
+    // cheapest signal available: the project's highest sequence id.
+    const maxSequence = await this.maxSequenceFor(project.id, bucket);
+    if (maxSequence !== null && parsed.sequence > maxSequence) {
+      throw notFound(
+        `no such work item: ${ref}`,
+        `${parsed.identifier}-${maxSequence} is the highest work item in ${parsed.identifier}`,
+      );
     }
 
     let scanned = 0;
@@ -224,6 +242,7 @@ export class Resolver {
       bucket.items[item.sequence_id] = item.id;
       scanned++;
     }
+    bucket.itemsFetchedAt = this.stamp();
     this.save();
 
     const found = bucket.items[parsed.sequence];
@@ -237,5 +256,92 @@ export class Resolver {
       throw notFound(`no such work item: ${ref}`, `run: cyb item list ${parsed.identifier}`);
     }
     return { id: found, projectId: project.id, sequence_id: parsed.sequence };
+  }
+
+  // Learns the project's highest sequence id via the cheapest possible
+  // request — one page, ordered descending, projected to a single field —
+  // so a plausible-looking but wrong reference (CYB-142 for a project whose
+  // highest item is CYB-42) fails in one request instead of a full scan.
+  // Cached per project bucket, gated by the same freshness contract as
+  // states/labels/members, so repeated typos cost nothing until the TTL
+  // expires.
+  async maxSequenceFor(projectId, bucket) {
+    if (
+      !this.noCache &&
+      bucket.maxSequence !== null &&
+      bucket.maxSequence !== undefined &&
+      isFresh(bucket.maxSequenceFetchedAt, { now: this.now })
+    ) {
+      return bucket.maxSequence;
+    }
+    const { data } = await this.client.request('GET', `${this.client.projectPath(projectId)}/issues/`, {
+      query: { ordering: '-sequence_id', per_page: 1 },
+      fields: ['sequence_id'],
+    });
+    const top = data?.results?.[0]?.sequence_id ?? null;
+    bucket.maxSequence = top;
+    bucket.maxSequenceFetchedAt = this.stamp();
+    this.save();
+    return top;
+  }
+
+  // Drops a single cached mapping so the next lookup is forced to refetch.
+  // `kind` identifies which cache region owns `key`:
+  //   'project' — cache.projects[key], key = uppercased identifier
+  //   'item'    — byProject[projectId].items[key], key = sequence number
+  //   'state'   — states are fetched and cached as one list, not a per-name
+  //               slot, so there is nothing finer-grained to drop than the
+  //               whole unit's freshness
+  //   'label'   — byProject[projectId].labels[key], key = lowercased name
+  //   'member'  — cache.members[key], key = lowercased name or email
+  invalidate(kind, projectId, key) {
+    switch (kind) {
+      case 'project': {
+        if (key !== undefined) delete this.cache.projects[String(key).toUpperCase()];
+        break;
+      }
+      case 'item': {
+        const bucket = projectBucket(this.cache, projectId);
+        if (key !== undefined) delete bucket.items[key];
+        break;
+      }
+      case 'state': {
+        const bucket = projectBucket(this.cache, projectId);
+        bucket.stateList = null;
+        bucket.states = {};
+        bucket.statesFetchedAt = null;
+        break;
+      }
+      case 'label': {
+        const bucket = projectBucket(this.cache, projectId);
+        if (key !== undefined) delete bucket.labels[String(key).toLowerCase()];
+        break;
+      }
+      case 'member': {
+        this.cache.members ??= {};
+        if (key !== undefined) delete this.cache.members[String(key).toLowerCase()];
+        break;
+      }
+      default:
+        throw new Error(`unknown invalidate kind: ${kind}`);
+    }
+    this.save();
+  }
+
+  // Runs `fn`, and if it fails with a 404 — the shape of "the cached UUID no
+  // longer refers to anything" — invalidates via `onInvalidate` and retries
+  // `fn` exactly once. A second failure, 404 or otherwise, propagates. Per
+  // spec: "a 404 against a cached UUID triggers exactly one
+  // refresh-and-retry, then fails."
+  async withRefresh(fn, onInvalidate) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        await onInvalidate();
+        return await fn();
+      }
+      throw err;
+    }
   }
 }
