@@ -7,9 +7,10 @@ One codebase serves two audiences: agents invoke it with `--json`, humans use
 the tables and the interactive session.
 
 **Status:** verified against Plane v2.6.3 at `projects.avarile.com` on 2026-08-17.
-303 unit tests run offline with no token and no network; 4 integration tests run
-against the live instance when `CYB_TOKEN` and `CYB_RUN_INTEGRATION=1` are both
-set, and delete their scratch project afterwards.
+318 unit tests run offline with no token and no network (314 pass, 4 skipped);
+4 integration tests run against the live instance when `CYB_TOKEN` and
+`CYB_RUN_INTEGRATION=1` are both set, and delete their scratch project
+afterwards.
 
 ## Requirements
 
@@ -83,8 +84,13 @@ as deliberate — see `SKILL.md` and `references/troubleshooting.md`.
 npm test                    # unit tests, no network needed
 ```
 
-`npm run test:integration` is wired up (`CYB_RUN_INTEGRATION=1`, requires
-`CYB_TOKEN`) but no integration test files are checked in yet.
+```bash
+CYB_TOKEN=<your token> npm run test:integration
+```
+
+Runs the 4 tests in `tests/integration/live.test.mjs` against the live
+instance (the script sets `CYB_RUN_INTEGRATION=1` itself); the scratch
+project they create is deleted in a `finally` block.
 
 ## Documentation
 
