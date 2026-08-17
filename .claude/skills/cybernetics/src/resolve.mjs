@@ -3,6 +3,7 @@ import { CybError, EXIT } from './errors.mjs';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ITEM_REF_RE = /^([A-Za-z][A-Za-z0-9]*)-(\d+)$/;
+const SEQUENCE_SCAN_LIMIT = 2000;
 
 export function isUuid(value) {
   return typeof value === 'string' && UUID_RE.test(value);
@@ -144,7 +145,9 @@ export class Resolver {
   async label(projectId, name) {
     const bucket = projectBucket(this.cache, projectId);
     const key = String(name).toLowerCase();
-    if (!this.noCache && bucket.labels[key]) return bucket.labels[key];
+    if (!this.noCache && bucket.labels[key] && isFresh(bucket.labelsFetchedAt, { now: this.now })) {
+      return bucket.labels[key];
+    }
 
     const { data } = await this.client.request('GET', `${this.client.projectPath(projectId)}/labels/`, {
       fields: ['id', 'name'],
@@ -152,6 +155,7 @@ export class Resolver {
     const labels = data?.results ?? [];
     bucket.labels = {};
     for (const label of labels) bucket.labels[label.name.toLowerCase()] = label.id;
+    bucket.labelsFetchedAt = this.stamp();
     this.save();
 
     if (!bucket.labels[key]) {
@@ -163,7 +167,9 @@ export class Resolver {
   async member(name) {
     const key = String(name).toLowerCase();
     this.cache.members ??= {};
-    if (!this.noCache && this.cache.members[key]) return this.cache.members[key];
+    if (!this.noCache && this.cache.members[key] && isFresh(this.cache.membersFetchedAt, { now: this.now })) {
+      return this.cache.members[key];
+    }
 
     const { data } = await this.client.request('GET', `${this.client.wsPath}/members/`);
     const members = data?.results ?? data ?? [];
@@ -172,6 +178,7 @@ export class Resolver {
       if (member.display_name) this.cache.members[member.display_name.toLowerCase()] = member.id;
       if (member.email) this.cache.members[member.email.toLowerCase()] = member.id;
     }
+    this.cache.membersFetchedAt = this.stamp();
     this.save();
 
     if (!this.cache.members[key]) {
@@ -209,13 +216,26 @@ export class Resolver {
       return { id: narrowed[0].id, projectId: project.id, sequence_id: parsed.sequence };
     }
 
-    for await (const item of this.client.paginate(path, { fields: ['id', 'sequence_id'] })) {
+    let scanned = 0;
+    for await (const item of this.client.paginate(path, {
+      fields: ['id', 'sequence_id'],
+      limit: SEQUENCE_SCAN_LIMIT,
+    })) {
       bucket.items[item.sequence_id] = item.id;
+      scanned++;
     }
     this.save();
 
     const found = bucket.items[parsed.sequence];
-    if (!found) throw notFound(`no such work item: ${ref}`, `run: cyb item list ${parsed.identifier}`);
+    if (!found) {
+      if (scanned >= SEQUENCE_SCAN_LIMIT) {
+        throw notFound(
+          `no such work item: ${ref}`,
+          `project too large for a sequence scan (scanned ${SEQUENCE_SCAN_LIMIT} items) — pass the item's UUID directly`,
+        );
+      }
+      throw notFound(`no such work item: ${ref}`, `run: cyb item list ${parsed.identifier}`);
+    }
     return { id: found, projectId: project.id, sequence_id: parsed.sequence };
   }
 }

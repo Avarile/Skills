@@ -61,6 +61,7 @@ export function projectBucket(cache, projectId) {
     members: {},
     items: {},
     fetchedAt: null,
+    labelsFetchedAt: null,
   };
   return cache.byProject[projectId];
 }

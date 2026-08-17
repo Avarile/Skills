@@ -108,6 +108,117 @@ test('an unknown state error lists the valid states and suggests the nearest', a
   );
 });
 
+test('label resolves a name and caches the result', async () => {
+  const cache = emptyCache('cybernetics');
+  const { resolver, calls } = makeResolver(
+    [{ status: 200, body: { results: [{ id: 'label-uuid', name: 'Bug' }] } }],
+    { cache },
+  );
+  const id = await resolver.label(UUID_A, 'bug');
+  assert.equal(id, 'label-uuid');
+  assert.equal(calls.length, 1);
+  assert.equal(cache.byProject[UUID_A].labels.bug, 'label-uuid');
+});
+
+test('a cached label costs no request', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.byProject[UUID_A] = {
+    states: {},
+    labels: { bug: 'label-uuid' },
+    members: {},
+    items: {},
+    fetchedAt: null,
+    labelsFetchedAt: new Date(1_000_000 - 1000).toISOString(),
+  };
+  const { resolver, calls } = makeResolver([], { cache });
+  const id = await resolver.label(UUID_A, 'Bug');
+  assert.equal(id, 'label-uuid');
+  assert.equal(calls.length, 0);
+});
+
+test('an unknown label raises a not-found CybError naming the valid labels', async () => {
+  const { resolver } = makeResolver([
+    { status: 200, body: { results: [{ id: 'label-uuid', name: 'Bug' }] } },
+  ]);
+  await assert.rejects(
+    () => resolver.label(UUID_A, 'buggg'),
+    (err) => err.name === 'CybError' && err.code === 3 && /Bug/.test(err.hint),
+  );
+});
+
+test('a cached label past the 15-minute TTL triggers a refetch', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.byProject[UUID_A] = {
+    states: {},
+    labels: { bug: 'old-label-uuid' },
+    members: {},
+    items: {},
+    fetchedAt: null,
+    labelsFetchedAt: new Date(1_000_000 - 20 * 60 * 1000).toISOString(),
+  };
+  const { resolver, calls } = makeResolver(
+    [{ status: 200, body: { results: [{ id: 'new-label-uuid', name: 'Bug' }] } }],
+    { cache },
+  );
+  const id = await resolver.label(UUID_A, 'bug');
+  assert.equal(id, 'new-label-uuid');
+  assert.equal(calls.length, 1);
+});
+
+test('member resolves by display name and caches the result', async () => {
+  const cache = emptyCache('cybernetics');
+  const { resolver, calls } = makeResolver(
+    [{ status: 200, body: { results: [{ id: 'member-uuid', display_name: 'Ava Rile', email: 'ava@example.test' }] } }],
+    { cache },
+  );
+  const id = await resolver.member('Ava Rile');
+  assert.equal(id, 'member-uuid');
+  assert.equal(calls.length, 1);
+  assert.equal(cache.members['ava rile'], 'member-uuid');
+});
+
+test('member resolves by email', async () => {
+  const { resolver, calls } = makeResolver([
+    { status: 200, body: { results: [{ id: 'member-uuid', display_name: 'Ava Rile', email: 'ava@example.test' }] } },
+  ]);
+  const id = await resolver.member('ava@example.test');
+  assert.equal(id, 'member-uuid');
+  assert.equal(calls.length, 1);
+});
+
+test('a cached member costs no request', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.members = { 'ava rile': 'member-uuid' };
+  cache.membersFetchedAt = new Date(1_000_000 - 1000).toISOString();
+  const { resolver, calls } = makeResolver([], { cache });
+  const id = await resolver.member('Ava Rile');
+  assert.equal(id, 'member-uuid');
+  assert.equal(calls.length, 0);
+});
+
+test('an unknown member raises a not-found CybError naming the valid members', async () => {
+  const { resolver } = makeResolver([
+    { status: 200, body: { results: [{ id: 'member-uuid', display_name: 'Ava Rile', email: 'ava@example.test' }] } },
+  ]);
+  await assert.rejects(
+    () => resolver.member('nobody'),
+    (err) => err.name === 'CybError' && err.code === 3 && /Ava Rile/.test(err.hint),
+  );
+});
+
+test('a cached member past the 15-minute TTL triggers a refetch', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.members = { 'ava rile': 'old-member-uuid' };
+  cache.membersFetchedAt = new Date(1_000_000 - 20 * 60 * 1000).toISOString();
+  const { resolver, calls } = makeResolver(
+    [{ status: 200, body: { results: [{ id: 'new-member-uuid', display_name: 'Ava Rile' }] } }],
+    { cache },
+  );
+  const id = await resolver.member('Ava Rile');
+  assert.equal(id, 'new-member-uuid');
+  assert.equal(calls.length, 1);
+});
+
 test('item resolves CYB-42 via the sequence_id filter when it narrows to one', async () => {
   const cache = emptyCache('cybernetics');
   cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
@@ -123,7 +234,7 @@ test('item resolves CYB-42 via the sequence_id filter when it narrows to one', a
 test('item falls back to a projected scan when the filter fails to narrow', async () => {
   const cache = emptyCache('cybernetics');
   cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
-  const { resolver } = makeResolver(
+  const { resolver, calls } = makeResolver(
     [
       { status: 200, body: { results: [{ id: 'a', sequence_id: 1 }, { id: 'b', sequence_id: 42 }] } },
       {
@@ -139,6 +250,50 @@ test('item falls back to a projected scan when the filter fails to narrow', asyn
   );
   const item = await resolver.item('CYB-42');
   assert.equal(item.id, 'b');
+  assert.equal(calls.length, 2);
+  assert.equal(cache.byProject[UUID_A].items[1], 'a');
+  assert.equal(cache.byProject[UUID_A].items[42], 'b');
+});
+
+test('a UUID passed as an item ref is returned without a lookup', async () => {
+  const { resolver, calls } = makeResolver([]);
+  const item = await resolver.item(UUID_A);
+  assert.deepEqual(item, { id: UUID_A, projectId: null, sequence_id: null });
+  assert.equal(calls.length, 0);
+});
+
+test('item scan bails out with a too-large hint once the 2000-item bound is reached', async () => {
+  const cache = emptyCache('cybernetics');
+  cache.projects.CYB = { id: UUID_A, name: 'Core', fetchedAt: new Date(1_000_000).toISOString() };
+
+  const PAGE_SIZE = 100;
+  const PAGE_COUNT = 20; // 20 * 100 = 2000, the scan bound
+  const pages = [];
+  for (let page = 0; page < PAGE_COUNT; page++) {
+    const results = Array.from({ length: PAGE_SIZE }, (_, i) => ({
+      id: `item-${page * PAGE_SIZE + i}`,
+      sequence_id: page * PAGE_SIZE + i,
+    }));
+    pages.push({
+      status: 200,
+      body: { results, next_page_results: true, next_cursor: `cursor-${page + 1}` },
+    });
+  }
+
+  const { resolver, calls } = makeResolver(
+    [
+      // sequence_id filter call fails to narrow (no such item exists)
+      { status: 200, body: { results: [] } },
+      ...pages,
+    ],
+    { cache },
+  );
+
+  await assert.rejects(
+    () => resolver.item('CYB-9999'),
+    (err) => err.name === 'CybError' && err.code === 3 && /CYB-9999/.test(err.message) && /too large/.test(err.hint) && /UUID/.test(err.hint),
+  );
+  assert.equal(calls.length, 1 + PAGE_COUNT);
 });
 
 test('a cached item sequence costs no request', async () => {
