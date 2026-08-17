@@ -8,6 +8,7 @@ import { CybError, EXIT } from './errors.mjs';
 import { doctor } from './commands/doctor.mjs';
 import * as project from './commands/project.mjs';
 import * as item from './commands/item.mjs';
+import * as meta from './commands/meta.mjs';
 
 export const GLOBAL_OPTIONS = {
   json: { type: 'boolean', default: false },
@@ -90,6 +91,21 @@ export const REGISTRY = {
     move: { summary: 'Move a work item to a state', options: {}, handler: item.move },
     assign: { summary: 'Assign a work item to a member', options: {}, handler: item.assign },
     delete: { summary: 'Delete a work item (needs --yes)', options: {}, handler: item.remove },
+  },
+  state: {
+    list: { summary: 'List workflow states in a project', options: {}, handler: meta.stateList },
+  },
+  label: {
+    list: { summary: 'List labels in a project', options: {}, handler: meta.labelList },
+    create: {
+      summary: 'Create a label',
+      options: { name: { type: 'string' }, color: { type: 'string' } },
+      handler: meta.labelCreate,
+    },
+    delete: { summary: 'Delete a label (needs --yes)', options: {}, handler: meta.labelRemove },
+  },
+  member: {
+    list: { summary: 'List workspace members', options: {}, handler: meta.memberList },
   },
 };
 
