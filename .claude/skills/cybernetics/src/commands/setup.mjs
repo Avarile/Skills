@@ -1,5 +1,6 @@
 import { saveConfig, CONFIG_PATH, fingerprint } from '../config.mjs';
 import { projectBucket } from '../cache.mjs';
+import { buildNameMap } from '../resolve.mjs';
 import { emit } from '../format.mjs';
 
 // Non-interactive: writes whatever buildContext already resolved (env,
@@ -92,7 +93,9 @@ export async function sync(ctx) {
     );
     const states = statesData?.results ?? [];
     bucket.stateList = states;
-    for (const state of states) bucket.states[state.name.toLowerCase()] = state.id;
+    const { map, collisions } = buildNameMap(states, (s) => s.name);
+    bucket.states = map;
+    bucket.stateCollisions = collisions;
     bucket.statesFetchedAt = stamp;
   }
 

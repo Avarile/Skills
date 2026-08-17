@@ -216,6 +216,46 @@ test('a bogus UUID passed to state/label/member is returned as-is, not rejected 
   assert.equal(memberCalls.length, 0);
 });
 
+test("invalidate('label', …) clears the stale collisions entry, so a no-longer-ambiguous name resolves cleanly (guard bypass fix)", async () => {
+  const cache = emptyCache('cybernetics');
+  const { resolver } = makeResolver([
+    { status: 200, body: { results: [{ id: 'label-a', name: 'Bug' }, { id: 'label-b', name: 'bug' }] } },
+    { status: 200, body: { results: [{ id: 'label-a', name: 'Bug' }] } }, // after the rename, only one 'Bug' label remains
+  ], { cache });
+
+  await assert.rejects(() => resolver.label(UUID_A, 'bug'), (err) => err.code === 3 && /ambiguous label/.test(err.message));
+
+  resolver.invalidate('label', UUID_A, 'bug');
+  assert.equal(cache.byProject[UUID_A].labelCollisions.bug, undefined);
+
+  const id = await resolver.label(UUID_A, 'bug');
+  assert.equal(id, 'label-a');
+});
+
+test("invalidate('member', …) clears the stale collisions entry, so a no-longer-ambiguous name resolves cleanly (guard bypass fix)", async () => {
+  const cache = emptyCache('cybernetics');
+  const { resolver } = makeResolver([
+    {
+      status: 200,
+      body: {
+        results: [
+          { id: 'm1', display_name: 'alex', email: 'alex@one.test' },
+          { id: 'm2', display_name: 'Alex', email: 'alex@two.test' },
+        ],
+      },
+    },
+    { status: 200, body: { results: [{ id: 'm1', display_name: 'alex', email: 'alex@one.test' }] } }, // after the rename
+  ], { cache });
+
+  await assert.rejects(() => resolver.member('alex'), (err) => err.code === 3 && /ambiguous member/.test(err.message));
+
+  resolver.invalidate('member', null, 'alex');
+  assert.equal(cache.memberCollisions.alex, undefined);
+
+  const id = await resolver.member('alex');
+  assert.equal(id, 'm1');
+});
+
 test('a cached ambiguous label is rejected again with zero extra requests inside the TTL', async () => {
   const cache = emptyCache('cybernetics');
   const { resolver, calls } = makeResolver([

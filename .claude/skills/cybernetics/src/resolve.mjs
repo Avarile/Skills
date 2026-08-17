@@ -377,12 +377,20 @@ export class Resolver {
       }
       case 'label': {
         const bucket = projectBucket(this.cache, projectId);
-        if (key !== undefined) delete bucket.labels[String(key).toLowerCase()];
+        if (key !== undefined) {
+          const lowerKey = String(key).toLowerCase();
+          delete bucket.labels[lowerKey];
+          delete bucket.labelCollisions?.[lowerKey];
+        }
         break;
       }
       case 'member': {
         this.cache.members ??= {};
-        if (key !== undefined) delete this.cache.members[String(key).toLowerCase()];
+        if (key !== undefined) {
+          const lowerKey = String(key).toLowerCase();
+          delete this.cache.members[lowerKey];
+          delete this.cache.memberCollisions?.[lowerKey];
+        }
         break;
       }
       default:

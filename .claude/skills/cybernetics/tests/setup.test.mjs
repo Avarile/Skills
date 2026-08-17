@@ -70,6 +70,27 @@ test('sync clears stale cache entries and refetches projects', async () => {
   assert.equal(ctx.cache.byProject[UUID_PROJECT].statesFetchedAt, stamp);
 });
 
+test('sync records state collisions, so a subsequent ambiguous state lookup still raises (guard bypass fix)', async () => {
+  const { ctx } = makeCtx([
+    { status: 200, body: { id: 'me-uuid', display_name: 'avarile' } },
+    { status: 200, body: { total_count: 1, results: [{ id: UUID_PROJECT, identifier: 'CYB', name: 'Core' }] } },
+    {
+      status: 200,
+      body: { results: [{ id: 's1', name: 'Todo', group: 'unstarted' }, { id: 's2', name: 'todo', group: 'unstarted' }] },
+    },
+    { status: 200, body: { results: [] } },
+  ]);
+
+  await sync(ctx);
+
+  // ctx.resolver shares ctx.cache, so this must be served from the cache
+  // sync just wrote — no queued response remains for a refetch.
+  await assert.rejects(
+    () => ctx.resolver.state(UUID_PROJECT, 'todo'),
+    (err) => err.code === 3 && /ambiguous state/.test(err.message),
+  );
+});
+
 test('sync leaves the on-disk and in-memory cache untouched when a later request fails', async () => {
   const cachePath = tmpFile('cache.json');
   const { ctx } = makeCtx([

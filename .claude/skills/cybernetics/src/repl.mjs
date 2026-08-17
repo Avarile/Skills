@@ -2,6 +2,7 @@ import readline from 'node:readline';
 import { buildContext, parseInvocation, dispatch, renderHelp } from './cli.mjs';
 import { projectBucket } from './cache.mjs';
 import { pickMode, renderError } from './format.mjs';
+import { buildNameMap } from './resolve.mjs';
 
 // The REPL contains no API logic of its own: tokenize() and translate() turn
 // a typed line into the same argv the plain CLI accepts, and startRepl()
@@ -158,8 +159,9 @@ async function warmProject(ctx, key) {
       { fields: ['id', 'name'] },
     );
     const labels = labelData?.results ?? [];
-    bucket.labels = {};
-    for (const label of labels) bucket.labels[label.name.toLowerCase()] = label.id;
+    const { map, collisions } = buildNameMap(labels, (l) => l.name);
+    bucket.labels = map;
+    bucket.labelCollisions = collisions;
     bucket.labelsFetchedAt = ctx.resolver.stamp();
 
     const { data: itemData } = await ctx.client.request(

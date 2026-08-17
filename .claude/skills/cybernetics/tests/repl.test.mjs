@@ -7,6 +7,8 @@ import { Readable } from 'node:stream';
 import { tokenize, translate, makeCompleter, REPL_HELP, startRepl } from '../src/repl.mjs';
 import { emptyCache, loadCache } from '../src/cache.mjs';
 import { main } from '../src/cli.mjs';
+import { Client } from '../src/client.mjs';
+import { Resolver } from '../src/resolve.mjs';
 import { makeFakeFetch } from './helpers/fake-fetch.mjs';
 
 test('tokenize splits on whitespace', () => {
@@ -208,6 +210,52 @@ test("cd warms the target project's labels and items (controller ruling: cd's jo
     assert.ok(bucket, 'expected the CYB project bucket to exist after cd');
     assert.equal(bucket.labels.bug, 'l1');
     assert.equal(bucket.items[42], 'i1');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test("cd's label warm-up records collisions, so a subsequent ambiguous label lookup still raises (guard bypass fix)", async () => {
+  const base = mkdtempSync(join(tmpdir(), 'cyb-repl-cd-collision-test-'));
+  try {
+    const cachePath = join(base, 'cache.json');
+    const { fetchImpl } = makeFakeFetch([
+      { status: 200, body: { results: [{ id: 'p1', identifier: 'CYB', name: 'Core' }] } }, // resolver.project
+      { status: 200, body: { results: [{ id: 'l1', name: 'Bug' }, { id: 'l2', name: 'bug' }] } }, // labels warm-up (collision)
+      { status: 200, body: { results: [] } }, // items warm-up
+    ]);
+    const input = Readable.from(['cd CYB\n', 'exit\n']);
+    const output = { write: () => {}, isTTY: false };
+
+    const code = await startRepl({
+      env: { CYB_TOKEN: 'plane_api_ffffffffffffffffffffffffffffbeef' },
+      cwd: base,
+      configPath: join(base, 'config.json'),
+      cachePath,
+      fetchImpl,
+      sleep: async () => {},
+      input,
+      output,
+      streams: { stdout: output, stderr: output },
+    });
+    assert.equal(code, 0);
+
+    // The warm-up must have stamped labelCollisions alongside labels/
+    // labelsFetchedAt — a fresh Resolver sharing this on-disk cache should
+    // raise the ambiguity error for 'bug' without making any further
+    // request (an empty fake-fetch queue throws if called).
+    const cache = loadCache({ path: cachePath, workspace: 'cybernetics' });
+    const { fetchImpl: noMoreRequests } = makeFakeFetch([]);
+    const client = new Client({
+      baseUrl: 'https://example.test', workspace: 'cybernetics', token: 'tok',
+      fetchImpl: noMoreRequests, sleep: async () => {}, now: Date.now,
+    });
+    const resolver = new Resolver({ client, cache, persist: () => {}, now: Date.now });
+
+    await assert.rejects(
+      () => resolver.label('p1', 'bug'),
+      (err) => err.name === 'CybError' && err.code === 3 && /ambiguous label/.test(err.message),
+    );
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
