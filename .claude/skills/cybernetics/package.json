@@ -1,0 +1,13 @@
+{
+  "name": "cybernetics-cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-dependency CLI for the Cybernetics Plane instance",
+  "bin": { "cyb": "./bin/cyb" },
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --test tests/",
+    "test:integration": "CYB_RUN_INTEGRATION=1 node --test tests/integration/"
+  }
+}
