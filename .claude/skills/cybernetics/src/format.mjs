@@ -35,7 +35,7 @@ export function renderTable(rows, columns, { mode = 'plain' } = {}) {
 export function truncationNotice(shown, total, limit) {
   if (total <= shown) return null;
   const more = total - shown;
-  return `… ${more} more (--limit ${Math.max(limit * 2, 100)})`;
+  return `… ${more} more (--limit ${total})`;
 }
 
 export function renderError(err, { mode = 'plain' } = {}) {

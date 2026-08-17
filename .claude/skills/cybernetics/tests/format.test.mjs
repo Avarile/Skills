@@ -49,9 +49,13 @@ test('renderTable renders missing values as a dash', () => {
 });
 
 test('truncationNotice appears only when results were withheld', () => {
-  assert.equal(truncationNotice(30, 77, 30), '… 47 more (--limit 100)');
+  assert.equal(truncationNotice(30, 77, 30), '… 47 more (--limit 77)');
   assert.equal(truncationNotice(12, 12, 30), null);
   assert.equal(truncationNotice(30, 30, 30), null);
+});
+
+test('truncationNotice suggests a limit that reveals every withheld row', () => {
+  assert.equal(truncationNotice(30, 500, 30), '… 470 more (--limit 500)');
 });
 
 test('renderError yields the JSON envelope in json mode', () => {
@@ -90,6 +94,7 @@ test('emit writes a rendered table with headers and row values in plain mode', (
   const stdout = fakeStdout();
   const rows = [{ ref: 'CYB-1', state: 'Todo', name: 'Short' }];
   emit(rows, { mode: 'plain', columns: COLUMNS, stdout });
+  assert.equal(stdout.writes.length, 1);
   const out = stdout.writes.join('');
   assert.match(out, /REF\s+STATE\s+NAME/);
   assert.match(out, /CYB-1\s+Todo\s+Short/);
