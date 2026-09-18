@@ -1,6 +1,6 @@
 # Recipes
 
-All examples assume `cyb` resolves to `node .claude/skills/cybernetics/bin/cyb`,
+All examples assume `cyb` resolves to `node .claude/skills/cybernetics-project/bin/cyb`,
 run from the repository root.
 
 ## Start a project from nothing

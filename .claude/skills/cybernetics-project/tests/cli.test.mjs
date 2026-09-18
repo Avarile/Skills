@@ -341,13 +341,21 @@ test('main is now a one-shot wrapper: parseInvocation -> buildContext -> dispatc
   // ctx by hand and dispatching manually must match what main() itself
   // returns and writes, for both a plain and a --json invocation.
   const s1 = captureStreams();
-  const code1 = await main(['doctor'], { streams: s1, env: {} });
+  const code1 = await main(['doctor'], {
+    streams: s1,
+    env: {},
+    configPath: '/nonexistent-cyb-dir/config.json',
+  });
 
   const s2 = captureStreams();
   const invocation = parseInvocation(['doctor']);
   let code2;
   try {
-    const ctx = buildContext({ values: invocation.values, positionals: invocation.positionals, deps: { streams: s2, env: {} } });
+    const ctx = buildContext({
+      values: invocation.values,
+      positionals: invocation.positionals,
+      deps: { streams: s2, env: {}, configPath: '/nonexistent-cyb-dir/config.json' },
+    });
     code2 = await dispatch(invocation, ctx);
   } catch (err) {
     s2.stderr.write(`error: ${err.message}\n`);

@@ -14,21 +14,21 @@ and pagination for you.
 `cyb` is not on PATH. Run it from the repo root:
 
 ```bash
-node .claude/skills/cybernetics/bin/cyb <group> <action> [options]
+node .claude/skills/cybernetics-project/bin/cyb <group> <action> [options]
 ```
 
 Check the connection first if anything looks wrong:
 
 ```bash
-node .claude/skills/cybernetics/bin/cyb doctor
+node .claude/skills/cybernetics-project/bin/cyb doctor
 ```
 
 Discover the surface as you go — every group answers `--help` with its
 actions and argument syntax:
 
 ```bash
-node .claude/skills/cybernetics/bin/cyb --help          # all 15 groups
-node .claude/skills/cybernetics/bin/cyb item --help      # actions + positionals for one group
+node .claude/skills/cybernetics-project/bin/cyb --help          # all 15 groups
+node .claude/skills/cybernetics-project/bin/cyb item --help      # actions + positionals for one group
 ```
 
 `cyb --help` lists a `ui` group — that is a human-only interactive REPL that
@@ -104,3 +104,7 @@ rather than guessing again.
 - `references/api-surface.md` — which endpoints exist on this fork, and which return 404/402/403
 - `references/recipes.md` — multi-step workflows (sprint setup, triage, status sweep)
 - `references/troubleshooting.md` — what each exit code means and how to recover
+- `references/module-templates.md` — six scope → explore → build → validate
+  module templates (feature, bug fix, spike, migration, security review,
+  perf) — read this before scaffolding a new module rather than improvising
+  its structure

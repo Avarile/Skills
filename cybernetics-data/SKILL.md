@@ -12,9 +12,9 @@ Payees, Tags, Transactions) and 2 knowledge-base tables (`knowledges`,
 `knowledge_type`). Raw endpoint reference lives in `api-docs/`; this skill
 turns that into ready-to-call analysis functions and a CLI.
 
-**Not** the Plane-fork project-management `cybernetics` skill at
-`projects.avarile.com` (`.claude/skills/cybernetics`, `cyb` CLI, `CYB_*` env
-vars) — same name, unrelated service, unrelated tables.
+**Not** the Plane-fork project-management `cybernetics-project` skill at
+`projects.avarile.com` (`.claude/skills/cybernetics-project`, `cyb` CLI,
+`CYB_*` env vars) — similar name, unrelated service, unrelated tables.
 
 ## When to Use
 - Asked to summarize spending, budgets, account balances, or cash flow
