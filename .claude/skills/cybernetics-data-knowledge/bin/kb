@@ -1,0 +1,3 @@
+#!/bin/sh
+# Launcher for the kb CLI. Keeps invocation short from the repo root.
+exec python3 "$(CDPATH= cd -- "$(dirname -- "$0")/../src" && pwd)/cli.py" "$@"
