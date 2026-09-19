@@ -120,8 +120,17 @@ Pass `--mutual` when you want both sides.
 field replaces the entire child set, orphaning everything you left out. Use
 `kb parent <child> --parent <new>`, which writes the child's side only.
 
-**The far side of a link takes ~1s to appear.** After a reparent, a `kb
-children` read straight away can still show the old set. Re-read if it looks stale.
+**Link reads settle late — key on `id`, never on `title`.** Two separate lags,
+both observed:
+- The *reverse* side of a link takes ~1s to appear at all. After a reparent, a
+  `kb children` read straight away can still show the old set.
+- The `title` decoration on a freshly written link can stay `null` for several
+  seconds (observed between 1.6s and 4s) while the `id` is correct immediately.
+
+So a script that checks `related[0]["title"] == "Something"` right after
+writing will intermittently see `None` and look like a failed write when the
+link is actually fine. Compare `id`s. Titles in link fields are decoration; ids
+are the contract.
 
 **Deleting a parent orphans its children, it does not cascade.** `kb delete`
 refuses without `--force` and prints each target with its child count first —

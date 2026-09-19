@@ -131,12 +131,20 @@ A manyMany self-link, but **not** symmetric: after `A.related = [B]`,
 `B.related` stayed `null` (checked after a settle delay). A mutual link needs
 both records written — `kb relate --mutual`.
 
-### Reverse sides lag ~1s
+### Read-after-write is not immediately consistent
 
-Immediately after `C.knowledge_parent = P`, reading `P.knowledges` returned
-`null`; the same read 1.5s later returned `[C]`. **Read-after-write is not
-immediately consistent** for the far side of a link. Don't assert on it in a
-tight loop.
+Two distinct lags, measured separately:
+
+| What | Immediately after the write | Settles |
+|---|---|---|
+| Reverse side of a link existing at all | `P.knowledges` was `null` after setting `C.knowledge_parent = P` | `[C]` by 1.5s |
+| `title` on a freshly written link entry | `{"id": "recX", "title": null}` | title filled in between 1.6s and 4s |
+
+The `id` is correct immediately in both directions; only the denormalized
+`title` trails. **Assert on ids, never on titles.** A check like
+`related[0]["title"] == "Foo"` straight after a write intermittently sees
+`null` and looks like a failed write when the link is correct — this bit the
+end-to-end harness for exactly this reason.
 
 ## Field notes
 
