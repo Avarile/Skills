@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves the user to the contact Avarile and the designer persona to Agentic Mind (Designer)",
+   "passed": true,
+   "evidence": "Avarile (type self) and Agentic Mind (Designer) contacts"
+  },
+  {
+   "text": "Assigns PLAN, CHECK and ACT tasks to the user and DO tasks to the designer persona",
+   "passed": true,
+   "evidence": "PLAN/CHECK/ACT Avarile, DO designer"
+  },
+  {
+   "text": "Sets the project lead to the user",
+   "passed": true,
+   "evidence": "'Lead is Avarile'"
+  },
+  {
+   "text": "Shows the assignee for each task in the preview",
+   "passed": true,
+   "evidence": "Table with 'Assigned to' column"
+  },
+  {
+   "text": "Asks for approval before creating anything",
+   "passed": true,
+   "evidence": "'haven't written anything ... Do you confirm these writes'"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

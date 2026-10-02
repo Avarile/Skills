@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Targets the project titled Inbox (finds it) rather than leaving the task without a project",
+   "passed": true,
+   "evidence": "Project: Inbox; actions: Inbox recGMngbWlVQCq9jzaC found"
+  },
+  {
+   "text": "Uses the exact priority value 'urgent'",
+   "passed": true,
+   "evidence": "Priority: urgent"
+  },
+  {
+   "text": "States the exact create call it would make, including the link to the Inbox project",
+   "passed": true,
+   "evidence": "actions.md: create_records on tblOMgDiajqa1moRRjE with belong_project {id: recGMngbWlVQCq9jzaC}"
+  },
+  {
+   "text": "Makes no database write (read-only mode respected)",
+   "passed": true,
+   "evidence": "'no writes'"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ }
+}

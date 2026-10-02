@@ -1,0 +1,12 @@
+{
+ "eval_id": 9,
+ "eval_name": "bulk-rebaseline",
+ "prompt": "Push every open task in the Website Refresh project out by 5 days — the client moved the kickoff.",
+ "assertions": [
+  "Counts the affected tasks before proposing changes",
+  "Excludes finished tasks and tasks of other projects",
+  "Shows before and after due dates for the tasks",
+  "Asks for confirmation before applying",
+  "Correctly identifies where each task's due date is stored and proposes a per-task edit (not the same value written to every task)"
+ ]
+}

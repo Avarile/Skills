@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Drafts exactly one Objective and at most 3 Key Results",
+   "passed": true,
+   "evidence": "One Objective, KR1-KR3"
+  },
+  {
+   "text": "Each Key Result has a metric, baseline, target and date",
+   "passed": false,
+   "evidence": "Metric, target and date present but every baseline is '?' (no actual baseline)"
+  },
+  {
+   "text": "Key Results are outcomes (measurable results), not tasks or deliverables",
+   "passed": true,
+   "evidence": "KRs are resolution %, CSAT, reopen rate; initiatives explicitly excluded"
+  },
+  {
+   "text": "Shows a preview and asks for approval before creating anything",
+   "passed": true,
+   "evidence": "'Draft OKR (preview, nothing written yet)'; will create after confirmation"
+  },
+  {
+   "text": "Checks or mentions existing goals/duplicates before drafting",
+   "passed": true,
+   "evidence": "'1 active goal exists: Become the most reliable agent platform...'; no support-bot project found"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 1,
+  "total": 5,
+  "pass_rate": 0.8
+ }
+}

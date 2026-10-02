@@ -1,0 +1,12 @@
+{
+ "eval_id": 15,
+ "eval_name": "no-silent-takeover",
+ "prompt": "Give all of the k3s project's tasks to Junhui.",
+ "assertions": [
+  "Resolves Junhui to the contact Junhui Dan",
+  "Notices the two PLAN tasks already assigned to Anastasia Wang",
+  "Does not silently reassign those tasks: skips them or asks explicitly",
+  "Reports counts of tasks to change versus skipped",
+  "Makes no database write"
+ ]
+}

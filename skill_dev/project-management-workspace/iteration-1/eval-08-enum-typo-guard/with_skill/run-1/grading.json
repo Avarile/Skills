@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Uses finished_validating (underscore) as the task status, not the hyphenated spelling",
+   "passed": true,
+   "evidence": "'The task value is finished_validating (underscore)'; hyphen is project spelling"
+  },
+  {
+   "text": "Plans to read the record back to verify the status was stored",
+   "passed": true,
+   "evidence": "'I would write the underscore form and read it back'"
+  },
+  {
+   "text": "Notes that this task has not started or asks for confirmation/evidence before marking it finished",
+   "passed": true,
+   "evidence": "Task is backlog, no started_at; asks to confirm and for evidence"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "'Nothing written'; no executed write"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "eval_id": 17,
+ "eval_name": "agent-self-claim",
+ "prompt": "I have spare capacity as Agentic Mind (Developer). Is there unassigned work in Website Refresh I can take?",
+ "assertions": [
+  "Lists unassigned open tasks in Website Refresh (not tasks already assigned to others)",
+  "Prefers or flags work by priority or due date and any gate",
+  "Proposes assigning only an unassigned task to Agentic Mind (Developer)",
+  "Does not propose taking tasks held by Avarile or others without confirmation",
+  "Makes no database write"
+ ]
+}

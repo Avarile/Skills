@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Drafts exactly one Objective and at most 3 Key Results",
+   "passed": true,
+   "evidence": "One Objective, KR1-KR3"
+  },
+  {
+   "text": "Each Key Result has a metric, baseline, target and date",
+   "passed": false,
+   "evidence": "Metric, target and date present but every baseline is 'TBD'"
+  },
+  {
+   "text": "Key Results are outcomes (measurable results), not tasks or deliverables",
+   "passed": true,
+   "evidence": "KRs: resolution share, CSAT, wrong-answer rate; initiatives said to be projects, not KRs"
+  },
+  {
+   "text": "Shows a preview and asks for approval before creating anything",
+   "passed": true,
+   "evidence": "'Nothing has been written'; asks questions before saving"
+  },
+  {
+   "text": "Checks or mentions existing goals/duplicates before drafting",
+   "passed": true,
+   "evidence": "Reports the one existing goal and that nothing covers the support bot"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 1,
+  "total": 5,
+  "pass_rate": 0.8
+ }
+}

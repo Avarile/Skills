@@ -1,0 +1,12 @@
+{
+ "eval_id": 4,
+ "eval_name": "plan-goal-okr",
+ "prompt": "Help me set an OKR for next quarter: I want our support bot to resolve most tickets without a human.",
+ "assertions": [
+  "Drafts exactly one Objective and at most 3 Key Results",
+  "Each Key Result has a metric, baseline, target and date",
+  "Key Results are outcomes (measurable results), not tasks or deliverables",
+  "Shows a preview and asks for approval before creating anything",
+  "Checks or mentions existing goals/duplicates before drafting"
+ ]
+}

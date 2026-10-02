@@ -1,0 +1,11 @@
+{
+ "eval_id": 8,
+ "eval_name": "enum-typo-guard",
+ "prompt": "Mark the Wave 1 migration task in the k3s project as finished-validating.",
+ "assertions": [
+  "Uses finished_validating (underscore) as the task status, not the hyphenated spelling",
+  "Plans to read the record back to verify the status was stored",
+  "Notes that this task has not started or asks for confirmation/evidence before marking it finished",
+  "Makes no database write"
+ ]
+}

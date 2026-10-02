@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves Anastasia to the contact Anastasia Wang (not a guess)",
+   "passed": false,
+   "evidence": "'I also haven't confirmed that \"Anastasia\" resolves to exactly one contact'"
+  },
+  {
+   "text": "Restricts the change to CHECK and ACT tasks of the k3s project",
+   "passed": true,
+   "evidence": "Planned command uses --project k3s --phase CHECK,ACT"
+  },
+  {
+   "text": "Reports how many tasks would change (and any held by someone else)",
+   "passed": false,
+   "evidence": "'I don't have the task count or know whether any ... held by someone else'"
+  },
+  {
+   "text": "Asks for confirmation before writing (dry-run first)",
+   "passed": true,
+   "evidence": "Describes dry-run, report counts, wait for OK, then --yes"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "'Nothing has been written.'"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 2,
+  "total": 5,
+  "pass_rate": 0.6
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "eval_id": 18,
+ "eval_name": "plan-project-with-roles",
+ "prompt": "Plan the brand refresh: I lead and review, the designer persona does the design work, and it should finish by 20 Nov.",
+ "assertions": [
+  "Resolves the user to the contact Avarile and the designer persona to Agentic Mind (Designer)",
+  "Assigns PLAN, CHECK and ACT tasks to the user and DO tasks to the designer persona",
+  "Sets the project lead to the user",
+  "Shows the assignee for each task in the preview",
+  "Asks for approval before creating anything"
+ ]
+}

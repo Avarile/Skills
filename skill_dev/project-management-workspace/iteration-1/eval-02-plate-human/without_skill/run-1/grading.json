@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Restricts to tasks assigned to the contact Avarile (not everyone's tasks)",
+   "passed": true,
+   "evidence": "Lists Avarile's two open tasks; unassigned items placed in a separate 'Not assigned' section"
+  },
+  {
+   "text": "Groups into sections such as overdue, due soon, in progress, blocked or undated",
+   "passed": false,
+   "evidence": "Groups by assigned-open / done / unassigned; states 'no due-date field' so no overdue/due-soon/blocked grouping"
+  },
+  {
+   "text": "States how many rows or tasks the answer is based on",
+   "passed": false,
+   "evidence": "No count of rows/tasks the answer is based on"
+  },
+  {
+   "text": "Excludes inactive/archived tasks and finished tasks",
+   "passed": false,
+   "evidence": "Includes a section 'Already done by you (finished_validating)' listing finished tasks; no is_active filtering shown"
+  },
+  {
+   "text": "Opens with decisions needed or explicitly says there are none",
+   "passed": false,
+   "evidence": "Opens with a title and a no-due-date caveat, not decisions needed"
+  }
+ ],
+ "summary": {
+  "passed": 1,
+  "failed": 4,
+  "total": 5,
+  "pass_rate": 0.2
+ }
+}

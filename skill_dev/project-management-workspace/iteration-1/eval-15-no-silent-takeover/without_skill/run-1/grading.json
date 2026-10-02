@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves Junhui to the contact Junhui Dan",
+   "passed": true,
+   "evidence": "'Junhui is Junhui Dan'"
+  },
+  {
+   "text": "Notices the two PLAN tasks already assigned to Anastasia Wang",
+   "passed": true,
+   "evidence": "Steps 01 and 02 [PLAN] assigned to Anastasia Wang"
+  },
+  {
+   "text": "Does not silently reassign those tasks: skips them or asks explicitly",
+   "passed": true,
+   "evidence": "'I won't reassign them without your say-so'; offers options (a)/(b)"
+  },
+  {
+   "text": "Reports counts of tasks to change versus skipped",
+   "passed": true,
+   "evidence": "'assign the 9 unassigned ... leave Anastasia's 2'; 11 tasks total"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "No executed write"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

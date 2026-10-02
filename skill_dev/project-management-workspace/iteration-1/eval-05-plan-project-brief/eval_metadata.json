@@ -1,0 +1,13 @@
+{
+ "eval_id": 5,
+ "eval_name": "plan-project-brief",
+ "prompt": "Plan a 4-week project to build an internal expense-approval dashboard. I'll lead it, it moves KR1, hard deadline is 14 Nov, scope is the fixed constraint.",
+ "assertions": [
+  "Includes a charter with scope, out-of-scope and acceptance criteria",
+  "Gives the estimate as a range (best/likely/worst) with a declared buffer",
+  "Lists at least 3 risks each with a mitigation",
+  "Previews a task list of at least 8 tasks with due dates that includes a gate, a CHECK and an ACT step",
+  "Resolves the goal that KR1 belongs to and the user as lead, or states the assumption",
+  "Does not create anything before approval"
+ ]
+}

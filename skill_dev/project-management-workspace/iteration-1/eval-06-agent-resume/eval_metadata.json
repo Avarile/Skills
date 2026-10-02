@@ -1,0 +1,12 @@
+{
+ "eval_id": 6,
+ "eval_name": "agent-resume",
+ "prompt": "(Claude Code session, working directory /work/site-refresh, acting as Agentic Mind (Developer).) Pick up where we left off.",
+ "assertions": [
+  "Identifies the Website Refresh project by matching the working directory to its Repo line (or by repo name), not by guessing",
+  "Shows the in-progress task assigned to Agentic Mind (Developer) (Step 07)",
+  "Shows the next tasks assigned to the persona and/or unassigned claimable work separately",
+  "Proposes claiming a task as in-progress with started_at and a log line, or states it already is in progress",
+  "Mentions the overdue state or the project's RAG"
+ ]
+}

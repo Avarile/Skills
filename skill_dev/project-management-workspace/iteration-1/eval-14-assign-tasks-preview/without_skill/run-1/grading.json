@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves Anastasia to the contact Anastasia Wang (not a guess)",
+   "passed": true,
+   "evidence": "Anastasia Wang (recoD5RMWtQ1osYGBKs), only Anastasia in contacts"
+  },
+  {
+   "text": "Restricts the change to CHECK and ACT tasks of the k3s project",
+   "passed": true,
+   "evidence": "Lists exactly Steps 09, 10 [CHECK], 11 [ACT]"
+  },
+  {
+   "text": "Reports how many tasks would change (and any held by someone else)",
+   "passed": true,
+   "evidence": "'three CHECK/ACT tasks. All are currently unassigned'"
+  },
+  {
+   "text": "Asks for confirmation before writing (dry-run first)",
+   "passed": true,
+   "evidence": "'Shall I go ahead?' proposed writes not executed"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "Only proposed update_records"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

@@ -1,0 +1,3 @@
+# Task templates
+
+JSON, one per project shape; expanded by `scripts/scaffold.py`. Step fields: `p` phase (PLAN/DO/CHECK/ACT), `t` title (starts with a verb), `at` position 0-1 along the span, `pr` priority (default `normal`; must be a valid `tasks.priority` option), optional `g` gate text (blocks later DO work), `m` milestone label, `acc` acceptance, `n` notes. Derived from the PDCA scaffolds in the original mock tasks, with domain details removed. Every template needs a gate, a CHECK and an ACT step (and a mid-point check at >=10 steps); `scaffold.py` lints this. Add a new shape by dropping in another JSON file.

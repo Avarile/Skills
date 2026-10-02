@@ -1,0 +1,168 @@
+{
+ "desc": "Client delivery with written milestone sign-offs, about 25 steps, 3-6 months.",
+ "min_days": 60,
+ "steps": [
+  {
+   "p": "PLAN",
+   "t": "Align with sponsor: objectives, decision makers, constraints",
+   "at": 0.02,
+   "pr": "prioritise",
+   "n": "Confirm who signs off and which of scope, time, cost is fixed."
+  },
+  {
+   "p": "PLAN",
+   "t": "Write scope statement and out-of-scope list",
+   "at": 0.04,
+   "pr": "prioritise"
+  },
+  {
+   "p": "PLAN",
+   "t": "Define acceptance criteria for every deliverable",
+   "at": 0.05,
+   "pr": "prioritise"
+  },
+  {
+   "p": "PLAN",
+   "t": "Estimate as a range with declared buffer",
+   "at": 0.06,
+   "pr": "normal",
+   "n": "Give best, likely and worst case in writing; declare the 20-30% buffer."
+  },
+  {
+   "p": "PLAN",
+   "t": "Risk register v1 and communication plan",
+   "at": 0.07,
+   "pr": "normal"
+  },
+  {
+   "p": "PLAN",
+   "t": "Charter signed off in writing",
+   "at": 0.09,
+   "pr": "important",
+   "g": "no build work starts until the charter is signed by both sides"
+  },
+  {
+   "p": "DO",
+   "t": "Set up change log and blockers log",
+   "at": 0.09,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Weekly status report #1",
+   "at": 0.1,
+   "pr": "normal",
+   "n": "Use the status entry format; log later reports in the project context."
+  },
+  {
+   "p": "DO",
+   "t": "Demo to sponsor after each iteration",
+   "at": 0.18,
+   "pr": "important",
+   "n": "First demo; repeat each iteration."
+  },
+  {
+   "p": "DO",
+   "t": "Design and prototype",
+   "at": 0.25,
+   "pr": "important",
+   "m": "M1"
+  },
+  {
+   "p": "CHECK",
+   "t": "Milestone 1 sign-off in writing",
+   "at": 0.26,
+   "pr": "important"
+  },
+  {
+   "p": "DO",
+   "t": "Build the core flow on staging",
+   "at": 0.38,
+   "pr": "normal"
+  },
+  {
+   "p": "CHECK",
+   "t": "Mid-project health check",
+   "at": 0.45,
+   "pr": "prioritise",
+   "n": "Objectives still valid? Scope crept? Timeline and budget realistic? Risks materialised? Stakeholders aligned? Team sustainable?"
+  },
+  {
+   "p": "DO",
+   "t": "Build secondary features",
+   "at": 0.52,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Build operations and admin tooling",
+   "at": 0.6,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Core features working on staging; scope freeze",
+   "at": 0.66,
+   "pr": "important",
+   "m": "M2"
+  },
+  {
+   "p": "CHECK",
+   "t": "Milestone 2 sign-off in writing",
+   "at": 0.67,
+   "pr": "important"
+  },
+  {
+   "p": "CHECK",
+   "t": "Independent security or compliance review",
+   "at": 0.78,
+   "pr": "important",
+   "n": "Book in advance; findings feed the risk register."
+  },
+  {
+   "p": "CHECK",
+   "t": "Acceptance review / UAT with the people who will use it",
+   "at": 0.88,
+   "pr": "important"
+  },
+  {
+   "p": "CHECK",
+   "t": "Milestone 3 sign-off and go-live",
+   "at": 0.93,
+   "pr": "important",
+   "m": "M3",
+   "g": "requires the independent review and UAT to have passed"
+  },
+  {
+   "p": "CHECK",
+   "t": "Retrospective",
+   "at": 0.95,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Blameless post-mortem with action owners",
+   "at": 0.98,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Lessons learned session with sponsor",
+   "at": 0.98,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Codify what worked into the knowledge base",
+   "at": 1.0,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Update estimation norms from actuals",
+   "at": 1.0,
+   "pr": "can wait"
+  }
+ ],
+ "name": "client-delivery"
+}

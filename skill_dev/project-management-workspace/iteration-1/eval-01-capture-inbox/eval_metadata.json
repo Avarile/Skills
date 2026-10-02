@@ -1,0 +1,11 @@
+{
+ "eval_id": 1,
+ "eval_name": "capture-inbox",
+ "prompt": "Add a task: renew the SSL certificate for staging, urgent.",
+ "assertions": [
+  "Targets the project titled Inbox (finds it) rather than leaving the task without a project",
+  "Uses the exact priority value 'urgent'",
+  "States the exact create call it would make, including the link to the Inbox project",
+  "Makes no database write (read-only mode respected)"
+ ]
+}

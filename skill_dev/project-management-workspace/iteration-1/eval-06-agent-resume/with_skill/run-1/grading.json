@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Identifies the Website Refresh project by matching the working directory to its Repo line (or by repo name), not by guessing",
+   "passed": true,
+   "evidence": "'matched by working dir /work/site-refresh'; resume.py --path"
+  },
+  {
+   "text": "Shows the in-progress task assigned to Agentic Mind (Developer) (Step 07)",
+   "passed": true,
+   "evidence": "'IN PROGRESS (mine): Step 07...started 2026-09-28'"
+  },
+  {
+   "text": "Shows the next tasks assigned to the persona and/or unassigned claimable work separately",
+   "passed": true,
+   "evidence": "Separate 'NEXT (mine)' Step 08 and 'Claimable, unassigned (4)'"
+  },
+  {
+   "text": "Proposes claiming a task as in-progress with started_at and a log line, or states it already is in progress",
+   "passed": true,
+   "evidence": "Step 07 already in progress; proposes dated Log line"
+  },
+  {
+   "text": "Mentions the overdue state or the project's RAG",
+   "passed": true,
+   "evidence": "'Step 07 is overdue'; 'RAG AMBER'"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

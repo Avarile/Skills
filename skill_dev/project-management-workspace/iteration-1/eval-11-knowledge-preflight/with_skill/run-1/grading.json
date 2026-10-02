@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Shows at most 5 candidates",
+   "passed": true,
+   "evidence": "Exactly 5 numbered candidates"
+  },
+  {
+   "text": "Each candidate is shown by title and type",
+   "passed": true,
+   "evidence": "Each shown as title (type) with record id"
+  },
+  {
+   "text": "Includes k3s-related entries (for example the K3S cheatsheet or setup entries)",
+   "passed": true,
+   "evidence": "K3S Cheatsheet, K3S initite, Create new service, Data: Management"
+  },
+  {
+   "text": "Excludes credential entries and never prints credential values",
+   "passed": true,
+   "evidence": "'credential types excluded'; titles and types only read; no values"
+  },
+  {
+   "text": "Does not link anything until the user picks",
+   "passed": true,
+   "evidence": "'Reply with the numbers you want... Nothing has been changed'"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

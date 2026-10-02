@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Restricts to tasks assigned to the contact Avarile (not everyone's tasks)",
+   "passed": true,
+   "evidence": "assign.py tasks --contact Avarile; 'Your plate (Avarile), 2 open tasks'; others summarised only as a count"
+  },
+  {
+   "text": "Groups into sections such as overdue, due soon, in progress, blocked or undated",
+   "passed": true,
+   "evidence": "'Overdue: none. Due in 7 days: none. In progress: none. Blocked: none.'"
+  },
+  {
+   "text": "States how many rows or tasks the answer is based on",
+   "passed": true,
+   "evidence": "'Basis: 2 of your open tasks, from the 104 open active task rows'"
+  },
+  {
+   "text": "Excludes inactive/archived tasks and finished tasks",
+   "passed": true,
+   "evidence": "Only 2 open tasks listed; finished PLAN tasks only noted as finished, is_active in projection"
+  },
+  {
+   "text": "Opens with decisions needed or explicitly says there are none",
+   "passed": true,
+   "evidence": "Opens with '**Decisions needed**'"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

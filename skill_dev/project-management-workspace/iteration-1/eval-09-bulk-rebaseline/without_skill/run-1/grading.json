@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Counts the affected tasks before proposing changes",
+   "passed": true,
+   "evidence": "'Eight are open: Step 07 ... and Steps 08-14'"
+  },
+  {
+   "text": "Excludes finished tasks and tasks of other projects",
+   "passed": true,
+   "evidence": "Steps 01-06 untouched; other projects not touched"
+  },
+  {
+   "text": "Shows before and after due dates for the tasks",
+   "passed": true,
+   "evidence": "Table of current due and new due for all 8"
+  },
+  {
+   "text": "Asks for confirmation before applying",
+   "passed": true,
+   "evidence": "'Confirm and I'll make the 8 task edits'"
+  },
+  {
+   "text": "Correctly identifies where each task's due date is stored and proposes a per-task edit (not the same value written to every task)",
+   "passed": true,
+   "evidence": "'due date is the first line of each task's context text'; per-task rewritten dates"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

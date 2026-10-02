@@ -1,0 +1,12 @@
+{
+ "eval_id": 10,
+ "eval_name": "weekly-report",
+ "prompt": "Write this week's status report for Website Refresh.",
+ "assertions": [
+  "Uses the sections: overall status with RAG, accomplished, planned, risks and issues, decisions needed, metrics",
+  "The RAG is not green (the project has an overdue task and an unmitigated risk)",
+  "Metrics include completion and overdue figures that match the data (14 tasks, 6 finished, 1 overdue)",
+  "Offers to append it to the project log only after approval",
+  "Makes no database write"
+ ]
+}

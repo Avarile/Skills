@@ -1,0 +1,68 @@
+{
+ "desc": "Infrastructure build (platform, landing zone, security baseline), about 10 steps, 4-10 weeks.",
+ "min_days": 28,
+ "steps": [
+  {
+   "p": "PLAN",
+   "t": "Scope statement and acceptance criteria",
+   "at": 0.04,
+   "pr": "prioritise"
+  },
+  {
+   "p": "PLAN",
+   "t": "Estimate as a range and list top 3 risks",
+   "at": 0.07,
+   "pr": "prioritise",
+   "g": "no DO task starts until this is finished"
+  },
+  {
+   "p": "DO",
+   "t": "Design the foundation: accounts, network, identity",
+   "at": 0.2,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Build the foundation and connectivity",
+   "at": 0.38,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Mid-point check-point",
+   "at": 0.5,
+   "pr": "important"
+  },
+  {
+   "p": "DO",
+   "t": "Implement security baseline: logging, encryption, access reviews",
+   "at": 0.62,
+   "pr": "important"
+  },
+  {
+   "p": "DO",
+   "t": "Disaster recovery design and failover test",
+   "at": 0.75,
+   "pr": "normal"
+  },
+  {
+   "p": "CHECK",
+   "t": "Security review and penetration test",
+   "at": 0.88,
+   "pr": "important"
+  },
+  {
+   "p": "CHECK",
+   "t": "Retrospective",
+   "at": 0.93,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Write lessons learned into the knowledge base",
+   "at": 0.98,
+   "pr": "normal"
+  }
+ ],
+ "name": "infra-build"
+}

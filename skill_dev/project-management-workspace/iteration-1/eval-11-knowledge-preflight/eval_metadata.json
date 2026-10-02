@@ -1,0 +1,12 @@
+{
+ "eval_id": 11,
+ "eval_name": "knowledge-preflight",
+ "prompt": "Which existing knowledge should I link to the k3s project?",
+ "assertions": [
+  "Shows at most 5 candidates",
+  "Each candidate is shown by title and type",
+  "Includes k3s-related entries (for example the K3S cheatsheet or setup entries)",
+  "Excludes credential entries and never prints credential values",
+  "Does not link anything until the user picks"
+ ]
+}

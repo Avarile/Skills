@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Lists unassigned open tasks in Website Refresh (not tasks already assigned to others)",
+   "passed": true,
+   "evidence": "4 unassigned open tasks; lists Steps 09, 10, 13 (fourth not shown) - none held by others"
+  },
+  {
+   "text": "Prefers or flags work by priority or due date and any gate",
+   "passed": true,
+   "evidence": "Sorted by priority then due date; 'No gate tasks are open'"
+  },
+  {
+   "text": "Proposes assigning only an unassigned task to Agentic Mind (Developer)",
+   "passed": true,
+   "evidence": "Proposes Step 09 only, after user picks"
+  },
+  {
+   "text": "Does not propose taking tasks held by Avarile or others without confirmation",
+   "passed": true,
+   "evidence": "Does not propose Avarile's tasks; Step 08 noted as the agent's own"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "'I have not claimed anything'"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

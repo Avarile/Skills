@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Identifies the Website Refresh project by matching the working directory to its Repo line (or by repo name), not by guessing",
+   "passed": true,
+   "evidence": "States repo /work/site-refresh and Website Refresh, though actions show no explicit match step"
+  },
+  {
+   "text": "Shows the in-progress task assigned to Agentic Mind (Developer) (Step 07)",
+   "passed": false,
+   "evidence": "Step 07 shown in-progress but no mention that it is assigned to Agentic Mind (Developer)"
+  },
+  {
+   "text": "Shows the next tasks assigned to the persona and/or unassigned claimable work separately",
+   "passed": false,
+   "evidence": "Lists Steps 08-11 in order but does not separate persona-assigned from unassigned claimable work"
+  },
+  {
+   "text": "Proposes claiming a task as in-progress with started_at and a log line, or states it already is in progress",
+   "passed": true,
+   "evidence": "'Step 07 is in-progress (started 2026-09-28)'"
+  },
+  {
+   "text": "Mentions the overdue state or the project's RAG",
+   "passed": true,
+   "evidence": "'2 days overdue'; suggests AMBER"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 2,
+  "total": 5,
+  "pass_rate": 0.6
+ }
+}

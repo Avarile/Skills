@@ -1,0 +1,40 @@
+{
+ "expectations": [
+  {
+   "text": "Includes a charter with scope, out-of-scope and acceptance criteria",
+   "passed": false,
+   "evidence": "Scope/out-of-scope/acceptance left as '<from user>' placeholders; 'I need the deliverables list'"
+  },
+  {
+   "text": "Gives the estimate as a range (best/likely/worst) with a declared buffer",
+   "passed": true,
+   "evidence": "Placeholder best 15d / likely 20d / worst 28d, buffer ~50%"
+  },
+  {
+   "text": "Lists at least 3 risks each with a mitigation",
+   "passed": false,
+   "evidence": "Three risks listed; only risk 1 has a mitigation (change request); data access and capacity risks have none"
+  },
+  {
+   "text": "Previews a task list of at least 8 tasks with due dates that includes a gate, a CHECK and an ACT step",
+   "passed": false,
+   "evidence": "Task titles listed (14) but no per-task due dates and no gate; weekly table only"
+  },
+  {
+   "text": "Resolves the goal that KR1 belongs to and the user as lead, or states the assumption",
+   "passed": true,
+   "evidence": "Goal linked recBGkbHXHyOgKl89Ke, lead avarile@gmail.com"
+  },
+  {
+   "text": "Does not create anything before approval",
+   "passed": true,
+   "evidence": "'I have not written anything'"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 3,
+  "total": 6,
+  "pass_rate": 0.5
+ }
+}

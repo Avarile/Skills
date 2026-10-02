@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Presents open tasks per person (and in-progress or overdue counts)",
+   "passed": true,
+   "evidence": "Table of open tasks per contact with due-this-week; Dev in-progress Step 07 overdue"
+  },
+  {
+   "text": "Notes that Agentic Mind (Developer) has an overdue task or an in-progress task",
+   "passed": true,
+   "evidence": "'Agentic Mind (Developer) has an overdue task'; Step 07 in-progress"
+  },
+  {
+   "text": "Recommends a specific person or persona with a reason that cites the data",
+   "passed": true,
+   "evidence": "Best fit Avarile: open work not due until late October"
+  },
+  {
+   "text": "Assigns nothing without confirmation",
+   "passed": true,
+   "evidence": "'I will not create anything until you confirm'"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "Proposed writes none"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

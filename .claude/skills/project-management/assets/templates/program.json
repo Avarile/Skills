@@ -1,0 +1,117 @@
+{
+ "desc": "Multi-workstream program with steering cadence, about 18 steps, a quarter or more.",
+ "min_days": 90,
+ "steps": [
+  {
+   "p": "PLAN",
+   "t": "Define objective and key results on the goal",
+   "at": 0.02,
+   "pr": "prioritise",
+   "n": "Refine the draft OKRs on the goal record."
+  },
+  {
+   "p": "PLAN",
+   "t": "Break down into workstreams and assign leads",
+   "at": 0.04,
+   "pr": "prioritise"
+  },
+  {
+   "p": "PLAN",
+   "t": "Charter co-signed by sponsor(s)",
+   "at": 0.07,
+   "pr": "important",
+   "g": "workstreams do not start until the charter is co-signed"
+  },
+  {
+   "p": "PLAN",
+   "t": "Map cross-workstream dependencies",
+   "at": 0.07,
+   "pr": "important"
+  },
+  {
+   "p": "PLAN",
+   "t": "Program risk register with owners and escalation triggers",
+   "at": 0.07,
+   "pr": "important"
+  },
+  {
+   "p": "PLAN",
+   "t": "Communication plan: steering, executive update, workstream cadence",
+   "at": 0.08,
+   "pr": "normal"
+  },
+  {
+   "p": "PLAN",
+   "t": "Set metrics and baselines",
+   "at": 0.09,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Consolidated weekly status #1",
+   "at": 0.12,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Change control board (weekly)",
+   "at": 0.12,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Steering committee #1",
+   "at": 0.2,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Dependency review (bi-weekly)",
+   "at": 0.25,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Steering committee #2",
+   "at": 0.4,
+   "pr": "normal"
+  },
+  {
+   "p": "CHECK",
+   "t": "Mid-program health check",
+   "at": 0.5,
+   "pr": "prioritise"
+  },
+  {
+   "p": "CHECK",
+   "t": "Quarterly KPI and stakeholder review",
+   "at": 0.6,
+   "pr": "normal"
+  },
+  {
+   "p": "CHECK",
+   "t": "Program retrospective",
+   "at": 0.92,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Blameless program post-mortem",
+   "at": 0.96,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Codify standards and lessons into the knowledge base",
+   "at": 0.98,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Next-cycle charter and updated estimation norms",
+   "at": 1.0,
+   "pr": "normal"
+  }
+ ],
+ "name": "program"
+}

@@ -1,0 +1,12 @@
+{
+ "eval_id": 3,
+ "eval_name": "status-project",
+ "prompt": "How is the Website Refresh project doing?",
+ "assertions": [
+  "Reports a RAG status (green/amber/red) and names the reason(s) it fired",
+  "Reports a completion percentage and the number of overdue tasks",
+  "Mentions the stale status log (no status entry for about 16 days) or the unmitigated high-impact risk",
+  "Mentions the next gate or says there is none",
+  "Makes no database write"
+ ]
+}

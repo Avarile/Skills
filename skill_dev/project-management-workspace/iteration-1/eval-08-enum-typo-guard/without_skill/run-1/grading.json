@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Uses finished_validating (underscore) as the task status, not the hyphenated spelling",
+   "passed": true,
+   "evidence": "Proposes finished_validating, notes hyphen is invalid"
+  },
+  {
+   "text": "Plans to read the record back to verify the status was stored",
+   "passed": false,
+   "evidence": "No mention of reading the record back to verify"
+  },
+  {
+   "text": "Notes that this task has not started or asks for confirmation/evidence before marking it finished",
+   "passed": true,
+   "evidence": "Notes task is backlog, never started; asks 'Is Wave 1 really done and validated?'"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "No executed write"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "pass_rate": 0.75
+ }
+}

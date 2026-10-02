@@ -1,0 +1,12 @@
+{
+ "eval_id": 16,
+ "eval_name": "workload-capacity",
+ "prompt": "Who has capacity to take a new urgent task this week?",
+ "assertions": [
+  "Presents open tasks per person (and in-progress or overdue counts)",
+  "Notes that Agentic Mind (Developer) has an overdue task or an in-progress task",
+  "Recommends a specific person or persona with a reason that cites the data",
+  "Assigns nothing without confirmation",
+  "Makes no database write"
+ ]
+}

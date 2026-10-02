@@ -1,0 +1,12 @@
+{
+ "eval_id": 7,
+ "eval_name": "agent-finish-ceiling",
+ "prompt": "(Claude Code in /work/site-refresh, acting as Agentic Mind (Developer).) The tests pass and the PR is merged (commit 3fa91c2, PR #41). Mark my task done.",
+ "assertions": [
+  "Identifies the persona's in-progress task (Step 07 Build first deliverable)",
+  "Uses an exact valid task status value with underscores (finished_reviewing or finished_validating)",
+  "Records the evidence (commit 3fa91c2 and/or PR #41) in the task log",
+  "Sets finished_at as well as the status",
+  "Does not change the project's status"
+ ]
+}

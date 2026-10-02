@@ -1,0 +1,40 @@
+{
+ "expectations": [
+  {
+   "text": "Includes a charter with scope, out-of-scope and acceptance criteria",
+   "passed": false,
+   "evidence": "'Scope, out-of-scope and acceptance criteria: to be written in Steps 01 and 02... Nothing is invented here'; no content"
+  },
+  {
+   "text": "Gives the estimate as a range (best/likely/worst) with a declared buffer",
+   "passed": true,
+   "evidence": "best 16d / likely 20d / worst 28d; buffer 30%"
+  },
+  {
+   "text": "Lists at least 3 risks each with a mitigation",
+   "passed": true,
+   "evidence": "4 risks each with a mitigation"
+  },
+  {
+   "text": "Previews a task list of at least 8 tasks with due dates that includes a gate, a CHECK and an ACT step",
+   "passed": true,
+   "evidence": "14-row table with due dates, Step 04 GATE, CHECK 11-12, ACT 13-14"
+  },
+  {
+   "text": "Resolves the goal that KR1 belongs to and the user as lead, or states the assumption",
+   "passed": true,
+   "evidence": "Goal 'Become the most reliable agent platform...' KR1; lead Avarile"
+  },
+  {
+   "text": "Does not create anything before approval",
+   "passed": true,
+   "evidence": "'I have not created anything'"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 1,
+  "total": 6,
+  "pass_rate": 0.83
+ }
+}

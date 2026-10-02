@@ -1,0 +1,12 @@
+{
+ "eval_id": 14,
+ "eval_name": "assign-tasks-preview",
+ "prompt": "Assign the CHECK and ACT tasks of the k3s project to Anastasia.",
+ "assertions": [
+  "Resolves Anastasia to the contact Anastasia Wang (not a guess)",
+  "Restricts the change to CHECK and ACT tasks of the k3s project",
+  "Reports how many tasks would change (and any held by someone else)",
+  "Asks for confirmation before writing (dry-run first)",
+  "Makes no database write"
+ ]
+}

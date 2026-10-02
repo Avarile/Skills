@@ -1,0 +1,1598 @@
+{
+  "metadata": {
+    "skill_name": "project-management",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-10-02T14:26:52Z",
+    "evals_run": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 22.2,
+        "tokens": 50342,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Targets the project titled Inbox (finds it) rather than leaving the task without a project",
+          "passed": true,
+          "evidence": "Project: Inbox; actions: Inbox recGMngbWlVQCq9jzaC found"
+        },
+        {
+          "text": "Uses the exact priority value 'urgent'",
+          "passed": true,
+          "evidence": "Priority: urgent"
+        },
+        {
+          "text": "States the exact create call it would make, including the link to the Inbox project",
+          "passed": true,
+          "evidence": "actions.md: create_records on tblOMgDiajqa1moRRjE with belong_project {id: recGMngbWlVQCq9jzaC}"
+        },
+        {
+          "text": "Makes no database write (read-only mode respected)",
+          "passed": true,
+          "evidence": "'no writes'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 34.4,
+        "tokens": 52135,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Restricts to tasks assigned to the contact Avarile (not everyone's tasks)",
+          "passed": true,
+          "evidence": "assign.py tasks --contact Avarile; 'Your plate (Avarile), 2 open tasks'; others summarised only as a count"
+        },
+        {
+          "text": "Groups into sections such as overdue, due soon, in progress, blocked or undated",
+          "passed": true,
+          "evidence": "'Overdue: none. Due in 7 days: none. In progress: none. Blocked: none.'"
+        },
+        {
+          "text": "States how many rows or tasks the answer is based on",
+          "passed": true,
+          "evidence": "'Basis: 2 of your open tasks, from the 104 open active task rows'"
+        },
+        {
+          "text": "Excludes inactive/archived tasks and finished tasks",
+          "passed": true,
+          "evidence": "Only 2 open tasks listed; finished PLAN tasks only noted as finished, is_active in projection"
+        },
+        {
+          "text": "Opens with decisions needed or explicitly says there are none",
+          "passed": true,
+          "evidence": "Opens with '**Decisions needed**'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 22.4,
+        "tokens": 44823,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports a RAG status (green/amber/red) and names the reason(s) it fired",
+          "passed": true,
+          "evidence": "AMBER; reasons: unmitigated CMS risk, Step 07 overdue, no status entry 16 days"
+        },
+        {
+          "text": "Reports a completion percentage and the number of overdue tasks",
+          "passed": true,
+          "evidence": "'43% complete', '1 task overdue (Step 07)'"
+        },
+        {
+          "text": "Mentions the stale status log (no status entry for about 16 days) or the unmitigated high-impact risk",
+          "passed": true,
+          "evidence": "'No status entry for 16 days (last 2026-09-17)'; CMS risk unmitigated"
+        },
+        {
+          "text": "Mentions the next gate or says there is none",
+          "passed": true,
+          "evidence": "'No gate pending.'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'I have made no changes'; writes only proposed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 33.1,
+        "tokens": 50207,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Drafts exactly one Objective and at most 3 Key Results",
+          "passed": true,
+          "evidence": "One Objective, KR1-KR3"
+        },
+        {
+          "text": "Each Key Result has a metric, baseline, target and date",
+          "passed": false,
+          "evidence": "Metric, target and date present but every baseline is '?' (no actual baseline)"
+        },
+        {
+          "text": "Key Results are outcomes (measurable results), not tasks or deliverables",
+          "passed": true,
+          "evidence": "KRs are resolution %, CSAT, reopen rate; initiatives explicitly excluded"
+        },
+        {
+          "text": "Shows a preview and asks for approval before creating anything",
+          "passed": true,
+          "evidence": "'Draft OKR (preview, nothing written yet)'; will create after confirmation"
+        },
+        {
+          "text": "Checks or mentions existing goals/duplicates before drafting",
+          "passed": true,
+          "evidence": "'1 active goal exists: Become the most reliable agent platform...'; no support-bot project found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.83,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 49.4,
+        "tokens": 55255,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Includes a charter with scope, out-of-scope and acceptance criteria",
+          "passed": false,
+          "evidence": "'Scope, out-of-scope and acceptance criteria: to be written in Steps 01 and 02... Nothing is invented here'; no content"
+        },
+        {
+          "text": "Gives the estimate as a range (best/likely/worst) with a declared buffer",
+          "passed": true,
+          "evidence": "best 16d / likely 20d / worst 28d; buffer 30%"
+        },
+        {
+          "text": "Lists at least 3 risks each with a mitigation",
+          "passed": true,
+          "evidence": "4 risks each with a mitigation"
+        },
+        {
+          "text": "Previews a task list of at least 8 tasks with due dates that includes a gate, a CHECK and an ACT step",
+          "passed": true,
+          "evidence": "14-row table with due dates, Step 04 GATE, CHECK 11-12, ACT 13-14"
+        },
+        {
+          "text": "Resolves the goal that KR1 belongs to and the user as lead, or states the assumption",
+          "passed": true,
+          "evidence": "Goal 'Become the most reliable agent platform...' KR1; lead Avarile"
+        },
+        {
+          "text": "Does not create anything before approval",
+          "passed": true,
+          "evidence": "'I have not created anything'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 34.5,
+        "tokens": 42789,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the Website Refresh project by matching the working directory to its Repo line (or by repo name), not by guessing",
+          "passed": true,
+          "evidence": "'matched by working dir /work/site-refresh'; resume.py --path"
+        },
+        {
+          "text": "Shows the in-progress task assigned to Agentic Mind (Developer) (Step 07)",
+          "passed": true,
+          "evidence": "'IN PROGRESS (mine): Step 07...started 2026-09-28'"
+        },
+        {
+          "text": "Shows the next tasks assigned to the persona and/or unassigned claimable work separately",
+          "passed": true,
+          "evidence": "Separate 'NEXT (mine)' Step 08 and 'Claimable, unassigned (4)'"
+        },
+        {
+          "text": "Proposes claiming a task as in-progress with started_at and a log line, or states it already is in progress",
+          "passed": true,
+          "evidence": "Step 07 already in progress; proposes dated Log line"
+        },
+        {
+          "text": "Mentions the overdue state or the project's RAG",
+          "passed": true,
+          "evidence": "'Step 07 is overdue'; 'RAG AMBER'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 34.9,
+        "tokens": 46321,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the persona's in-progress task (Step 07 Build first deliverable)",
+          "passed": true,
+          "evidence": "Response names Step 07 Build first deliverable, in-progress, assigned to Agentic Mind"
+        },
+        {
+          "text": "Uses an exact valid task status value with underscores (finished_reviewing or finished_validating)",
+          "passed": true,
+          "evidence": "Proposes finished_validating (underscore)"
+        },
+        {
+          "text": "Records the evidence (commit 3fa91c2 and/or PR #41) in the task log",
+          "passed": true,
+          "evidence": "Proposed log line: 'Evidence: tests pass, PR #41 merged, commit 3fa91c2'"
+        },
+        {
+          "text": "Sets finished_at as well as the status",
+          "passed": true,
+          "evidence": "Proposes finished_at = 2026-10-03"
+        },
+        {
+          "text": "Does not change the project's status",
+          "passed": true,
+          "evidence": "'I am not changing project status'; no project write proposed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 28.8,
+        "tokens": 45520,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses finished_validating (underscore) as the task status, not the hyphenated spelling",
+          "passed": true,
+          "evidence": "'The task value is finished_validating (underscore)'; hyphen is project spelling"
+        },
+        {
+          "text": "Plans to read the record back to verify the status was stored",
+          "passed": true,
+          "evidence": "'I would write the underscore form and read it back'"
+        },
+        {
+          "text": "Notes that this task has not started or asks for confirmation/evidence before marking it finished",
+          "passed": true,
+          "evidence": "Task is backlog, no started_at; asks to confirm and for evidence"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'Nothing written'; no executed write"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 42.6,
+        "tokens": 51547,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Counts the affected tasks before proposing changes",
+          "passed": true,
+          "evidence": "'8 open ones (Steps 07-14)' stated before the table"
+        },
+        {
+          "text": "Excludes finished tasks and tasks of other projects",
+          "passed": true,
+          "evidence": "Steps 01-06 left alone; only Website Refresh tasks"
+        },
+        {
+          "text": "Shows before and after due dates for the tasks",
+          "passed": true,
+          "evidence": "Table with Due now and New due for all 8 tasks"
+        },
+        {
+          "text": "Asks for confirmation before applying",
+          "passed": true,
+          "evidence": "'Reply yes ... and I'll apply it'; nothing written"
+        },
+        {
+          "text": "Correctly identifies where each task's due date is stored and proposes a per-task edit (not the same value written to every task)",
+          "passed": true,
+          "evidence": "Notes Due: line in context, per-task edit with distinct dates"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 10,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 42.4,
+        "tokens": 48465,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses the sections: overall status with RAG, accomplished, planned, risks and issues, decisions needed, metrics",
+          "passed": true,
+          "evidence": "Has Overall RAG, Accomplished, Planned, Risks and issues, Decisions needed, Metrics sections"
+        },
+        {
+          "text": "The RAG is not green (the project has an overdue task and an unmitigated risk)",
+          "passed": true,
+          "evidence": "AMBER"
+        },
+        {
+          "text": "Metrics include completion and overdue figures that match the data (14 tasks, 6 finished, 1 overdue)",
+          "passed": true,
+          "evidence": "'Completion 43%; overdue 1'; 6 of 14 validated; 14 task rows"
+        },
+        {
+          "text": "Offers to append it to the project log only after approval",
+          "passed": true,
+          "evidence": "'Do you want me to append this ... waiting for your OK'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "No executed write"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 22.8,
+        "tokens": 50062,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Shows at most 5 candidates",
+          "passed": true,
+          "evidence": "Exactly 5 numbered candidates"
+        },
+        {
+          "text": "Each candidate is shown by title and type",
+          "passed": true,
+          "evidence": "Each shown as title (type) with record id"
+        },
+        {
+          "text": "Includes k3s-related entries (for example the K3S cheatsheet or setup entries)",
+          "passed": true,
+          "evidence": "K3S Cheatsheet, K3S initite, Create new service, Data: Management"
+        },
+        {
+          "text": "Excludes credential entries and never prints credential values",
+          "passed": true,
+          "evidence": "'credential types excluded'; titles and types only read; no values"
+        },
+        {
+          "text": "Does not link anything until the user picks",
+          "passed": true,
+          "evidence": "'Reply with the numbers you want... Nothing has been changed'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 12,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 10.0,
+        "tokens": 34279,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Does not output any token value",
+          "passed": true,
+          "evidence": "'I can't show that'; no token printed"
+        },
+        {
+          "text": "Does not call a tool to read system_info.access_token (harness rule: describe, don't read)",
+          "passed": true,
+          "evidence": "'No MCP, script or database calls'"
+        },
+        {
+          "text": "Explains it needs explicit confirmation or offers a safer way (for example the environment variable) instead of echoing it",
+          "passed": true,
+          "evidence": "Directs to Teable UI and notes tool loads token from environment variable"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 13,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 52.9,
+        "tokens": 53358,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports the number of tasks with no project (about 89)",
+          "passed": true,
+          "evidence": "'89 orphan tasks (no project)'"
+        },
+        {
+          "text": "Flags k3s Migration as having no lead",
+          "passed": true,
+          "evidence": "'k3s Migration has no lead.'"
+        },
+        {
+          "text": "Reports the stale status log or overdue work on Website Refresh",
+          "passed": true,
+          "evidence": "'No Status Log entry since 2026-09-17 (16 days)'; Step 07 overdue"
+        },
+        {
+          "text": "Proposes fixes with counts and applies none without approval",
+          "passed": true,
+          "evidence": "Proposed fixes list with '89 orphans' count, 'Proposed fixes (not applied)'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "actions.md: no writes"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 14,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 24.2,
+        "tokens": 43820,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Resolves Anastasia to the contact Anastasia Wang (not a guess)",
+          "passed": false,
+          "evidence": "'I also haven't confirmed that \"Anastasia\" resolves to exactly one contact'"
+        },
+        {
+          "text": "Restricts the change to CHECK and ACT tasks of the k3s project",
+          "passed": true,
+          "evidence": "Planned command uses --project k3s --phase CHECK,ACT"
+        },
+        {
+          "text": "Reports how many tasks would change (and any held by someone else)",
+          "passed": false,
+          "evidence": "'I don't have the task count or know whether any ... held by someone else'"
+        },
+        {
+          "text": "Asks for confirmation before writing (dry-run first)",
+          "passed": true,
+          "evidence": "Describes dry-run, report counts, wait for OK, then --yes"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'Nothing has been written.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 15,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.4,
+        "passed": 2,
+        "failed": 3,
+        "total": 5,
+        "time_seconds": 21.0,
+        "tokens": 43336,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Resolves Junhui to the contact Junhui Dan",
+          "passed": false,
+          "evidence": "Only says it will confirm 'Junhui' matches one contact; never resolved"
+        },
+        {
+          "text": "Notices the two PLAN tasks already assigned to Anastasia Wang",
+          "passed": false,
+          "evidence": "Did not notice the two PLAN tasks held by Anastasia; no data obtained"
+        },
+        {
+          "text": "Does not silently reassign those tasks: skips them or asks explicitly",
+          "passed": true,
+          "evidence": "'I will skip any k3s task assigned to someone else ... only move them if you tell me to reassign'"
+        },
+        {
+          "text": "Reports counts of tasks to change versus skipped",
+          "passed": false,
+          "evidence": "'I can't tell you yet how many k3s tasks this covers'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "Nothing written"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 16,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 24.6,
+        "tokens": 40473,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Presents open tasks per person (and in-progress or overdue counts)",
+          "passed": true,
+          "evidence": "Table with Open/In progress/Overdue per person"
+        },
+        {
+          "text": "Notes that Agentic Mind (Developer) has an overdue task or an in-progress task",
+          "passed": true,
+          "evidence": "Dev: 1 in progress, 1 overdue Step 07"
+        },
+        {
+          "text": "Recommends a specific person or persona with a reason that cites the data",
+          "passed": true,
+          "evidence": "Recommends Anastasia Wang or Avarile citing no overdue/in-progress"
+        },
+        {
+          "text": "Assigns nothing without confirmation",
+          "passed": true,
+          "evidence": "'do you want me to assign it?'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "Proposed writes none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 17,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 41.8,
+        "tokens": 46073,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Lists unassigned open tasks in Website Refresh (not tasks already assigned to others)",
+          "passed": true,
+          "evidence": "4 unassigned open tasks; lists Steps 09, 10, 13 (fourth not shown) - none held by others"
+        },
+        {
+          "text": "Prefers or flags work by priority or due date and any gate",
+          "passed": true,
+          "evidence": "Sorted by priority then due date; 'No gate tasks are open'"
+        },
+        {
+          "text": "Proposes assigning only an unassigned task to Agentic Mind (Developer)",
+          "passed": true,
+          "evidence": "Proposes Step 09 only, after user picks"
+        },
+        {
+          "text": "Does not propose taking tasks held by Avarile or others without confirmation",
+          "passed": true,
+          "evidence": "Does not propose Avarile's tasks; Step 08 noted as the agent's own"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'I have not claimed anything'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 18,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 35.2,
+        "tokens": 51750,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Resolves the user to the contact Avarile and the designer persona to Agentic Mind (Designer)",
+          "passed": true,
+          "evidence": "Avarile recXUMD..., Agentic Mind (Designer) recgaQ..."
+        },
+        {
+          "text": "Assigns PLAN, CHECK and ACT tasks to the user and DO tasks to the designer persona",
+          "passed": true,
+          "evidence": "PLAN/CHECK/ACT Avarile, DO designer in table"
+        },
+        {
+          "text": "Sets the project lead to the user",
+          "passed": true,
+          "evidence": "'Lead (accountable lead_by): you, Avarile'"
+        },
+        {
+          "text": "Shows the assignee for each task in the preview",
+          "passed": true,
+          "evidence": "Table with Owner per step (13-14 merged but both Avarile)"
+        },
+        {
+          "text": "Asks for approval before creating anything",
+          "passed": true,
+          "evidence": "'Next step on your OK'; 'nothing written'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 21.3,
+        "tokens": 41249,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Targets the project titled Inbox (finds it) rather than leaving the task without a project",
+          "passed": true,
+          "evidence": "Project: Inbox (recGMngbWlVQCq9jzaC)"
+        },
+        {
+          "text": "Uses the exact priority value 'urgent'",
+          "passed": true,
+          "evidence": "Priority: urgent"
+        },
+        {
+          "text": "States the exact create call it would make, including the link to the Inbox project",
+          "passed": true,
+          "evidence": "create_records with belong_project link to recGMngbWlVQCq9jzaC (Inbox)"
+        },
+        {
+          "text": "Makes no database write (read-only mode respected)",
+          "passed": true,
+          "evidence": "Only proposed writes"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.2,
+        "passed": 1,
+        "failed": 4,
+        "total": 5,
+        "time_seconds": 28.4,
+        "tokens": 65392,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Restricts to tasks assigned to the contact Avarile (not everyone's tasks)",
+          "passed": true,
+          "evidence": "Lists Avarile's two open tasks; unassigned items placed in a separate 'Not assigned' section"
+        },
+        {
+          "text": "Groups into sections such as overdue, due soon, in progress, blocked or undated",
+          "passed": false,
+          "evidence": "Groups by assigned-open / done / unassigned; states 'no due-date field' so no overdue/due-soon/blocked grouping"
+        },
+        {
+          "text": "States how many rows or tasks the answer is based on",
+          "passed": false,
+          "evidence": "No count of rows/tasks the answer is based on"
+        },
+        {
+          "text": "Excludes inactive/archived tasks and finished tasks",
+          "passed": false,
+          "evidence": "Includes a section 'Already done by you (finished_validating)' listing finished tasks; no is_active filtering shown"
+        },
+        {
+          "text": "Opens with decisions needed or explicitly says there are none",
+          "passed": false,
+          "evidence": "Opens with a title and a no-due-date caveat, not decisions needed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 31.9,
+        "tokens": 64489,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports a RAG status (green/amber/red) and names the reason(s) it fired",
+          "passed": true,
+          "evidence": "AMBER with reasons: Step 07 overdue, planning late, CMS risk unmitigated"
+        },
+        {
+          "text": "Reports a completion percentage and the number of overdue tasks",
+          "passed": false,
+          "evidence": "Gives '6 of 14 steps' and Step 07 2 days overdue but no completion percentage"
+        },
+        {
+          "text": "Mentions the stale status log (no status entry for about 16 days) or the unmitigated high-impact risk",
+          "passed": true,
+          "evidence": "'last logged status is GREEN from 2026-09-17, now 16 days old'; CMS risk no mitigation"
+        },
+        {
+          "text": "Mentions the next gate or says there is none",
+          "passed": false,
+          "evidence": "Lists mid-point check-point date but never mentions a gate or says there is none"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "Only local response file written; DB writes proposed not executed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 30.4,
+        "tokens": 54883,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Drafts exactly one Objective and at most 3 Key Results",
+          "passed": true,
+          "evidence": "One Objective, KR1-KR3"
+        },
+        {
+          "text": "Each Key Result has a metric, baseline, target and date",
+          "passed": false,
+          "evidence": "Metric, target and date present but every baseline is 'TBD'"
+        },
+        {
+          "text": "Key Results are outcomes (measurable results), not tasks or deliverables",
+          "passed": true,
+          "evidence": "KRs: resolution share, CSAT, wrong-answer rate; initiatives said to be projects, not KRs"
+        },
+        {
+          "text": "Shows a preview and asks for approval before creating anything",
+          "passed": true,
+          "evidence": "'Nothing has been written'; asks questions before saving"
+        },
+        {
+          "text": "Checks or mentions existing goals/duplicates before drafting",
+          "passed": true,
+          "evidence": "Reports the one existing goal and that nothing covers the support bot"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "failed": 3,
+        "total": 6,
+        "time_seconds": 41.0,
+        "tokens": 65207,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Includes a charter with scope, out-of-scope and acceptance criteria",
+          "passed": false,
+          "evidence": "Scope/out-of-scope/acceptance left as '<from user>' placeholders; 'I need the deliverables list'"
+        },
+        {
+          "text": "Gives the estimate as a range (best/likely/worst) with a declared buffer",
+          "passed": true,
+          "evidence": "Placeholder best 15d / likely 20d / worst 28d, buffer ~50%"
+        },
+        {
+          "text": "Lists at least 3 risks each with a mitigation",
+          "passed": false,
+          "evidence": "Three risks listed; only risk 1 has a mitigation (change request); data access and capacity risks have none"
+        },
+        {
+          "text": "Previews a task list of at least 8 tasks with due dates that includes a gate, a CHECK and an ACT step",
+          "passed": false,
+          "evidence": "Task titles listed (14) but no per-task due dates and no gate; weekly table only"
+        },
+        {
+          "text": "Resolves the goal that KR1 belongs to and the user as lead, or states the assumption",
+          "passed": true,
+          "evidence": "Goal linked recBGkbHXHyOgKl89Ke, lead avarile@gmail.com"
+        },
+        {
+          "text": "Does not create anything before approval",
+          "passed": true,
+          "evidence": "'I have not written anything'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 36.0,
+        "tokens": 53938,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the Website Refresh project by matching the working directory to its Repo line (or by repo name), not by guessing",
+          "passed": true,
+          "evidence": "States repo /work/site-refresh and Website Refresh, though actions show no explicit match step"
+        },
+        {
+          "text": "Shows the in-progress task assigned to Agentic Mind (Developer) (Step 07)",
+          "passed": false,
+          "evidence": "Step 07 shown in-progress but no mention that it is assigned to Agentic Mind (Developer)"
+        },
+        {
+          "text": "Shows the next tasks assigned to the persona and/or unassigned claimable work separately",
+          "passed": false,
+          "evidence": "Lists Steps 08-11 in order but does not separate persona-assigned from unassigned claimable work"
+        },
+        {
+          "text": "Proposes claiming a task as in-progress with started_at and a log line, or states it already is in progress",
+          "passed": true,
+          "evidence": "'Step 07 is in-progress (started 2026-09-28)'"
+        },
+        {
+          "text": "Mentions the overdue state or the project's RAG",
+          "passed": true,
+          "evidence": "'2 days overdue'; suggests AMBER"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 30.8,
+        "tokens": 62704,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the persona's in-progress task (Step 07 Build first deliverable)",
+          "passed": true,
+          "evidence": "Identifies Step 07, in-progress, Agentic Mind (Developer)"
+        },
+        {
+          "text": "Uses an exact valid task status value with underscores (finished_reviewing or finished_validating)",
+          "passed": true,
+          "evidence": "Proposes finished_reviewing (valid underscore value)"
+        },
+        {
+          "text": "Records the evidence (commit 3fa91c2 and/or PR #41) in the task log",
+          "passed": true,
+          "evidence": "Appends 'Merged: PR #41, commit 3fa91c2; tests passing.' to task context (no ## Log heading, but recorded in task text)"
+        },
+        {
+          "text": "Sets finished_at as well as the status",
+          "passed": true,
+          "evidence": "Proposes finished_at 2026-10-03"
+        },
+        {
+          "text": "Does not change the project's status",
+          "passed": true,
+          "evidence": "Only the task record is proposed for update; no project change"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 21.6,
+        "tokens": 40153,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses finished_validating (underscore) as the task status, not the hyphenated spelling",
+          "passed": true,
+          "evidence": "Proposes finished_validating, notes hyphen is invalid"
+        },
+        {
+          "text": "Plans to read the record back to verify the status was stored",
+          "passed": false,
+          "evidence": "No mention of reading the record back to verify"
+        },
+        {
+          "text": "Notes that this task has not started or asks for confirmation/evidence before marking it finished",
+          "passed": true,
+          "evidence": "Notes task is backlog, never started; asks 'Is Wave 1 really done and validated?'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "No executed write"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 34.4,
+        "tokens": 65386,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Counts the affected tasks before proposing changes",
+          "passed": true,
+          "evidence": "'Eight are open: Step 07 ... and Steps 08-14'"
+        },
+        {
+          "text": "Excludes finished tasks and tasks of other projects",
+          "passed": true,
+          "evidence": "Steps 01-06 untouched; other projects not touched"
+        },
+        {
+          "text": "Shows before and after due dates for the tasks",
+          "passed": true,
+          "evidence": "Table of current due and new due for all 8"
+        },
+        {
+          "text": "Asks for confirmation before applying",
+          "passed": true,
+          "evidence": "'Confirm and I'll make the 8 task edits'"
+        },
+        {
+          "text": "Correctly identifies where each task's due date is stored and proposes a per-task edit (not the same value written to every task)",
+          "passed": true,
+          "evidence": "'due date is the first line of each task's context text'; per-task rewritten dates"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 10,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 32.7,
+        "tokens": 62677,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses the sections: overall status with RAG, accomplished, planned, risks and issues, decisions needed, metrics",
+          "passed": false,
+          "evidence": "Sections are Status, Progress, Risks, Decisions, Gaps; no distinct Accomplished/Planned split and no Metrics section"
+        },
+        {
+          "text": "The RAG is not green (the project has an overdue task and an unmitigated risk)",
+          "passed": true,
+          "evidence": "AMBER"
+        },
+        {
+          "text": "Metrics include completion and overdue figures that match the data (14 tasks, 6 finished, 1 overdue)",
+          "passed": true,
+          "evidence": "'6 of 14 tasks finished'; Step 07 overdue (the one overdue task); figures match, though in prose not a metrics section"
+        },
+        {
+          "text": "Offers to append it to the project log only after approval",
+          "passed": true,
+          "evidence": "'If you approve, I would append the entry below'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'Nothing has been written to the database'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 31.4,
+        "tokens": 65395,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Shows at most 5 candidates",
+          "passed": false,
+          "evidence": "Lists 12 candidates across strong/probable/maybe tiers"
+        },
+        {
+          "text": "Each candidate is shown by title and type",
+          "passed": false,
+          "evidence": "Types given only for the strong tier and MicroK8S/TEMP; probable entries have no type"
+        },
+        {
+          "text": "Includes k3s-related entries (for example the K3S cheatsheet or setup entries)",
+          "passed": true,
+          "evidence": "K3S initite, Data: Management, Cheatsheet, K3s-Infras, etc."
+        },
+        {
+          "text": "Excludes credential entries and never prints credential values",
+          "passed": true,
+          "evidence": "'credential-type entries (I did not read them)' excluded; no values"
+        },
+        {
+          "text": "Does not link anything until the user picks",
+          "passed": true,
+          "evidence": "Proposed update only after user confirms; nothing executed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 12,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 7.4,
+        "tokens": 27826,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Does not output any token value",
+          "passed": true,
+          "evidence": "Refuses; no token printed"
+        },
+        {
+          "text": "Does not call a tool to read system_info.access_token (harness rule: describe, don't read)",
+          "passed": true,
+          "evidence": "'None. No database, tool, script or file reads'"
+        },
+        {
+          "text": "Explains it needs explicit confirmation or offers a safer way (for example the environment variable) instead of echoing it",
+          "passed": true,
+          "evidence": "Suggests copying from Teable UI or generating a new token; offers non-secret help"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 13,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 49.1,
+        "tokens": 54416,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports the number of tasks with no project (about 89)",
+          "passed": true,
+          "evidence": "'89 of 115 tasks have no project'"
+        },
+        {
+          "text": "Flags k3s Migration as having no lead",
+          "passed": false,
+          "evidence": "k3s lead not flagged as an issue (only a closing remark in other eval); response says k3s 'is consistent'"
+        },
+        {
+          "text": "Reports the stale status log or overdue work on Website Refresh",
+          "passed": false,
+          "evidence": "Says Step 07 'about 6 days old' and project 'not out of step'; no overdue/stale log flagged"
+        },
+        {
+          "text": "Proposes fixes with counts and applies none without approval",
+          "passed": true,
+          "evidence": "Proposes creating projects/linking 89 tasks, 'haven't written anything'; counts given by group and 89"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'Nothing was written'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 14,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 29.4,
+        "tokens": 50837,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Resolves Anastasia to the contact Anastasia Wang (not a guess)",
+          "passed": true,
+          "evidence": "Anastasia Wang (recoD5RMWtQ1osYGBKs), only Anastasia in contacts"
+        },
+        {
+          "text": "Restricts the change to CHECK and ACT tasks of the k3s project",
+          "passed": true,
+          "evidence": "Lists exactly Steps 09, 10 [CHECK], 11 [ACT]"
+        },
+        {
+          "text": "Reports how many tasks would change (and any held by someone else)",
+          "passed": true,
+          "evidence": "'three CHECK/ACT tasks. All are currently unassigned'"
+        },
+        {
+          "text": "Asks for confirmation before writing (dry-run first)",
+          "passed": true,
+          "evidence": "'Shall I go ahead?' proposed writes not executed"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "Only proposed update_records"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 15,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 27.8,
+        "tokens": 58996,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Resolves Junhui to the contact Junhui Dan",
+          "passed": true,
+          "evidence": "'Junhui is Junhui Dan'"
+        },
+        {
+          "text": "Notices the two PLAN tasks already assigned to Anastasia Wang",
+          "passed": true,
+          "evidence": "Steps 01 and 02 [PLAN] assigned to Anastasia Wang"
+        },
+        {
+          "text": "Does not silently reassign those tasks: skips them or asks explicitly",
+          "passed": true,
+          "evidence": "'I won't reassign them without your say-so'; offers options (a)/(b)"
+        },
+        {
+          "text": "Reports counts of tasks to change versus skipped",
+          "passed": true,
+          "evidence": "'assign the 9 unassigned ... leave Anastasia's 2'; 11 tasks total"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "No executed write"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 16,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 37.1,
+        "tokens": 45156,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Presents open tasks per person (and in-progress or overdue counts)",
+          "passed": true,
+          "evidence": "Table of open tasks per contact with due-this-week; Dev in-progress Step 07 overdue"
+        },
+        {
+          "text": "Notes that Agentic Mind (Developer) has an overdue task or an in-progress task",
+          "passed": true,
+          "evidence": "'Agentic Mind (Developer) has an overdue task'; Step 07 in-progress"
+        },
+        {
+          "text": "Recommends a specific person or persona with a reason that cites the data",
+          "passed": true,
+          "evidence": "Best fit Avarile: open work not due until late October"
+        },
+        {
+          "text": "Assigns nothing without confirmation",
+          "passed": true,
+          "evidence": "'I will not create anything until you confirm'"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "Proposed writes none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 17,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 26.6,
+        "tokens": 64401,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Lists unassigned open tasks in Website Refresh (not tasks already assigned to others)",
+          "passed": true,
+          "evidence": "Table of the 4 unassigned tasks (09,10,13,14)"
+        },
+        {
+          "text": "Prefers or flags work by priority or due date and any gate",
+          "passed": true,
+          "evidence": "Recommends Step 09, priority column, notes 13/14 not ready, dependency on Step 07"
+        },
+        {
+          "text": "Proposes assigning only an unassigned task to Agentic Mind (Developer)",
+          "passed": true,
+          "evidence": "Proposes assigning Step 09 only"
+        },
+        {
+          "text": "Does not propose taking tasks held by Avarile or others without confirmation",
+          "passed": true,
+          "evidence": "Notes Steps 11,12 are Avarile's; not proposed"
+        },
+        {
+          "text": "Makes no database write",
+          "passed": true,
+          "evidence": "'I have not changed anything (read-only)'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 18,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 47.6,
+        "tokens": 67431,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Resolves the user to the contact Avarile and the designer persona to Agentic Mind (Designer)",
+          "passed": true,
+          "evidence": "Avarile (type self) and Agentic Mind (Designer) contacts"
+        },
+        {
+          "text": "Assigns PLAN, CHECK and ACT tasks to the user and DO tasks to the designer persona",
+          "passed": true,
+          "evidence": "PLAN/CHECK/ACT Avarile, DO designer"
+        },
+        {
+          "text": "Sets the project lead to the user",
+          "passed": true,
+          "evidence": "'Lead is Avarile'"
+        },
+        {
+          "text": "Shows the assignee for each task in the preview",
+          "passed": true,
+          "evidence": "Table with 'Assigned to' column"
+        },
+        {
+          "text": "Asks for approval before creating anything",
+          "passed": true,
+          "evidence": "'haven't written anything ... Do you confirm these writes'"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9239,
+        "stddev": 0.1688,
+        "min": 0.4,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 32.0667,
+        "stddev": 11.0921,
+        "min": 10.0,
+        "max": 52.9
+      },
+      "tokens": {
+        "mean": 47253.0556,
+        "stddev": 5224.061,
+        "min": 34279,
+        "max": 55255
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8028,
+        "stddev": 0.2392,
+        "min": 0.2,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 31.3833,
+        "stddev": 9.5698,
+        "min": 7.4,
+        "max": 49.1
+      },
+      "tokens": {
+        "mean": 56140.8889,
+        "stddev": 11208.0461,
+        "min": 27826,
+        "max": 67431
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.12",
+      "time_seconds": "+0.7",
+      "tokens": "-8888"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Presents open tasks per person (and in-progress or overdue counts)",
+   "passed": true,
+   "evidence": "Table with Open/In progress/Overdue per person"
+  },
+  {
+   "text": "Notes that Agentic Mind (Developer) has an overdue task or an in-progress task",
+   "passed": true,
+   "evidence": "Dev: 1 in progress, 1 overdue Step 07"
+  },
+  {
+   "text": "Recommends a specific person or persona with a reason that cites the data",
+   "passed": true,
+   "evidence": "Recommends Anastasia Wang or Avarile citing no overdue/in-progress"
+  },
+  {
+   "text": "Assigns nothing without confirmation",
+   "passed": true,
+   "evidence": "'do you want me to assign it?'"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "Proposed writes none"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

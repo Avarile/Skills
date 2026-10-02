@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Reports the number of tasks with no project (about 89)",
+   "passed": true,
+   "evidence": "'89 orphan tasks (no project)'"
+  },
+  {
+   "text": "Flags k3s Migration as having no lead",
+   "passed": true,
+   "evidence": "'k3s Migration has no lead.'"
+  },
+  {
+   "text": "Reports the stale status log or overdue work on Website Refresh",
+   "passed": true,
+   "evidence": "'No Status Log entry since 2026-09-17 (16 days)'; Step 07 overdue"
+  },
+  {
+   "text": "Proposes fixes with counts and applies none without approval",
+   "passed": true,
+   "evidence": "Proposed fixes list with '89 orphans' count, 'Proposed fixes (not applied)'"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "actions.md: no writes"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

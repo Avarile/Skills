@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Reports a RAG status (green/amber/red) and names the reason(s) it fired",
+   "passed": true,
+   "evidence": "AMBER with reasons: Step 07 overdue, planning late, CMS risk unmitigated"
+  },
+  {
+   "text": "Reports a completion percentage and the number of overdue tasks",
+   "passed": false,
+   "evidence": "Gives '6 of 14 steps' and Step 07 2 days overdue but no completion percentage"
+  },
+  {
+   "text": "Mentions the stale status log (no status entry for about 16 days) or the unmitigated high-impact risk",
+   "passed": true,
+   "evidence": "'last logged status is GREEN from 2026-09-17, now 16 days old'; CMS risk no mitigation"
+  },
+  {
+   "text": "Mentions the next gate or says there is none",
+   "passed": false,
+   "evidence": "Lists mid-point check-point date but never mentions a gate or says there is none"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "Only local response file written; DB writes proposed not executed"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 2,
+  "total": 5,
+  "pass_rate": 0.6
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Shows at most 5 candidates",
+   "passed": false,
+   "evidence": "Lists 12 candidates across strong/probable/maybe tiers"
+  },
+  {
+   "text": "Each candidate is shown by title and type",
+   "passed": false,
+   "evidence": "Types given only for the strong tier and MicroK8S/TEMP; probable entries have no type"
+  },
+  {
+   "text": "Includes k3s-related entries (for example the K3S cheatsheet or setup entries)",
+   "passed": true,
+   "evidence": "K3S initite, Data: Management, Cheatsheet, K3s-Infras, etc."
+  },
+  {
+   "text": "Excludes credential entries and never prints credential values",
+   "passed": true,
+   "evidence": "'credential-type entries (I did not read them)' excluded; no values"
+  },
+  {
+   "text": "Does not link anything until the user picks",
+   "passed": true,
+   "evidence": "Proposed update only after user confirms; nothing executed"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 2,
+  "total": 5,
+  "pass_rate": 0.6
+ }
+}

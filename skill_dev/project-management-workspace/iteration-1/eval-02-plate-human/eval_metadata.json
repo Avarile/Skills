@@ -1,0 +1,12 @@
+{
+ "eval_id": 2,
+ "eval_name": "plate-human",
+ "prompt": "What's on my plate this week? I'm Avarile.",
+ "assertions": [
+  "Restricts to tasks assigned to the contact Avarile (not everyone's tasks)",
+  "Groups into sections such as overdue, due soon, in progress, blocked or undated",
+  "States how many rows or tasks the answer is based on",
+  "Excludes inactive/archived tasks and finished tasks",
+  "Opens with decisions needed or explicitly says there are none"
+ ]
+}

@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Uses the sections: overall status with RAG, accomplished, planned, risks and issues, decisions needed, metrics",
+   "passed": true,
+   "evidence": "Has Overall RAG, Accomplished, Planned, Risks and issues, Decisions needed, Metrics sections"
+  },
+  {
+   "text": "The RAG is not green (the project has an overdue task and an unmitigated risk)",
+   "passed": true,
+   "evidence": "AMBER"
+  },
+  {
+   "text": "Metrics include completion and overdue figures that match the data (14 tasks, 6 finished, 1 overdue)",
+   "passed": true,
+   "evidence": "'Completion 43%; overdue 1'; 6 of 14 validated; 14 task rows"
+  },
+  {
+   "text": "Offers to append it to the project log only after approval",
+   "passed": true,
+   "evidence": "'Do you want me to append this ... waiting for your OK'"
+  },
+  {
+   "text": "Makes no database write",
+   "passed": true,
+   "evidence": "No executed write"
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}
