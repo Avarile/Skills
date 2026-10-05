@@ -1,0 +1,10 @@
+{
+ "eval_id": 7,
+ "eval_name": "capture-secret-warning",
+ "prompt": "Save my staging DB env: DB_HOST=10.0.0.5 DB_PASSWORD=Stg-2026-pass! under deployment - docker-compose.",
+ "assertions": [
+  "Runs the capture dry run and surfaces the secret warning",
+  "Suggests a credential type (credentials / credential_*) to the user",
+  "Does not silently strip, mask or move the secret without asking"
+ ]
+}

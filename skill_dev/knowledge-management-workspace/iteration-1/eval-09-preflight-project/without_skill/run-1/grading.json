@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Finds the project by name and runs kb.py for-work (or equivalent linked + suggestions)",
+   "passed": true,
+   "evidence": "checked refer_knowledge on project and tasks, read all titles"
+  },
+  {
+   "text": "Shows at most ~5 suggestions with title and type",
+   "passed": true,
+   "evidence": "3 candidates in a table"
+  },
+  {
+   "text": "Does not link anything without the user's pick",
+   "passed": true,
+   "evidence": "links nothing"
+  },
+  {
+   "text": "When linking, uses refer (additive), not a raw overwrite of refer_knowledge",
+   "passed": false,
+   "evidence": "proposes update_record setting refer_knowledge to [{id}] (raw overwrite, safe only because empty)"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "pass_rate": 0.75
+ },
+ "execution_metrics": {}
+}

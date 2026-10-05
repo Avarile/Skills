@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves the entry titled exactly 'temp' (not other temp-like entries)",
+   "passed": true,
+   "evidence": "exact 'temp' recKeYy9bxAXG9F3h2K, TEMP entry left alone"
+  },
+  {
+   "text": "Checks work references (trace or archive preview)",
+   "passed": true,
+   "evidence": "kb.py trace: no work refs"
+  },
+  {
+   "text": "Uses soft archive (is_active false + deleted_at), not hard delete",
+   "passed": true,
+   "evidence": "kb.py archive (is_active false + deleted_at)"
+  },
+  {
+   "text": "Asks for confirmation before applying",
+   "passed": true,
+   "evidence": "asks for OK first"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

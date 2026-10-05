@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Title follows '<Subject> - <Aspect>' (e.g. 'Caddy - Zero-downtime Reload')",
+   "passed": true,
+   "evidence": "'Caddy - Reload config without downtime'"
+  },
+  {
+   "text": "Picks an existing type ('deployment - caddy' or 'deployment - web server'), does not create a new type",
+   "passed": true,
+   "evidence": "deployment - caddy, no new type"
+  },
+  {
+   "text": "Checks similar entries (Caddy entries exist) and considers appending to one",
+   "passed": true,
+   "evidence": "checked Caddy entries; offers append to recFfUwBOXZH65aBe02 as alternative"
+  },
+  {
+   "text": "Body has the When to use / Steps structure with the command quoted exactly",
+   "passed": true,
+   "evidence": "body has When to use / Steps / Caveats with exact command"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

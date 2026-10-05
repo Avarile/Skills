@@ -1,0 +1,26 @@
+{
+ "expectations": [
+  {
+   "text": "Runs the capture dry run and surfaces the secret warning",
+   "passed": false,
+   "evidence": "no dry run (no tool); raised plaintext-password concern itself"
+  },
+  {
+   "text": "Suggests a credential type (credentials / credential_*) to the user",
+   "passed": true,
+   "evidence": "option 3 split to credential_login"
+  },
+  {
+   "text": "Does not silently strip, mask or move the secret without asking",
+   "passed": true,
+   "evidence": "asks; no silent strip"
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ },
+ "execution_metrics": {}
+}

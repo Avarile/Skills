@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Title follows '<Subject> - <Aspect>' (e.g. 'Caddy - Zero-downtime Reload')",
+   "passed": true,
+   "evidence": "same title"
+  },
+  {
+   "text": "Picks an existing type ('deployment - caddy' or 'deployment - web server'), does not create a new type",
+   "passed": true,
+   "evidence": "deployment - caddy"
+  },
+  {
+   "text": "Checks similar entries (Caddy entries exist) and considers appending to one",
+   "passed": true,
+   "evidence": "checked; offers adding to existing note"
+  },
+  {
+   "text": "Body has the When to use / Steps structure with the command quoted exactly",
+   "passed": false,
+   "evidence": "body is bullets without When to use / Steps sections"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "pass_rate": 0.75
+ },
+ "execution_metrics": {}
+}

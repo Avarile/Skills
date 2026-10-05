@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Runs a knowledge search (kb.py find or equivalent) before answering",
+   "passed": true,
+   "evidence": "kb.py find k3s backup, 1 call"
+  },
+  {
+   "text": "Opens 'K3S - Data: Management' or another k3s entry that actually covers backup",
+   "passed": true,
+   "evidence": "read K3S - Data: Management + cheatsheet \u00a725"
+  },
+  {
+   "text": "Answer content comes from the entry text (paths or commands quoted from it), not generic k3s advice",
+   "passed": true,
+   "evidence": "paths /home/avarile/k3s-data, sudo tar, sqlite .backup quoted from entries"
+  },
+  {
+   "text": "Names the entry title (and ideally id) it used",
+   "passed": true,
+   "evidence": "names entries with ids"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

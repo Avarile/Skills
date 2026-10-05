@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Runs a knowledge search (kb.py find or equivalent) before answering",
+   "passed": true,
+   "evidence": "paged all 133 rows and grepped (search param ignored)"
+  },
+  {
+   "text": "Opens 'K3S - Data: Management' or another k3s entry that actually covers backup",
+   "passed": true,
+   "evidence": "used K3S - Data: Management #45"
+  },
+  {
+   "text": "Answer content comes from the entry text (paths or commands quoted from it), not generic k3s advice",
+   "passed": true,
+   "evidence": "answer quotes the note's tar and dump commands"
+  },
+  {
+   "text": "Names the entry title (and ideally id) it used",
+   "passed": true,
+   "evidence": "names note #45 and cheatsheet \u00a725"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

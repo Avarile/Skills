@@ -1,0 +1,26 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves 'Caddy - Cache issues' by search, not by a guessed id",
+   "passed": true,
+   "evidence": "found by paging"
+  },
+  {
+   "text": "Uses kb.py append (dated ## Updates) rather than replacing the whole body",
+   "passed": false,
+   "evidence": "update_record re-sending the whole context field (replace, not append)"
+  },
+  {
+   "text": "Shows the preview before writing",
+   "passed": true,
+   "evidence": "shows section and asks"
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ },
+ "execution_metrics": {}
+}

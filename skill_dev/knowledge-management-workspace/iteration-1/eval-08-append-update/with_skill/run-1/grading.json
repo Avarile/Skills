@@ -1,0 +1,26 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves 'Caddy - Cache issues' by search, not by a guessed id",
+   "passed": true,
+   "evidence": "kb.py find caddy cache -> recIOMDhfaSCkEAghOj"
+  },
+  {
+   "text": "Uses kb.py append (dated ## Updates) rather than replacing the whole body",
+   "passed": true,
+   "evidence": "kb.py append with dated ## Updates"
+  },
+  {
+   "text": "Shows the preview before writing",
+   "passed": true,
+   "evidence": "shows exact appended text and asks (CLI preview blocked by permission classifier)"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

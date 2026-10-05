@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Searches at least twice with different terms or --any",
+   "passed": true,
+   "evidence": "12 lookups incl. --any and --all"
+  },
+  {
+   "text": "States clearly that no stored entry covers it",
+   "passed": true,
+   "evidence": "'I couldn't find a Terraform state backend config'"
+  },
+  {
+   "text": "Does not present generic Terraform advice as if it were the user's stored config",
+   "passed": true,
+   "evidence": "no invented config; generic location hints labelled as such"
+  },
+  {
+   "text": "Offers to capture the answer once known",
+   "passed": true,
+   "evidence": "offers capture once known"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

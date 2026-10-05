@@ -1,0 +1,10 @@
+{
+ "eval_id": 2,
+ "eval_name": "alias-recall",
+ "prompt": "What did I write about kubernetes node labels?",
+ "assertions": [
+  "Finds 'K3S - Cheatsheet' even though the user said kubernetes",
+  "Reads the relevant section (toc/section) instead of the whole 31k-char entry",
+  "Quotes the kubectl label commands from the entry"
+ ]
+}

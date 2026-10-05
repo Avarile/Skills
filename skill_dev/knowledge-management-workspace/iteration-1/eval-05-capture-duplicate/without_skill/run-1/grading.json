@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Runs the capture dry run (or an equivalent duplicate check) before writing",
+   "passed": true,
+   "evidence": "paged all titles"
+  },
+  {
+   "text": "Reports that an entry with this exact title exists",
+   "passed": true,
+   "evidence": "reports existing note"
+  },
+  {
+   "text": "Proposes kb.py append to the existing entry instead of creating a duplicate",
+   "passed": false,
+   "evidence": "proposes in-place reword or separate note, not an append to the existing entry"
+  },
+  {
+   "text": "Creates no new knowledge record",
+   "passed": true,
+   "evidence": "no new record"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "pass_rate": 0.75
+ },
+ "execution_metrics": {}
+}

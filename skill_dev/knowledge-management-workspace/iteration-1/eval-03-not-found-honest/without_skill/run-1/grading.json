@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Searches at least twice with different terms or --any",
+   "passed": true,
+   "evidence": "searched KB, other tables and repo"
+  },
+  {
+   "text": "States clearly that no stored entry covers it",
+   "passed": true,
+   "evidence": "states nothing found"
+  },
+  {
+   "text": "Does not present generic Terraform advice as if it were the user's stored config",
+   "passed": true,
+   "evidence": "MinIO mentioned but explicitly not claimed"
+  },
+  {
+   "text": "Offers to capture the answer once known",
+   "passed": true,
+   "evidence": "offers to save"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Runs the capture dry run (or an equivalent duplicate check) before writing",
+   "passed": true,
+   "evidence": "find + get confirmed exact title (capture dry run blocked; equivalent check done)"
+  },
+  {
+   "text": "Reports that an entry with this exact title exists",
+   "passed": true,
+   "evidence": "reports exact title exists"
+  },
+  {
+   "text": "Proposes kb.py append to the existing entry instead of creating a duplicate",
+   "passed": true,
+   "evidence": "proposes kb.py append to rec9TTSDoktu59fT89i"
+  },
+  {
+   "text": "Creates no new knowledge record",
+   "passed": true,
+   "evidence": "no new record"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

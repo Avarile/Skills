@@ -1,0 +1,10 @@
+{
+ "eval_id": 8,
+ "eval_name": "append-update",
+ "prompt": "Add to my Caddy cache issues note that clearing /var/lib/caddy/.local/share/caddy also fixed it on 2026-10-05.",
+ "assertions": [
+  "Resolves 'Caddy - Cache issues' by search, not by a guessed id",
+  "Uses kb.py append (dated ## Updates) rather than replacing the whole body",
+  "Shows the preview before writing"
+ ]
+}

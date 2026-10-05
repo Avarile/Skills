@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Runs kb.py doctor (or equivalent full scan)",
+   "passed": true,
+   "evidence": "full dump + python analysis"
+  },
+  {
+   "text": "Reports findings grouped with counts (type tree, untyped, wrong type, series, temp/empty, duplicates)",
+   "passed": true,
+   "evidence": "5 grouped sections with counts (secrets, media, duplicates, stubs, taxonomy)"
+  },
+  {
+   "text": "Proposes concrete fixes per group",
+   "passed": true,
+   "evidence": "5 confirm batches with exact writes"
+  },
+  {
+   "text": "Makes no writes",
+   "passed": true,
+   "evidence": "no writes"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

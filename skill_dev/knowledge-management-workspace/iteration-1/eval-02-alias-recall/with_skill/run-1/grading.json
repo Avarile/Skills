@@ -1,0 +1,26 @@
+{
+ "expectations": [
+  {
+   "text": "Finds 'K3S - Cheatsheet' even though the user said kubernetes",
+   "passed": true,
+   "evidence": "find kubernetes node labels -> K3S - Cheatsheet via alias"
+  },
+  {
+   "text": "Reads the relevant section (toc/section) instead of the whole 31k-char entry",
+   "passed": true,
+   "evidence": "--toc then --section 3 and 20 only"
+  },
+  {
+   "text": "Quotes the kubectl label commands from the entry",
+   "passed": true,
+   "evidence": "quotes kubectl label node commands"
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

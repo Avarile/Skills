@@ -78,9 +78,8 @@ No due-date, estimate, phase, dependency or project priority field exists (Tier 
 
 ## knowledges / knowledge_type (for linking)
 
-knowledges: title `fldROFj15OlD8COVxX0`, context `fld5tr2rH8oJXLrjUo9`, knowledge_type `fldAEK8ULw9urxE0qiF` (-> knowledge_type), knowledge_parent `fldzUUVy3q1vSWURhZD`, related_knowledge `fldz7U2RsCfm0j1RZOs` (M:N symmetric).
-knowledge_type: title `fldvL1LqKmEAfNKVBCO`, parent_type `fld924GlXY0tL5um2wk`, **credentials `fld1s2dEom17aZIu4nx` (secret, never read)**.
-Excluded from project lookups: types `credentials`, `credential_apikey`, `credential_login`, `credential_access_token`, `credential_sshkey`, and any `missav_*` / personal-media type.
+knowledges: title `fldROFj15OlD8COVxX0`, context `fld5tr2rH8oJXLrjUo9`, knowledge_type `fldAEK8ULw9urxE0qiF` (-> knowledge_type), knowledge_parent `fldzUUVy3q1vSWURhZD`, related_knowledge `fldz7U2RsCfm0j1RZOs` (M:N, one-way in practice: its reverse field is gone, so write both sides; `kb.py link --related` does).
+knowledge_type: title `fldvL1LqKmEAfNKVBCO`, parent_type `fld924GlXY0tL5um2wk`, credentials `fld1s2dEom17aZIu4nx`. Full knowledge schema and verified behaviours: `knowledge-management/references/schema.md`.
 
 ## project_frameworks
 

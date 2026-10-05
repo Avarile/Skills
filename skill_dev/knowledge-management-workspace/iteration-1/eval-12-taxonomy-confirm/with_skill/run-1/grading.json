@@ -1,0 +1,26 @@
+{
+ "expectations": [
+  {
+   "text": "Lists the deployment - * types with a count",
+   "passed": true,
+   "evidence": "6 types, 28 entries, table with ids"
+  },
+  {
+   "text": "Writes parent_type on the children (never child_types)",
+   "passed": true,
+   "evidence": "parent_type only, child_types explicitly never written"
+  },
+  {
+   "text": "Previews with dry runs and asks for confirmation before any --yes",
+   "passed": false,
+   "evidence": "asks for OK, but dry runs not run: dry run blocked by Claude Code auto-mode permission classifier in the subagent (environment, not skill)"
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ },
+ "execution_metrics": {}
+}

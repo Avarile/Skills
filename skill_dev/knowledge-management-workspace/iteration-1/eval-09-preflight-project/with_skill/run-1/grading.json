@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Finds the project by name and runs kb.py for-work (or equivalent linked + suggestions)",
+   "passed": true,
+   "evidence": "for-work project:recjwiijjBO4wKg2XAl (id looked up via REST first: for-work lacks title lookup)"
+  },
+  {
+   "text": "Shows at most ~5 suggestions with title and type",
+   "passed": true,
+   "evidence": "3 suggestions with type"
+  },
+  {
+   "text": "Does not link anything without the user's pick",
+   "passed": true,
+   "evidence": "links nothing"
+  },
+  {
+   "text": "When linking, uses refer (additive), not a raw overwrite of refer_knowledge",
+   "passed": true,
+   "evidence": "refer ... --to project"
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ },
+ "execution_metrics": {}
+}

@@ -1,0 +1,11 @@
+{
+ "eval_id": 10,
+ "eval_name": "trace-before-archive",
+ "prompt": "Archive the 'temp' knowledge entry.",
+ "assertions": [
+  "Resolves the entry titled exactly 'temp' (not other temp-like entries)",
+  "Checks work references (trace or archive preview)",
+  "Uses soft archive (is_active false + deleted_at), not hard delete",
+  "Asks for confirmation before applying"
+ ]
+}

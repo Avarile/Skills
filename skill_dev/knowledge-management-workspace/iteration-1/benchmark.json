@@ -1,0 +1,944 @@
+{
+ "metadata": {
+  "skill_name": "knowledge-management",
+  "skill_path": "skill_dev/knowledge-management",
+  "executor_model": "claude-opus-5-5",
+  "analyzer_model": "claude-opus-5-5",
+  "timestamp": "2026-10-05T01:02:43Z",
+  "evals_run": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12
+  ],
+  "runs_per_configuration": 1
+ },
+ "runs": [
+  {
+   "eval_id": 1,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 57.5,
+    "tokens": 43572,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs a knowledge search (kb.py find or equivalent) before answering",
+     "passed": true,
+     "evidence": "kb.py find k3s backup, 1 call"
+    },
+    {
+     "text": "Opens 'K3S - Data: Management' or another k3s entry that actually covers backup",
+     "passed": true,
+     "evidence": "read K3S - Data: Management + cheatsheet \u00a725"
+    },
+    {
+     "text": "Answer content comes from the entry text (paths or commands quoted from it), not generic k3s advice",
+     "passed": true,
+     "evidence": "paths /home/avarile/k3s-data, sudo tar, sqlite .backup quoted from entries"
+    },
+    {
+     "text": "Names the entry title (and ideally id) it used",
+     "passed": true,
+     "evidence": "names entries with ids"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 2,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 182.1,
+    "tokens": 40353,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds 'K3S - Cheatsheet' even though the user said kubernetes",
+     "passed": true,
+     "evidence": "find kubernetes node labels -> K3S - Cheatsheet via alias"
+    },
+    {
+     "text": "Reads the relevant section (toc/section) instead of the whole 31k-char entry",
+     "passed": true,
+     "evidence": "--toc then --section 3 and 20 only"
+    },
+    {
+     "text": "Quotes the kubectl label commands from the entry",
+     "passed": true,
+     "evidence": "quotes kubectl label node commands"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 3,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 63.2,
+    "tokens": 42996,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Searches at least twice with different terms or --any",
+     "passed": true,
+     "evidence": "12 lookups incl. --any and --all"
+    },
+    {
+     "text": "States clearly that no stored entry covers it",
+     "passed": true,
+     "evidence": "'I couldn't find a Terraform state backend config'"
+    },
+    {
+     "text": "Does not present generic Terraform advice as if it were the user's stored config",
+     "passed": true,
+     "evidence": "no invented config; generic location hints labelled as such"
+    },
+    {
+     "text": "Offers to capture the answer once known",
+     "passed": true,
+     "evidence": "offers capture once known"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 4,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 30.3,
+    "tokens": 35624,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds the 'Sony Game Account' entry",
+     "passed": true,
+     "evidence": "find sony game account -> recbxCyeE7j3RJafZyH"
+    },
+    {
+     "text": "Returns its content rather than refusing (owner decision CR-1)",
+     "passed": true,
+     "evidence": "returns login and password (masked only in saved file)"
+    },
+    {
+     "text": "Does not write the secret into any other record, file or tool",
+     "passed": true,
+     "evidence": "no proposed writes"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 5,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 63.4,
+    "tokens": 44991,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs the capture dry run (or an equivalent duplicate check) before writing",
+     "passed": true,
+     "evidence": "find + get confirmed exact title (capture dry run blocked; equivalent check done)"
+    },
+    {
+     "text": "Reports that an entry with this exact title exists",
+     "passed": true,
+     "evidence": "reports exact title exists"
+    },
+    {
+     "text": "Proposes kb.py append to the existing entry instead of creating a duplicate",
+     "passed": true,
+     "evidence": "proposes kb.py append to rec9TTSDoktu59fT89i"
+    },
+    {
+     "text": "Creates no new knowledge record",
+     "passed": true,
+     "evidence": "no new record"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 6,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 72.5,
+    "tokens": 48369,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Title follows '<Subject> - <Aspect>' (e.g. 'Caddy - Zero-downtime Reload')",
+     "passed": true,
+     "evidence": "'Caddy - Reload config without downtime'"
+    },
+    {
+     "text": "Picks an existing type ('deployment - caddy' or 'deployment - web server'), does not create a new type",
+     "passed": true,
+     "evidence": "deployment - caddy, no new type"
+    },
+    {
+     "text": "Checks similar entries (Caddy entries exist) and considers appending to one",
+     "passed": true,
+     "evidence": "checked Caddy entries; offers append to recFfUwBOXZH65aBe02 as alternative"
+    },
+    {
+     "text": "Body has the When to use / Steps structure with the command quoted exactly",
+     "passed": true,
+     "evidence": "body has When to use / Steps / Caveats with exact command"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 7,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.67,
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "time_seconds": 86.2,
+    "tokens": 50521,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs the capture dry run and surfaces the secret warning",
+     "passed": false,
+     "evidence": "capture dry run not run: dry run blocked by Claude Code auto-mode permission classifier in the subagent (environment, not skill); warning inferred from SKILL.md"
+    },
+    {
+     "text": "Suggests a credential type (credentials / credential_*) to the user",
+     "passed": true,
+     "evidence": "recommends credential_login split"
+    },
+    {
+     "text": "Does not silently strip, mask or move the secret without asking",
+     "passed": true,
+     "evidence": "asks; no silent strip"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 8,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 60.8,
+    "tokens": 42510,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Resolves 'Caddy - Cache issues' by search, not by a guessed id",
+     "passed": true,
+     "evidence": "kb.py find caddy cache -> recIOMDhfaSCkEAghOj"
+    },
+    {
+     "text": "Uses kb.py append (dated ## Updates) rather than replacing the whole body",
+     "passed": true,
+     "evidence": "kb.py append with dated ## Updates"
+    },
+    {
+     "text": "Shows the preview before writing",
+     "passed": true,
+     "evidence": "shows exact appended text and asks (CLI preview blocked by permission classifier)"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 9,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 230.3,
+    "tokens": 50418,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds the project by name and runs kb.py for-work (or equivalent linked + suggestions)",
+     "passed": true,
+     "evidence": "for-work project:recjwiijjBO4wKg2XAl (id looked up via REST first: for-work lacks title lookup)"
+    },
+    {
+     "text": "Shows at most ~5 suggestions with title and type",
+     "passed": true,
+     "evidence": "3 suggestions with type"
+    },
+    {
+     "text": "Does not link anything without the user's pick",
+     "passed": true,
+     "evidence": "links nothing"
+    },
+    {
+     "text": "When linking, uses refer (additive), not a raw overwrite of refer_knowledge",
+     "passed": true,
+     "evidence": "refer ... --to project"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 10,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 46.6,
+    "tokens": 41909,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Resolves the entry titled exactly 'temp' (not other temp-like entries)",
+     "passed": true,
+     "evidence": "exact 'temp' recKeYy9bxAXG9F3h2K, TEMP entry left alone"
+    },
+    {
+     "text": "Checks work references (trace or archive preview)",
+     "passed": true,
+     "evidence": "kb.py trace: no work refs"
+    },
+    {
+     "text": "Uses soft archive (is_active false + deleted_at), not hard delete",
+     "passed": true,
+     "evidence": "kb.py archive (is_active false + deleted_at)"
+    },
+    {
+     "text": "Asks for confirmation before applying",
+     "passed": true,
+     "evidence": "asks for OK first"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 11,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 149.3,
+    "tokens": 60161,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs kb.py doctor (or equivalent full scan)",
+     "passed": true,
+     "evidence": "kb.py doctor + manual checks"
+    },
+    {
+     "text": "Reports findings grouped with counts (type tree, untyped, wrong type, series, temp/empty, duplicates)",
+     "passed": true,
+     "evidence": "groups A-H with counts"
+    },
+    {
+     "text": "Proposes concrete fixes per group",
+     "passed": true,
+     "evidence": "per-group fixes with exact commands"
+    },
+    {
+     "text": "Makes no writes",
+     "passed": true,
+     "evidence": "no writes"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 12,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.67,
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "time_seconds": 206.4,
+    "tokens": 45944,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Lists the deployment - * types with a count",
+     "passed": true,
+     "evidence": "6 types, 28 entries, table with ids"
+    },
+    {
+     "text": "Writes parent_type on the children (never child_types)",
+     "passed": true,
+     "evidence": "parent_type only, child_types explicitly never written"
+    },
+    {
+     "text": "Previews with dry runs and asks for confirmation before any --yes",
+     "passed": false,
+     "evidence": "asks for OK, but dry runs not run: dry run blocked by Claude Code auto-mode permission classifier in the subagent (environment, not skill)"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 1,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 140.2,
+    "tokens": 79253,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs a knowledge search (kb.py find or equivalent) before answering",
+     "passed": true,
+     "evidence": "paged all 133 rows and grepped (search param ignored)"
+    },
+    {
+     "text": "Opens 'K3S - Data: Management' or another k3s entry that actually covers backup",
+     "passed": true,
+     "evidence": "used K3S - Data: Management #45"
+    },
+    {
+     "text": "Answer content comes from the entry text (paths or commands quoted from it), not generic k3s advice",
+     "passed": true,
+     "evidence": "answer quotes the note's tar and dump commands"
+    },
+    {
+     "text": "Names the entry title (and ideally id) it used",
+     "passed": true,
+     "evidence": "names note #45 and cheatsheet \u00a725"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 2,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 215.2,
+    "tokens": 65847,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds 'K3S - Cheatsheet' even though the user said kubernetes",
+     "passed": true,
+     "evidence": "regex k3s|k8s|kubectl over full dump found cheatsheet"
+    },
+    {
+     "text": "Reads the relevant section (toc/section) instead of the whole 31k-char entry",
+     "passed": true,
+     "evidence": "printed only node-management sections locally"
+    },
+    {
+     "text": "Quotes the kubectl label commands from the entry",
+     "passed": true,
+     "evidence": "quotes commands; also found 'K3S - Create new service' role=infra that the with-skill run missed"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 3,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 108.9,
+    "tokens": 94908,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Searches at least twice with different terms or --any",
+     "passed": true,
+     "evidence": "searched KB, other tables and repo"
+    },
+    {
+     "text": "States clearly that no stored entry covers it",
+     "passed": true,
+     "evidence": "states nothing found"
+    },
+    {
+     "text": "Does not present generic Terraform advice as if it were the user's stored config",
+     "passed": true,
+     "evidence": "MinIO mentioned but explicitly not claimed"
+    },
+    {
+     "text": "Offers to capture the answer once known",
+     "passed": true,
+     "evidence": "offers to save"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 4,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 55.1,
+    "tokens": 53704,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds the 'Sony Game Account' entry",
+     "passed": true,
+     "evidence": "found by listing all titles"
+    },
+    {
+     "text": "Returns its content rather than refusing (owner decision CR-1)",
+     "passed": true,
+     "evidence": "returns content"
+    },
+    {
+     "text": "Does not write the secret into any other record, file or tool",
+     "passed": true,
+     "evidence": "no writes"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 5,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.75,
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "time_seconds": 82.3,
+    "tokens": 81265,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs the capture dry run (or an equivalent duplicate check) before writing",
+     "passed": true,
+     "evidence": "paged all titles"
+    },
+    {
+     "text": "Reports that an entry with this exact title exists",
+     "passed": true,
+     "evidence": "reports existing note"
+    },
+    {
+     "text": "Proposes kb.py append to the existing entry instead of creating a duplicate",
+     "passed": false,
+     "evidence": "proposes in-place reword or separate note, not an append to the existing entry"
+    },
+    {
+     "text": "Creates no new knowledge record",
+     "passed": true,
+     "evidence": "no new record"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 6,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.75,
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "time_seconds": 93.4,
+    "tokens": 73001,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Title follows '<Subject> - <Aspect>' (e.g. 'Caddy - Zero-downtime Reload')",
+     "passed": true,
+     "evidence": "same title"
+    },
+    {
+     "text": "Picks an existing type ('deployment - caddy' or 'deployment - web server'), does not create a new type",
+     "passed": true,
+     "evidence": "deployment - caddy"
+    },
+    {
+     "text": "Checks similar entries (Caddy entries exist) and considers appending to one",
+     "passed": true,
+     "evidence": "checked; offers adding to existing note"
+    },
+    {
+     "text": "Body has the When to use / Steps structure with the command quoted exactly",
+     "passed": false,
+     "evidence": "body is bullets without When to use / Steps sections"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 7,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.67,
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "time_seconds": 88.1,
+    "tokens": 75194,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs the capture dry run and surfaces the secret warning",
+     "passed": false,
+     "evidence": "no dry run (no tool); raised plaintext-password concern itself"
+    },
+    {
+     "text": "Suggests a credential type (credentials / credential_*) to the user",
+     "passed": true,
+     "evidence": "option 3 split to credential_login"
+    },
+    {
+     "text": "Does not silently strip, mask or move the secret without asking",
+     "passed": true,
+     "evidence": "asks; no silent strip"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 8,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.67,
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "time_seconds": 86.9,
+    "tokens": 63863,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Resolves 'Caddy - Cache issues' by search, not by a guessed id",
+     "passed": true,
+     "evidence": "found by paging"
+    },
+    {
+     "text": "Uses kb.py append (dated ## Updates) rather than replacing the whole body",
+     "passed": false,
+     "evidence": "update_record re-sending the whole context field (replace, not append)"
+    },
+    {
+     "text": "Shows the preview before writing",
+     "passed": true,
+     "evidence": "shows section and asks"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 9,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.75,
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "time_seconds": 100.7,
+    "tokens": 106966,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds the project by name and runs kb.py for-work (or equivalent linked + suggestions)",
+     "passed": true,
+     "evidence": "checked refer_knowledge on project and tasks, read all titles"
+    },
+    {
+     "text": "Shows at most ~5 suggestions with title and type",
+     "passed": true,
+     "evidence": "3 candidates in a table"
+    },
+    {
+     "text": "Does not link anything without the user's pick",
+     "passed": true,
+     "evidence": "links nothing"
+    },
+    {
+     "text": "When linking, uses refer (additive), not a raw overwrite of refer_knowledge",
+     "passed": false,
+     "evidence": "proposes update_record setting refer_knowledge to [{id}] (raw overwrite, safe only because empty)"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 10,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.5,
+    "passed": 2,
+    "failed": 2,
+    "total": 4,
+    "time_seconds": 95.1,
+    "tokens": 71400,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Resolves the entry titled exactly 'temp' (not other temp-like entries)",
+     "passed": true,
+     "evidence": "exact match"
+    },
+    {
+     "text": "Checks work references (trace or archive preview)",
+     "passed": false,
+     "evidence": "get_record_neighbors only shows the entry's own links; one-way refer_knowledge from goals/projects/tasks not checked"
+    },
+    {
+     "text": "Uses soft archive (is_active false + deleted_at), not hard delete",
+     "passed": true,
+     "evidence": "soft archive"
+    },
+    {
+     "text": "Asks for confirmation before applying",
+     "passed": false,
+     "evidence": "would archive without asking"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 11,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 290.8,
+    "tokens": 114384,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Runs kb.py doctor (or equivalent full scan)",
+     "passed": true,
+     "evidence": "full dump + python analysis"
+    },
+    {
+     "text": "Reports findings grouped with counts (type tree, untyped, wrong type, series, temp/empty, duplicates)",
+     "passed": true,
+     "evidence": "5 grouped sections with counts (secrets, media, duplicates, stubs, taxonomy)"
+    },
+    {
+     "text": "Proposes concrete fixes per group",
+     "passed": true,
+     "evidence": "5 confirm batches with exact writes"
+    },
+    {
+     "text": "Makes no writes",
+     "passed": true,
+     "evidence": "no writes"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 12,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.67,
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "time_seconds": 80.8,
+    "tokens": 62485,
+    "tool_calls": 0,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Lists the deployment - * types with a count",
+     "passed": true,
+     "evidence": "6 types with ids and counts"
+    },
+    {
+     "text": "Writes parent_type on the children (never child_types)",
+     "passed": true,
+     "evidence": "parent_type; notes child_types is disconnected"
+    },
+    {
+     "text": "Previews with dry runs and asks for confirmation before any --yes",
+     "passed": false,
+     "evidence": "asks for OK; no dry-run preview"
+    }
+   ],
+   "notes": []
+  }
+ ],
+ "run_summary": {
+  "with_skill": {
+   "pass_rate": {
+    "mean": 0.945,
+    "stddev": 0.1285,
+    "min": 0.67,
+    "max": 1.0
+   },
+   "time_seconds": {
+    "mean": 104.05,
+    "stddev": 68.7328,
+    "min": 30.3,
+    "max": 230.3
+   },
+   "tokens": {
+    "mean": 45614.0,
+    "stddev": 6242.9821,
+    "min": 35624,
+    "max": 60161
+   }
+  },
+  "without_skill": {
+   "pass_rate": {
+    "mean": 0.8133,
+    "stddev": 0.1774,
+    "min": 0.5,
+    "max": 1.0
+   },
+   "time_seconds": {
+    "mean": 119.7917,
+    "stddev": 67.251,
+    "min": 55.1,
+    "max": 290.8
+   },
+   "tokens": {
+    "mean": 78522.5,
+    "stddev": 18371.5291,
+    "min": 53704,
+    "max": 114384
+   }
+  },
+  "delta": {
+   "pass_rate": "+0.13",
+   "time_seconds": "-15.7",
+   "tokens": "-32908"
+  }
+ },
+ "notes": [
+  "With skill 94% vs 81% without (+13 pts, 1 run each, 12 evals); 42% fewer tokens (45.6k vs 78.5k) and ~13% faster. Baselines had to page all 133 rows because MCP query_records ignores search.",
+  "Non-discriminating on pass rate: evals 01, 03, 04, 11 pass 100% in both configs; there the skill's value is cost (1-2 HTTP calls vs full-table dumps), not correctness.",
+  "Environment, not skill: in evals 07 and 12 (and partly 05, 06, 08) Claude Code's auto-mode permission classifier blocked kb.py dry runs (and once a read) in subagents, so preview assertions failed or were satisfied by equivalent checks. Allowlisting kb.py read and dry-run commands would remove this.",
+  "Skill gap (eval 02): find matches substrings, so the plural 'labels' missed 'K3S - Create new service' (which has 'label'); the baseline found it and gave the better answer. Fix: also match the singular form of plural terms.",
+  "Skill gap (eval 09): for-work/refer need a record id; the run had to look the project id up with a separate REST call. Fix: accept project:\"<title>\".",
+  "Skill gap (eval 11): the baseline audit found password reuse across entries, plaintext private keys and a bare password-only body that doctor G missed; doctor covers structure, not content quality.",
+  "Baseline risks the skill prevents: eval 10 baseline would archive without asking and its reference check could not see one-way refer_knowledge links; eval 08 and 09 baselines overwrite whole fields instead of appending."
+ ]
+}

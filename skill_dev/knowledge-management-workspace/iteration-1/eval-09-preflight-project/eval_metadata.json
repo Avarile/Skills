@@ -1,0 +1,11 @@
+{
+ "eval_id": 9,
+ "eval_name": "preflight-project",
+ "prompt": "Which knowledge should the 'Game Design Nebula-of-Cybernetics' project use?",
+ "assertions": [
+  "Finds the project by name and runs kb.py for-work (or equivalent linked + suggestions)",
+  "Shows at most ~5 suggestions with title and type",
+  "Does not link anything without the user's pick",
+  "When linking, uses refer (additive), not a raw overwrite of refer_knowledge"
+ ]
+}

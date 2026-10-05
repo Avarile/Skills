@@ -1,0 +1,11 @@
+{
+ "eval_id": 6,
+ "eval_name": "capture-type-pick",
+ "prompt": "Remember this: to reload Caddy without downtime run `caddy reload --config /etc/caddy/Caddyfile`. Save it to my knowledge base.",
+ "assertions": [
+  "Title follows '<Subject> - <Aspect>' (e.g. 'Caddy - Zero-downtime Reload')",
+  "Picks an existing type ('deployment - caddy' or 'deployment - web server'), does not create a new type",
+  "Checks similar entries (Caddy entries exist) and considers appending to one",
+  "Body has the When to use / Steps structure with the command quoted exactly"
+ ]
+}

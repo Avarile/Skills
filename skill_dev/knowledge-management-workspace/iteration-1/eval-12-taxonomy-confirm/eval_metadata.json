@@ -1,0 +1,10 @@
+{
+ "eval_id": 12,
+ "eval_name": "taxonomy-confirm",
+ "prompt": "Group all the deployment types under a parent 'deployment' type.",
+ "assertions": [
+  "Lists the deployment - * types with a count",
+  "Writes parent_type on the children (never child_types)",
+  "Previews with dry runs and asks for confirmation before any --yes"
+ ]
+}

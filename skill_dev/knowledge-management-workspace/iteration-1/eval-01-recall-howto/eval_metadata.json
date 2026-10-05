@@ -1,0 +1,11 @@
+{
+ "eval_id": 1,
+ "eval_name": "recall-howto",
+ "prompt": "How do I back up the k3s data on my homelab?",
+ "assertions": [
+  "Runs a knowledge search (kb.py find or equivalent) before answering",
+  "Opens 'K3S - Data: Management' or another k3s entry that actually covers backup",
+  "Answer content comes from the entry text (paths or commands quoted from it), not generic k3s advice",
+  "Names the entry title (and ideally id) it used"
+ ]
+}

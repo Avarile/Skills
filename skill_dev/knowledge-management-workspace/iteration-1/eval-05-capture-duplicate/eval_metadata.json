@@ -1,0 +1,11 @@
+{
+ "eval_id": 5,
+ "eval_name": "capture-duplicate",
+ "prompt": "Save a note called 'K3S - Cheatsheet' with: kubectl get pods -A lists all pods.",
+ "assertions": [
+  "Runs the capture dry run (or an equivalent duplicate check) before writing",
+  "Reports that an entry with this exact title exists",
+  "Proposes kb.py append to the existing entry instead of creating a duplicate",
+  "Creates no new knowledge record"
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "eval_id": 11,
+ "eval_name": "doctor-report",
+ "prompt": "Audit my knowledge base and tell me what needs cleaning up.",
+ "assertions": [
+  "Runs kb.py doctor (or equivalent full scan)",
+  "Reports findings grouped with counts (type tree, untyped, wrong type, series, temp/empty, duplicates)",
+  "Proposes concrete fixes per group",
+  "Makes no writes"
+ ]
+}

@@ -1,0 +1,26 @@
+{
+ "expectations": [
+  {
+   "text": "Lists the deployment - * types with a count",
+   "passed": true,
+   "evidence": "6 types with ids and counts"
+  },
+  {
+   "text": "Writes parent_type on the children (never child_types)",
+   "passed": true,
+   "evidence": "parent_type; notes child_types is disconnected"
+  },
+  {
+   "text": "Previews with dry runs and asks for confirmation before any --yes",
+   "passed": false,
+   "evidence": "asks for OK; no dry-run preview"
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ },
+ "execution_metrics": {}
+}

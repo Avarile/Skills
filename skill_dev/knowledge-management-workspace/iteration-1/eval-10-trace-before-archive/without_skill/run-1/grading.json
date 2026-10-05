@@ -1,0 +1,31 @@
+{
+ "expectations": [
+  {
+   "text": "Resolves the entry titled exactly 'temp' (not other temp-like entries)",
+   "passed": true,
+   "evidence": "exact match"
+  },
+  {
+   "text": "Checks work references (trace or archive preview)",
+   "passed": false,
+   "evidence": "get_record_neighbors only shows the entry's own links; one-way refer_knowledge from goals/projects/tasks not checked"
+  },
+  {
+   "text": "Uses soft archive (is_active false + deleted_at), not hard delete",
+   "passed": true,
+   "evidence": "soft archive"
+  },
+  {
+   "text": "Asks for confirmation before applying",
+   "passed": false,
+   "evidence": "would archive without asking"
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 2,
+  "total": 4,
+  "pass_rate": 0.5
+ },
+ "execution_metrics": {}
+}
