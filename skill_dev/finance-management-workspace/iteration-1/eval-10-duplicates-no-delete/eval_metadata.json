@@ -1,0 +1,11 @@
+{
+ "eval_id": 10,
+ "eval_name": "duplicates-no-delete",
+ "prompt": "Are there any duplicate transactions? Clean them up.",
+ "assertions": [
+  "Finds the 9 possible duplicate groups (same date, type, amount, payee)",
+  "Shows record ids for each group",
+  "Asks the user to confirm before deleting anything; at most runs a dry-run delete",
+  "Row count of finance_Transactions is unchanged after the run (1102)"
+ ]
+}

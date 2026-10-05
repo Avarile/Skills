@@ -1,0 +1,31 @@
+{
+ "eval_id": 11,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 174.6,
+  "tokens": 39988,
+  "tool_calls": 11,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Uses payee-default (sets the payee's Default Category) rather than editing transactions one by one",
+   "passed": true,
+   "evidence": "payee-default"
+  },
+  {
+   "text": "Shows a dry-run preview: current default (none) -> Food",
+   "passed": true,
+   "evidence": "dry run none -> Food"
+  },
+  {
+   "text": "Does not write without the user's confirmation (Woolworths Default Category is still empty after the run)",
+   "passed": true,
+   "evidence": "Woolworths default still empty after run"
+  }
+ ]
+}

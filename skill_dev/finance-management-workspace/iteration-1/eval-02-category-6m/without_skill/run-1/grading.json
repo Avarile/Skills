@@ -1,0 +1,36 @@
+{
+ "eval_id": 2,
+ "configuration": "without_skill",
+ "result": {
+  "pass_rate": 0.75,
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "time_seconds": 220.0,
+  "tokens": 57030,
+  "tool_calls": 16,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Filters on the Food category (not a text search for 'food')",
+   "passed": true,
+   "evidence": "Food + Dining categories"
+  },
+  {
+   "text": "Reports $5,577.04 for 2026-04..2026-09 (6 complete calendar months)",
+   "passed": false,
+   "evidence": "rolling 5 Apr-5 Oct: Food $5,568.56; complete-month Food figure not given"
+  },
+  {
+   "text": "Names the period's dates",
+   "passed": true,
+   "evidence": "dates named"
+  },
+  {
+   "text": "Mentions September is partial (data ends 2026-09-18)",
+   "passed": true,
+   "evidence": "data stops 18 Sep"
+  }
+ ]
+}

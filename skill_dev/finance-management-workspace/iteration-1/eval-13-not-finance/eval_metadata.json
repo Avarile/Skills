@@ -1,0 +1,9 @@
+{
+ "eval_id": 13,
+ "eval_name": "not-finance",
+ "prompt": "Add a task to my project to review the finance skill tomorrow.",
+ "assertions": [
+  "Does not run any finance write command",
+  "Routes to the project-management skill / tasks table (or says so)"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "eval_id": 2,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "time_seconds": 241.8,
+  "tokens": 45436,
+  "tool_calls": 14,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Filters on the Food category (not a text search for 'food')",
+   "passed": true,
+   "evidence": "category filter Food (+Dining shown separately)"
+  },
+  {
+   "text": "Reports $5,577.04 for 2026-04..2026-09 (6 complete calendar months)",
+   "passed": true,
+   "evidence": "$5,577.04 Food Apr-Sep stated"
+  },
+  {
+   "text": "Names the period's dates",
+   "passed": true,
+   "evidence": "dates named"
+  },
+  {
+   "text": "Mentions September is partial (data ends 2026-09-18)",
+   "passed": true,
+   "evidence": "September partial"
+  }
+ ]
+}

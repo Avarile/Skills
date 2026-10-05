@@ -1,0 +1,31 @@
+{
+ "eval_id": 9,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 194.1,
+  "tokens": 45146,
+  "tool_calls": 14,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Excludes the payee Aiyun Yu (not the whole Personal Transfers category, which also holds other people)",
+   "passed": true,
+   "evidence": "payee excluded, not category"
+  },
+  {
+   "text": "Reports $34,825.47",
+   "passed": true,
+   "evidence": "$34,825.47"
+  },
+  {
+   "text": "Optionally gives the total with them ($62,985.47) for contrast",
+   "passed": true,
+   "evidence": "$62,985.47 contrast"
+  }
+ ]
+}

@@ -1,0 +1,31 @@
+{
+ "eval_id": 8,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 167.5,
+  "tokens": 39322,
+  "tool_calls": 7,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Reports the computed figure (-$49,140.46) for the ANZ account",
+   "passed": true,
+   "evidence": "-$49,140.46"
+  },
+  {
+   "text": "Says clearly that the figure is unreliable because income or accounts are missing",
+   "passed": true,
+   "evidence": "unreliable; suspects destination-less transfers / missing income"
+  },
+  {
+   "text": "Does not state it as the real bank balance",
+   "passed": true,
+   "evidence": "tells user to check ANZ app"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "eval_id": 1,
+ "eval_name": "cost-windows",
+ "prompt": "What are my monthly, 3-month, 6-month and yearly costs?",
+ "assertions": [
+  "Uses the finance tables (fin.py cost or equivalent filtered query), not an estimate",
+  "Reports all four windows with totals matching 1,123.79 / 13,673.68 / 28,765.30 / 62,985.47 (net spend: expenses minus refunds, transfers excluded)",
+  "Gives a monthly average for the longer windows",
+  "Warns that the data ends 2026-09-18, so September (and every window ending in it) is understated, or offers --anchor 2026-08",
+  "States that transfers are excluded from cost"
+ ]
+}

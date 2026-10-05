@@ -1,0 +1,36 @@
+{
+ "eval_id": 5,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "time_seconds": 252.2,
+  "tokens": 41475,
+  "tool_calls": 7,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Compares August 2026 against a stated baseline (e.g. the 3 months before)",
+   "passed": true,
+   "evidence": "vs May-Jul avg and Nov-Jul avg"
+  },
+  {
+   "text": "Reports $6,677.06 for August",
+   "passed": true,
+   "evidence": "$6,677.06"
+  },
+  {
+   "text": "If the baseline is May-Jul average, reports $6,332.80 and about +5.4%",
+   "passed": true,
+   "evidence": "$6,332.80, +5.4%"
+  },
+  {
+   "text": "Names at least one category driving the difference",
+   "passed": true,
+   "evidence": "Shopping/JB Hi-Fi, Food, Dining; Clink missing"
+  }
+ ]
+}

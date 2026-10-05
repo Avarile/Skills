@@ -1,0 +1,26 @@
+{
+ "eval_id": 13,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 2,
+  "failed": 0,
+  "total": 2,
+  "time_seconds": 72.7,
+  "tokens": 49904,
+  "tool_calls": 11,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Does not run any finance write command",
+   "passed": true,
+   "evidence": "no finance writes"
+  },
+  {
+   "text": "Routes to the project-management skill / tasks table (or says so)",
+   "passed": true,
+   "evidence": "routes to project-management task (Step 13)"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "eval_id": 12,
+ "eval_name": "budget-suggest",
+ "prompt": "Suggest a sensible monthly budget for me based on my history.",
+ "assertions": [
+  "Uses per-category history over several complete months (median or average stated)",
+  "Avoids or flags the partial September month",
+  "Gives a per-category list with a total",
+  "Does not create budget rows without approval (finance_Budgets still has 0 rows)"
+ ]
+}

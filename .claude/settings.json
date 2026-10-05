@@ -2,11 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(python3 skill_dev/knowledge-management/scripts/kb.py *)",
-      "Bash(python3 .claude/skills/knowledge-management/scripts/kb.py *)"
+      "Bash(python3 .claude/skills/knowledge-management/scripts/kb.py *)",
+      "Bash(python3 skill_dev/finance-management/scripts/fin.py *)",
+      "Bash(python3 .claude/skills/finance-management/scripts/fin.py *)"
     ],
     "ask": [
       "Bash(python3 skill_dev/knowledge-management/scripts/kb.py * --yes*)",
-      "Bash(python3 .claude/skills/knowledge-management/scripts/kb.py * --yes*)"
+      "Bash(python3 .claude/skills/knowledge-management/scripts/kb.py * --yes*)",
+      "Bash(python3 skill_dev/finance-management/scripts/fin.py * --yes*)",
+      "Bash(python3 .claude/skills/finance-management/scripts/fin.py * --yes*)"
     ]
   }
 }

@@ -1,0 +1,12 @@
+{
+ "eval_id": 4,
+ "eval_name": "subscriptions",
+ "prompt": "What subscriptions and regular bills am I paying, and what do they cost per year?",
+ "assertions": [
+  "Uses recurring detection over transactions (fin.py recurring or equivalent), not only the Recurring checkbox",
+  "Lists Dodo, Amaysim, Amazon Prime, ahm Health Insurance and Allianz Insurance with monthly and yearly cost",
+  "Does not present Lumo Energy, Telstra or Postiz as current (they stopped)",
+  "Points out that the $2,816/month Aiyun Yu payment is a personal transfer rather than a subscription, or reports it separately",
+  "Covers annual or irregular bills paid in the last 12 months (e.g. Wyndham council rates, Yarra Valley Water, Anthropic), not only monthly ones"
+ ]
+}

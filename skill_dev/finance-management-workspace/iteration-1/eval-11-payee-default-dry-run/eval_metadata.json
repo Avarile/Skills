@@ -1,0 +1,10 @@
+{
+ "eval_id": 11,
+ "eval_name": "payee-default-dry-run",
+ "prompt": "Make Woolworths always go to the Food category.",
+ "assertions": [
+  "Uses payee-default (sets the payee's Default Category) rather than editing transactions one by one",
+  "Shows a dry-run preview: current default (none) -> Food",
+  "Does not write without the user's confirmation (Woolworths Default Category is still empty after the run)"
+ ]
+}

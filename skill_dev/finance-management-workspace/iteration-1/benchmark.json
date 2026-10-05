@@ -1,0 +1,913 @@
+{
+ "metadata": {
+  "skill_name": "finance-management",
+  "skill_path": "skill_dev/finance-management",
+  "executor_model": "claude-opus-5-5",
+  "analyzer_model": "claude-opus-5-5",
+  "timestamp": "2026-10-05T10:31:18Z",
+  "evals_run": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13
+  ],
+  "runs_per_configuration": 1
+ },
+ "runs": [
+  {
+   "eval_id": 1,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "time_seconds": 245.4,
+    "tokens": 39494,
+    "tool_calls": 6,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses the finance tables (fin.py cost or equivalent filtered query), not an estimate",
+     "passed": true,
+     "evidence": "fin.py cost (+ --anchor 2026-08)"
+    },
+    {
+     "text": "Reports all four windows with totals matching 1,123.79 / 13,673.68 / 28,765.30 / 62,985.47 (net spend: expenses minus refunds, transfers excluded)",
+     "passed": true,
+     "evidence": "Oct-Sep windows 1,123.79/13,673.68/28,765.30/62,985.47 reported (as partial), Aug-anchored headline"
+    },
+    {
+     "text": "Gives a monthly average for the longer windows",
+     "passed": true,
+     "evidence": "per-month column"
+    },
+    {
+     "text": "Warns that the data ends 2026-09-18, so September (and every window ending in it) is understated, or offers --anchor 2026-08",
+     "passed": true,
+     "evidence": "data ends 2026-09-18; anchored to Aug"
+    },
+    {
+     "text": "States that transfers are excluded from cost",
+     "passed": true,
+     "evidence": "transfers excluded stated"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 1,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.8,
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "time_seconds": 111.5,
+    "tokens": 60960,
+    "tool_calls": 10,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses the finance tables (fin.py cost or equivalent filtered query), not an estimate",
+     "passed": true,
+     "evidence": "REST queries"
+    },
+    {
+     "text": "Reports all four windows with totals matching 1,123.79 / 13,673.68 / 28,765.30 / 62,985.47 (net spend: expenses minus refunds, transfers excluded)",
+     "passed": false,
+     "evidence": "gross expenses ($6,696 Aug etc.), refunds not netted; defined windows not reported"
+    },
+    {
+     "text": "Gives a monthly average for the longer windows",
+     "passed": true,
+     "evidence": "avg/month column"
+    },
+    {
+     "text": "Warns that the data ends 2026-09-18, so September (and every window ending in it) is understated, or offers --anchor 2026-08",
+     "passed": true,
+     "evidence": "ends at 31 Aug because data stops 18 Sep"
+    },
+    {
+     "text": "States that transfers are excluded from cost",
+     "passed": true,
+     "evidence": "transfers left out"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 2,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 241.8,
+    "tokens": 45436,
+    "tool_calls": 14,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Filters on the Food category (not a text search for 'food')",
+     "passed": true,
+     "evidence": "category filter Food (+Dining shown separately)"
+    },
+    {
+     "text": "Reports $5,577.04 for 2026-04..2026-09 (6 complete calendar months)",
+     "passed": true,
+     "evidence": "$5,577.04 Food Apr-Sep stated"
+    },
+    {
+     "text": "Names the period's dates",
+     "passed": true,
+     "evidence": "dates named"
+    },
+    {
+     "text": "Mentions September is partial (data ends 2026-09-18)",
+     "passed": true,
+     "evidence": "September partial"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 2,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.75,
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "time_seconds": 220.0,
+    "tokens": 57030,
+    "tool_calls": 16,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Filters on the Food category (not a text search for 'food')",
+     "passed": true,
+     "evidence": "Food + Dining categories"
+    },
+    {
+     "text": "Reports $5,577.04 for 2026-04..2026-09 (6 complete calendar months)",
+     "passed": false,
+     "evidence": "rolling 5 Apr-5 Oct: Food $5,568.56; complete-month Food figure not given"
+    },
+    {
+     "text": "Names the period's dates",
+     "passed": true,
+     "evidence": "dates named"
+    },
+    {
+     "text": "Mentions September is partial (data ends 2026-09-18)",
+     "passed": true,
+     "evidence": "data stops 18 Sep"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 3,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 369.1,
+    "tokens": 41343,
+    "tool_calls": 8,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Resolves the payee 'Allianz Insurance' (does not guess an unrelated payee)",
+     "passed": true,
+     "evidence": "Allianz Insurance resolved"
+    },
+    {
+     "text": "Reports a total of $2,601.46",
+     "passed": true,
+     "evidence": "$2,601.46 / 22 payments"
+    },
+    {
+     "text": "Describes the frequency as monthly and ideally notes two separate policies (~$117.31 and ~$119.03)",
+     "passed": true,
+     "evidence": "monthly, two policies $119.03/$117.31"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 3,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 195.0,
+    "tokens": 49259,
+    "tool_calls": 9,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Resolves the payee 'Allianz Insurance' (does not guess an unrelated payee)",
+     "passed": true,
+     "evidence": "Allianz rows"
+    },
+    {
+     "text": "Reports a total of $2,601.46",
+     "passed": true,
+     "evidence": "$2,601.46"
+    },
+    {
+     "text": "Describes the frequency as monthly and ideally notes two separate policies (~$117.31 and ~$119.03)",
+     "passed": true,
+     "evidence": "twice monthly, two streams"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 4,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 370.3,
+    "tokens": 51078,
+    "tool_calls": 8,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses recurring detection over transactions (fin.py recurring or equivalent), not only the Recurring checkbox",
+     "passed": true,
+     "evidence": "fin.py recurring"
+    },
+    {
+     "text": "Lists Dodo, Amaysim, Amazon Prime, ahm Health Insurance and Allianz Insurance with monthly and yearly cost",
+     "passed": true,
+     "evidence": "Dodo, Amaysim, Prime, ahm, Allianz x2 with month/year"
+    },
+    {
+     "text": "Does not present Lumo Energy, Telstra or Postiz as current (they stopped)",
+     "passed": true,
+     "evidence": "stopped listed separately"
+    },
+    {
+     "text": "Points out that the $2,816/month Aiyun Yu payment is a personal transfer rather than a subscription, or reports it separately",
+     "passed": true,
+     "evidence": "Aiyun Yu listed separately as transfer"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 4,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 186.2,
+    "tokens": 75708,
+    "tool_calls": 17,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses recurring detection over transactions (fin.py recurring or equivalent), not only the Recurring checkbox",
+     "passed": true,
+     "evidence": "payee cadence analysis, not only checkbox"
+    },
+    {
+     "text": "Lists Dodo, Amaysim, Amazon Prime, ahm Health Insurance and Allianz Insurance with monthly and yearly cost",
+     "passed": true,
+     "evidence": "all listed"
+    },
+    {
+     "text": "Does not present Lumo Energy, Telstra or Postiz as current (they stopped)",
+     "passed": true,
+     "evidence": "stopped section"
+    },
+    {
+     "text": "Points out that the $2,816/month Aiyun Yu payment is a personal transfer rather than a subscription, or reports it separately",
+     "passed": true,
+     "evidence": "Aiyun Yu separated (as likely rent)"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 5,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 252.2,
+    "tokens": 41475,
+    "tool_calls": 7,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Compares August 2026 against a stated baseline (e.g. the 3 months before)",
+     "passed": true,
+     "evidence": "vs May-Jul avg and Nov-Jul avg"
+    },
+    {
+     "text": "Reports $6,677.06 for August",
+     "passed": true,
+     "evidence": "$6,677.06"
+    },
+    {
+     "text": "If the baseline is May-Jul average, reports $6,332.80 and about +5.4%",
+     "passed": true,
+     "evidence": "$6,332.80, +5.4%"
+    },
+    {
+     "text": "Names at least one category driving the difference",
+     "passed": true,
+     "evidence": "Shopping/JB Hi-Fi, Food, Dining; Clink missing"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 5,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.75,
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "time_seconds": 936.6,
+    "tokens": 52859,
+    "tool_calls": 13,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Compares August 2026 against a stated baseline (e.g. the 3 months before)",
+     "passed": true,
+     "evidence": "vs 9-month avg and Feb-Jul"
+    },
+    {
+     "text": "Reports $6,677.06 for August",
+     "passed": false,
+     "evidence": "$6,696 gross (refund not netted)"
+    },
+    {
+     "text": "If the baseline is May-Jul average, reports $6,332.80 and about +5.4%",
+     "passed": true,
+     "evidence": "different baseline (conditional n/a)"
+    },
+    {
+     "text": "Names at least one category driving the difference",
+     "passed": true,
+     "evidence": "Shopping/Food/Dining drivers"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 6,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "time_seconds": 204.4,
+    "tokens": 39226,
+    "tool_calls": 8,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses the Australian financial year 2025-07-01..2026-06-30",
+     "passed": true,
+     "evidence": "FY Jul 2025-Jun 2026"
+    },
+    {
+     "text": "Takes business vs personal from the category scope (not the transaction Scope field, which is Personal on every row)",
+     "passed": true,
+     "evidence": "category scope"
+    },
+    {
+     "text": "Reports business income $133,139.27 and business expenses $1,003.86",
+     "passed": true,
+     "evidence": "$133,139.27 / $1,003.86"
+    },
+    {
+     "text": "Warns that data starts 2025-10-30, so the year is incomplete",
+     "passed": true,
+     "evidence": "data starts 2025-10-30"
+    },
+    {
+     "text": "Does not present the figures as tax advice",
+     "passed": true,
+     "evidence": "not tax advice"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 6,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "time_seconds": 105.2,
+    "tokens": 60139,
+    "tool_calls": 13,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses the Australian financial year 2025-07-01..2026-06-30",
+     "passed": true,
+     "evidence": "FY Jul-Jun"
+    },
+    {
+     "text": "Takes business vs personal from the category scope (not the transaction Scope field, which is Personal on every row)",
+     "passed": true,
+     "evidence": "category scope; explains Scope field is Personal"
+    },
+    {
+     "text": "Reports business income $133,139.27 and business expenses $1,003.86",
+     "passed": true,
+     "evidence": "$133,139.27 / $1,003.86"
+    },
+    {
+     "text": "Warns that data starts 2025-10-30, so the year is incomplete",
+     "passed": true,
+     "evidence": "year incomplete"
+    },
+    {
+     "text": "Does not present the figures as tax advice",
+     "passed": true,
+     "evidence": "check before tax use; not presented as advice"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 7,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 164.8,
+    "tokens": 38946,
+    "tool_calls": 8,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Reports $1,123.79",
+     "passed": true,
+     "evidence": "$1,123.79"
+    },
+    {
+     "text": "Explicitly says the September figure is partial because the data ends 2026-09-18",
+     "passed": true,
+     "evidence": "partial to 18 Sep"
+    },
+    {
+     "text": "Does not claim spending fell sharply in September",
+     "passed": true,
+     "evidence": "no false drop claim"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 7,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 145.1,
+    "tokens": 57752,
+    "tool_calls": 15,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Reports $1,123.79",
+     "passed": true,
+     "evidence": "$1,123.79"
+    },
+    {
+     "text": "Explicitly says the September figure is partial because the data ends 2026-09-18",
+     "passed": true,
+     "evidence": "only 1-18 Sep"
+    },
+    {
+     "text": "Does not claim spending fell sharply in September",
+     "passed": true,
+     "evidence": "explains full month will be higher"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 8,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 167.5,
+    "tokens": 39322,
+    "tool_calls": 7,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Reports the computed figure (-$49,140.46) for the ANZ account",
+     "passed": true,
+     "evidence": "-$49,140.46"
+    },
+    {
+     "text": "Says clearly that the figure is unreliable because income or accounts are missing",
+     "passed": true,
+     "evidence": "unreliable; suspects destination-less transfers / missing income"
+    },
+    {
+     "text": "Does not state it as the real bank balance",
+     "passed": true,
+     "evidence": "tells user to check ANZ app"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 8,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 871.5,
+    "tokens": 60568,
+    "tool_calls": 18,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Reports the computed figure (-$49,140.46) for the ANZ account",
+     "passed": true,
+     "evidence": "DB figure -$49,140.46 shown"
+    },
+    {
+     "text": "Says clearly that the figure is unreliable because income or accounts are missing",
+     "passed": true,
+     "evidence": "explains it is wrong: 22 incoming transfers signed negative"
+    },
+    {
+     "text": "Does not state it as the real bank balance",
+     "passed": true,
+     "evidence": "gives corrected $979.54 as of 18 Sep with caveats, check app"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 9,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 194.1,
+    "tokens": 45146,
+    "tool_calls": 14,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Excludes the payee Aiyun Yu (not the whole Personal Transfers category, which also holds other people)",
+     "passed": true,
+     "evidence": "payee excluded, not category"
+    },
+    {
+     "text": "Reports $34,825.47",
+     "passed": true,
+     "evidence": "$34,825.47"
+    },
+    {
+     "text": "Optionally gives the total with them ($62,985.47) for contrast",
+     "passed": true,
+     "evidence": "$62,985.47 contrast"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 9,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 0.667,
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "time_seconds": 832.7,
+    "tokens": 51077,
+    "tool_calls": 10,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Excludes the payee Aiyun Yu (not the whole Personal Transfers category, which also holds other people)",
+     "passed": true,
+     "evidence": "payee excluded"
+    },
+    {
+     "text": "Reports $34,825.47",
+     "passed": false,
+     "evidence": "$35,186.24 (refunds not netted)"
+    },
+    {
+     "text": "Optionally gives the total with them ($62,985.47) for contrast",
+     "passed": true,
+     "evidence": "$63,346.24 contrast"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 10,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 105.4,
+    "tokens": 57444,
+    "tool_calls": 14,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Finds the 9 possible duplicate groups (same date, type, amount, payee)",
+     "passed": true,
+     "evidence": "9 groups"
+    },
+    {
+     "text": "Shows record ids for each group",
+     "passed": true,
+     "evidence": "ids shown"
+    },
+    {
+     "text": "Asks the user to confirm before deleting anything; at most runs a dry-run delete",
+     "passed": true,
+     "evidence": "asks before deleting"
+    },
+    {
+     "text": "Row count of finance_Transactions is unchanged after the run (1102)",
+     "passed": true,
+     "evidence": "1102 rows after"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 11,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "time_seconds": 174.6,
+    "tokens": 39988,
+    "tool_calls": 11,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses payee-default (sets the payee's Default Category) rather than editing transactions one by one",
+     "passed": true,
+     "evidence": "payee-default"
+    },
+    {
+     "text": "Shows a dry-run preview: current default (none) -> Food",
+     "passed": true,
+     "evidence": "dry run none -> Food"
+    },
+    {
+     "text": "Does not write without the user's confirmation (Woolworths Default Category is still empty after the run)",
+     "passed": true,
+     "evidence": "Woolworths default still empty after run"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 12,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "time_seconds": 93.8,
+    "tokens": 47604,
+    "tool_calls": 10,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Uses per-category history over several complete months (median or average stated)",
+     "passed": true,
+     "evidence": "median of Mar-Aug"
+    },
+    {
+     "text": "Avoids or flags the partial September month",
+     "passed": true,
+     "evidence": "avoids partial Sep"
+    },
+    {
+     "text": "Gives a per-category list with a total",
+     "passed": true,
+     "evidence": "per-category list + total"
+    },
+    {
+     "text": "Does not create budget rows without approval (finance_Budgets still has 0 rows)",
+     "passed": true,
+     "evidence": "budgets still 0 rows"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 13,
+   "configuration": "with_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 2,
+    "failed": 0,
+    "total": 2,
+    "time_seconds": 72.7,
+    "tokens": 49904,
+    "tool_calls": 11,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Does not run any finance write command",
+     "passed": true,
+     "evidence": "no finance writes"
+    },
+    {
+     "text": "Routes to the project-management skill / tasks table (or says so)",
+     "passed": true,
+     "evidence": "routes to project-management task (Step 13)"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "eval_id": 13,
+   "configuration": "without_skill",
+   "run_number": 1,
+   "result": {
+    "pass_rate": 1.0,
+    "passed": 2,
+    "failed": 0,
+    "total": 2,
+    "time_seconds": 940.5,
+    "tokens": 59126,
+    "tool_calls": 12,
+    "errors": 0
+   },
+   "expectations": [
+    {
+     "text": "Does not run any finance write command",
+     "passed": true,
+     "evidence": "no finance writes"
+    },
+    {
+     "text": "Routes to the project-management skill / tasks table (or says so)",
+     "passed": true,
+     "evidence": "project-management task routing"
+    }
+   ],
+   "notes": []
+  }
+ ],
+ "run_summary": {
+  "with_all": {
+   "n": 13,
+   "pass_rate": [
+    1.0,
+    0.0
+   ],
+   "time": [
+    204.31538461538463,
+    89.14791378683172
+   ],
+   "tokens": [
+    44338.92307692308,
+    5551.302680958885
+   ],
+   "assertions": "47/47"
+  },
+  "with_paired": {
+   "n": 10,
+   "pass_rate": [
+    1.0,
+    0.0
+   ],
+   "time": [
+    228.23000000000002,
+    86.43816344647774
+   ],
+   "tokens": [
+    43137,
+    4299.302362011772
+   ],
+   "assertions": "36/36"
+  },
+  "without": {
+   "n": 10,
+   "pass_rate": [
+    0.8967,
+    0.13006925078587944
+   ],
+   "time": [
+    454.43,
+    362.6629069811248
+   ],
+   "tokens": [
+    58447.8,
+    6960.838538567032
+   ],
+   "assertions": "32/36"
+  }
+ },
+ "notes": [
+  "Evals 10-12 (write discipline) ran with the skill only, so a baseline agent could not write to live data; paired comparison uses evals 1-9 and 13.",
+  "No run wrote to the database: row counts, Woolworths default category and the Step 13 task were identical before and after.",
+  "Baseline losses are all definitional: gross expenses instead of net spend (refunds not netted) in evals 1, 5, 9, and a rolling instead of complete-month window in eval 2.",
+  "Baseline found things the skill missed: 22 incoming transfers ('TRANSFER .. FROM 807590005', $25,060) stored as Transfer and signed negative, so the true balance is ~$979.54, not -$49,140.46 (eval 8); a fixed $2,357.36 monthly transfer; Amaysim bills every 28 days; annual/irregular bills (rego, council rates, water, Anthropic); fortnightly 'Business Income' looks like wages (eval 6).",
+  "The eval-8 assertion encoded the skill's wrong hypothesis ('missing income or accounts'); the with-skill run passes it but the baseline answer is more correct. Skill defect to fix in iteration 2."
+ ]
+}

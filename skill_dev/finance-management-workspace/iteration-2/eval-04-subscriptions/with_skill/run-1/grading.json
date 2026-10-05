@@ -1,0 +1,41 @@
+{
+ "eval_id": 4,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "time_seconds": 68.1,
+  "tokens": 44634,
+  "tool_calls": 9,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Uses recurring detection over transactions (fin.py recurring or equivalent), not only the Recurring checkbox",
+   "passed": true,
+   "evidence": "fin.py recurring"
+  },
+  {
+   "text": "Lists Dodo, Amaysim, Amazon Prime, ahm Health Insurance and Allianz Insurance with monthly and yearly cost",
+   "passed": true,
+   "evidence": "Dodo, Amaysim (4-weekly), Prime, ahm, Allianz x2 with month/year"
+  },
+  {
+   "text": "Does not present Lumo Energy, Telstra or Postiz as current (they stopped)",
+   "passed": true,
+   "evidence": "stopped section incl. Lumo, Telstra, Postiz"
+  },
+  {
+   "text": "Points out that the $2,816/month Aiyun Yu payment is a personal transfer rather than a subscription, or reports it separately",
+   "passed": true,
+   "evidence": "Aiyun Yu separate (payment to a person)"
+  },
+  {
+   "text": "Covers annual or irregular bills paid in the last 12 months (e.g. Wyndham council rates, Yarra Valley Water, Anthropic), not only monthly ones",
+   "passed": true,
+   "evidence": "annual/irregular bills: council rates, water, Anthropic, school fees, rego"
+  }
+ ]
+}

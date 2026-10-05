@@ -1,0 +1,36 @@
+{
+ "eval_id": 4,
+ "configuration": "without_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "time_seconds": 186.2,
+  "tokens": 75708,
+  "tool_calls": 17,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Uses recurring detection over transactions (fin.py recurring or equivalent), not only the Recurring checkbox",
+   "passed": true,
+   "evidence": "payee cadence analysis, not only checkbox"
+  },
+  {
+   "text": "Lists Dodo, Amaysim, Amazon Prime, ahm Health Insurance and Allianz Insurance with monthly and yearly cost",
+   "passed": true,
+   "evidence": "all listed"
+  },
+  {
+   "text": "Does not present Lumo Energy, Telstra or Postiz as current (they stopped)",
+   "passed": true,
+   "evidence": "stopped section"
+  },
+  {
+   "text": "Points out that the $2,816/month Aiyun Yu payment is a personal transfer rather than a subscription, or reports it separately",
+   "passed": true,
+   "evidence": "Aiyun Yu separated (as likely rent)"
+  }
+ ]
+}

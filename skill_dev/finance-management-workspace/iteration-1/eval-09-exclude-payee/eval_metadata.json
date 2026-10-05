@@ -1,0 +1,10 @@
+{
+ "eval_id": 9,
+ "eval_name": "exclude-payee",
+ "prompt": "What did I spend over the last 12 months if you leave out the payments to Aiyun Yu?",
+ "assertions": [
+  "Excludes the payee Aiyun Yu (not the whole Personal Transfers category, which also holds other people)",
+  "Reports $34,825.47",
+  "Optionally gives the total with them ($62,985.47) for contrast"
+ ]
+}

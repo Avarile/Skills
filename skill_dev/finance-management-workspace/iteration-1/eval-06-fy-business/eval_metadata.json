@@ -1,0 +1,12 @@
+{
+ "eval_id": 6,
+ "eval_name": "fy-business",
+ "prompt": "What was my business income and business expenses for FY2026?",
+ "assertions": [
+  "Uses the Australian financial year 2025-07-01..2026-06-30",
+  "Takes business vs personal from the category scope (not the transaction Scope field, which is Personal on every row)",
+  "Reports business income $133,139.27 and business expenses $1,003.86",
+  "Warns that data starts 2025-10-30, so the year is incomplete",
+  "Does not present the figures as tax advice"
+ ]
+}

@@ -1,0 +1,31 @@
+{
+ "eval_id": 8,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 159.2,
+  "tokens": 37643,
+  "tool_calls": 6,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Reports a balance of about $979.54 as of 2026-09-18 (the last transaction), not -$49,140.46 as the real balance",
+   "passed": true,
+   "evidence": "$979.54 as of 2026-09-18"
+  },
+  {
+   "text": "Explains why the stored Current Balance (-$49,140.46) is wrong: incoming transfers are counted as money out",
+   "passed": true,
+   "evidence": "Current Balance -49,140.46 wrong: 22 incoming transfers counted as out"
+  },
+  {
+   "text": "Says the figure is only as of the last imported transaction and suggests checking the bank for today's balance",
+   "passed": true,
+   "evidence": "as of last record; check ANZ app"
+  }
+ ]
+}

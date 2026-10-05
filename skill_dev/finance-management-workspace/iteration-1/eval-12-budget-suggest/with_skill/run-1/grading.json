@@ -1,0 +1,36 @@
+{
+ "eval_id": 12,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "time_seconds": 93.8,
+  "tokens": 47604,
+  "tool_calls": 10,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Uses per-category history over several complete months (median or average stated)",
+   "passed": true,
+   "evidence": "median of Mar-Aug"
+  },
+  {
+   "text": "Avoids or flags the partial September month",
+   "passed": true,
+   "evidence": "avoids partial Sep"
+  },
+  {
+   "text": "Gives a per-category list with a total",
+   "passed": true,
+   "evidence": "per-category list + total"
+  },
+  {
+   "text": "Does not create budget rows without approval (finance_Budgets still has 0 rows)",
+   "passed": true,
+   "evidence": "budgets still 0 rows"
+  }
+ ]
+}

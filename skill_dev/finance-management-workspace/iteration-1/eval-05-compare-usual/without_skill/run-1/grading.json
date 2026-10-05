@@ -1,0 +1,36 @@
+{
+ "eval_id": 5,
+ "configuration": "without_skill",
+ "result": {
+  "pass_rate": 0.75,
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "time_seconds": 936.6,
+  "tokens": 52859,
+  "tool_calls": 13,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Compares August 2026 against a stated baseline (e.g. the 3 months before)",
+   "passed": true,
+   "evidence": "vs 9-month avg and Feb-Jul"
+  },
+  {
+   "text": "Reports $6,677.06 for August",
+   "passed": false,
+   "evidence": "$6,696 gross (refund not netted)"
+  },
+  {
+   "text": "If the baseline is May-Jul average, reports $6,332.80 and about +5.4%",
+   "passed": true,
+   "evidence": "different baseline (conditional n/a)"
+  },
+  {
+   "text": "Names at least one category driving the difference",
+   "passed": true,
+   "evidence": "Shopping/Food/Dining drivers"
+  }
+ ]
+}

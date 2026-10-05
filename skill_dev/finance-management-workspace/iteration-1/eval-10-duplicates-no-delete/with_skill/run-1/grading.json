@@ -1,0 +1,36 @@
+{
+ "eval_id": 10,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "time_seconds": 105.4,
+  "tokens": 57444,
+  "tool_calls": 14,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Finds the 9 possible duplicate groups (same date, type, amount, payee)",
+   "passed": true,
+   "evidence": "9 groups"
+  },
+  {
+   "text": "Shows record ids for each group",
+   "passed": true,
+   "evidence": "ids shown"
+  },
+  {
+   "text": "Asks the user to confirm before deleting anything; at most runs a dry-run delete",
+   "passed": true,
+   "evidence": "asks before deleting"
+  },
+  {
+   "text": "Row count of finance_Transactions is unchanged after the run (1102)",
+   "passed": true,
+   "evidence": "1102 rows after"
+  }
+ ]
+}

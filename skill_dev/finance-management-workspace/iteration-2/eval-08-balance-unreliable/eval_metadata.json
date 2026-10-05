@@ -1,0 +1,10 @@
+{
+ "eval_id": 8,
+ "eval_name": "balance-unreliable",
+ "prompt": "What's my current bank balance?",
+ "assertions": [
+  "Reports a balance of about $979.54 as of 2026-09-18 (the last transaction), not -$49,140.46 as the real balance",
+  "Explains why the stored Current Balance (-$49,140.46) is wrong: incoming transfers are counted as money out",
+  "Says the figure is only as of the last imported transaction and suggests checking the bank for today's balance"
+ ]
+}

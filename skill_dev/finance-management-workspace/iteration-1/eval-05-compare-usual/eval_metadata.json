@@ -1,0 +1,11 @@
+{
+ "eval_id": 5,
+ "eval_name": "compare-usual",
+ "prompt": "Did I spend more than usual in August?",
+ "assertions": [
+  "Compares August 2026 against a stated baseline (e.g. the 3 months before)",
+  "Reports $6,677.06 for August",
+  "If the baseline is May-Jul average, reports $6,332.80 and about +5.4%",
+  "Names at least one category driving the difference"
+ ]
+}

@@ -1,0 +1,31 @@
+{
+ "eval_id": 8,
+ "configuration": "without_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 871.5,
+  "tokens": 60568,
+  "tool_calls": 18,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Reports the computed figure (-$49,140.46) for the ANZ account",
+   "passed": true,
+   "evidence": "DB figure -$49,140.46 shown"
+  },
+  {
+   "text": "Says clearly that the figure is unreliable because income or accounts are missing",
+   "passed": true,
+   "evidence": "explains it is wrong: 22 incoming transfers signed negative"
+  },
+  {
+   "text": "Does not state it as the real bank balance",
+   "passed": true,
+   "evidence": "gives corrected $979.54 as of 18 Sep with caveats, check app"
+  }
+ ]
+}

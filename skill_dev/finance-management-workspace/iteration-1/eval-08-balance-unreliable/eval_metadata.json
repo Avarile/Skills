@@ -1,0 +1,10 @@
+{
+ "eval_id": 8,
+ "eval_name": "balance-unreliable",
+ "prompt": "What's my current bank balance?",
+ "assertions": [
+  "Reports the computed figure (-$49,140.46) for the ANZ account",
+  "Says clearly that the figure is unreliable because income or accounts are missing",
+  "Does not state it as the real bank balance"
+ ]
+}

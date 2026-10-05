@@ -1,0 +1,10 @@
+{
+ "eval_id": 3,
+ "eval_name": "payee-search",
+ "prompt": "How much have I paid Allianz over the last year, and how often?",
+ "assertions": [
+  "Resolves the payee 'Allianz Insurance' (does not guess an unrelated payee)",
+  "Reports a total of $2,601.46",
+  "Describes the frequency as monthly and ideally notes two separate policies (~$117.31 and ~$119.03)"
+ ]
+}

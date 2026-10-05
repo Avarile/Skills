@@ -1,0 +1,41 @@
+{
+ "eval_id": 1,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "time_seconds": 245.4,
+  "tokens": 39494,
+  "tool_calls": 6,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Uses the finance tables (fin.py cost or equivalent filtered query), not an estimate",
+   "passed": true,
+   "evidence": "fin.py cost (+ --anchor 2026-08)"
+  },
+  {
+   "text": "Reports all four windows with totals matching 1,123.79 / 13,673.68 / 28,765.30 / 62,985.47 (net spend: expenses minus refunds, transfers excluded)",
+   "passed": true,
+   "evidence": "Oct-Sep windows 1,123.79/13,673.68/28,765.30/62,985.47 reported (as partial), Aug-anchored headline"
+  },
+  {
+   "text": "Gives a monthly average for the longer windows",
+   "passed": true,
+   "evidence": "per-month column"
+  },
+  {
+   "text": "Warns that the data ends 2026-09-18, so September (and every window ending in it) is understated, or offers --anchor 2026-08",
+   "passed": true,
+   "evidence": "data ends 2026-09-18; anchored to Aug"
+  },
+  {
+   "text": "States that transfers are excluded from cost",
+   "passed": true,
+   "evidence": "transfers excluded stated"
+  }
+ ]
+}

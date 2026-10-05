@@ -1,0 +1,31 @@
+{
+ "eval_id": 3,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 369.1,
+  "tokens": 41343,
+  "tool_calls": 8,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Resolves the payee 'Allianz Insurance' (does not guess an unrelated payee)",
+   "passed": true,
+   "evidence": "Allianz Insurance resolved"
+  },
+  {
+   "text": "Reports a total of $2,601.46",
+   "passed": true,
+   "evidence": "$2,601.46 / 22 payments"
+  },
+  {
+   "text": "Describes the frequency as monthly and ideally notes two separate policies (~$117.31 and ~$119.03)",
+   "passed": true,
+   "evidence": "monthly, two policies $119.03/$117.31"
+  }
+ ]
+}

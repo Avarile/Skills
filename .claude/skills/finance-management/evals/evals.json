@@ -1,0 +1,171 @@
+{
+ "skill_name": "finance-management",
+ "note": "Expected figures were computed on 2026-10-05 from live data (1102 transactions, 2025-10-30..2026-09-18). Recompute with fin.py before grading if the data has changed. Write prompts must stop at a dry run: the grader checks that nothing was written. Iteration 2 (2026-10-05): eval 4 gained an irregular-bills assertion; eval 8 now expects the corrected balance (the iteration-1 assertion encoded a wrong hypothesis). Clean-up on 2026-10-05/06 changed some figures: 2 rows moved to Refunds (12m net spend 62,985.47 -> 62,799.21), and account 807590005 was linked (the Current Balance field now reads 979.54; August transfers are now own-account). Recompute expected figures with fin.py before grading.",
+ "evals": [
+  {
+   "id": 1,
+   "name": "cost-windows",
+   "prompt": "What are my monthly, 3-month, 6-month and yearly costs?",
+   "expected_output": "One cost-window report: last month $1,123.79, 3 months $13,673.68 ($4,557.89/month), 6 months $28,765.30 ($4,794.22/month), 12 months $62,985.47 ($5,248.79/month); flags that data ends 2026-09-18 so September is partial.",
+   "files": [],
+   "assertions": [
+    "Uses the finance tables (fin.py cost or equivalent filtered query), not an estimate",
+    "Reports all four windows with totals matching 1,123.79 / 13,673.68 / 28,765.30 / 62,985.47 (net spend: expenses minus refunds, transfers excluded)",
+    "Gives a monthly average for the longer windows",
+    "Warns that the data ends 2026-09-18, so September (and every window ending in it) is understated, or offers --anchor 2026-08",
+    "States that transfers are excluded from cost"
+   ]
+  },
+  {
+   "id": 2,
+   "name": "category-6m",
+   "prompt": "How much did I spend on food in the last 6 months?",
+   "expected_output": "Food net spend for Apr..Sep 2026 = $5,577.04 (about $929/month), with the partial-September caveat.",
+   "files": [],
+   "assertions": [
+    "Filters on the Food category (not a text search for 'food')",
+    "Reports $5,577.04 for 2026-04..2026-09 (6 complete calendar months)",
+    "Names the period's dates",
+    "Mentions September is partial (data ends 2026-09-18)"
+   ]
+  },
+  {
+   "id": 3,
+   "name": "payee-search",
+   "prompt": "How much have I paid Allianz over the last year, and how often?",
+   "expected_output": "About $2,601.46 across 22 payments (two policies, ~$117 and ~$119 monthly).",
+   "files": [],
+   "assertions": [
+    "Resolves the payee 'Allianz Insurance' (does not guess an unrelated payee)",
+    "Reports a total of $2,601.46",
+    "Describes the frequency as monthly and ideally notes two separate policies (~$117.31 and ~$119.03)"
+   ]
+  },
+  {
+   "id": 4,
+   "name": "subscriptions",
+   "prompt": "What subscriptions and regular bills am I paying, and what do they cost per year?",
+   "expected_output": "Active recurring list (Allianz x2, Dodo, ahm, Amaysim, Amazon Prime, NestJS, Retell AI, plus the monthly Aiyun Yu transfer), ~$3,211/month in total; stopped ones (Clink, Lumo, Telstra, Postiz, Twinkl, Cloudflare) listed as stopped or left out. Also lists annual/irregular bills paid in the last 12 months (council rates, rego, water, Anthropic, school fees) and regular transfers (Wang Junyang $2,357.36/month, now stopped or late); Amaysim bills every 28 days.",
+   "files": [],
+   "assertions": [
+    "Uses recurring detection over transactions (fin.py recurring or equivalent), not only the Recurring checkbox",
+    "Lists Dodo, Amaysim, Amazon Prime, ahm Health Insurance and Allianz Insurance with monthly and yearly cost",
+    "Does not present Lumo Energy, Telstra or Postiz as current (they stopped)",
+    "Points out that the $2,816/month Aiyun Yu payment is a personal transfer rather than a subscription, or reports it separately",
+    "Covers annual or irregular bills paid in the last 12 months (e.g. Wyndham council rates, Yarra Valley Water, Anthropic), not only monthly ones"
+   ]
+  },
+  {
+   "id": 5,
+   "name": "compare-usual",
+   "prompt": "Did I spend more than usual in August?",
+   "expected_output": "August net spend $6,677.06 vs $6,332.80 average of May-Jul: +$344.26 (+5.4%); biggest movers by category.",
+   "files": [],
+   "assertions": [
+    "Compares August 2026 against a stated baseline (e.g. the 3 months before)",
+    "Reports $6,677.06 for August",
+    "If the baseline is May-Jul average, reports $6,332.80 and about +5.4%",
+    "Names at least one category driving the difference"
+   ]
+  },
+  {
+   "id": 6,
+   "name": "fy-business",
+   "prompt": "What was my business income and business expenses for FY2026?",
+   "expected_output": "FY2026 (Jul 2025-Jun 2026): business income $133,139.27, business expenses $1,003.86; data starts 2025-10-30 so Jul-Oct 2025 is missing; not tax advice.",
+   "files": [],
+   "assertions": [
+    "Uses the Australian financial year 2025-07-01..2026-06-30",
+    "Takes business vs personal from the category scope (not the transaction Scope field, which is Personal on every row)",
+    "Reports business income $133,139.27 and business expenses $1,003.86",
+    "Warns that data starts 2025-10-30, so the year is incomplete",
+    "Does not present the figures as tax advice"
+   ]
+  },
+  {
+   "id": 7,
+   "name": "partial-month",
+   "prompt": "How much did I spend in September?",
+   "expected_output": "$1,123.79 recorded, but data stops on 2026-09-18, so this is about 18 of 30 days; not a real drop in spending.",
+   "files": [],
+   "assertions": [
+    "Reports $1,123.79",
+    "Explicitly says the September figure is partial because the data ends 2026-09-18",
+    "Does not claim spending fell sharply in September"
+   ]
+  },
+  {
+   "id": 8,
+   "name": "balance-unreliable",
+   "prompt": "What's my current bank balance?",
+   "expected_output": "Corrected balance about $979.54 at 2026-09-18 (the last transaction). The stored Current Balance of -$49,140.46 is wrong because 22 incoming transfers are signed as outflows. Advises checking the bank for today's figure.",
+   "files": [],
+   "assertions": [
+    "Reports a balance of about $979.54 as of 2026-09-18 (the last transaction), not -$49,140.46 as the real balance",
+    "Explains why the stored Current Balance (-$49,140.46) is wrong: incoming transfers are counted as money out",
+    "Says the figure is only as of the last imported transaction and suggests checking the bank for today's balance"
+   ]
+  },
+  {
+   "id": 9,
+   "name": "exclude-payee",
+   "prompt": "What did I spend over the last 12 months if you leave out the payments to Aiyun Yu?",
+   "expected_output": "$34,825.47 (12 months Oct 2025-Sep 2026, net spend without payee Aiyun Yu); with them $62,985.47.",
+   "files": [],
+   "assertions": [
+    "Excludes the payee Aiyun Yu (not the whole Personal Transfers category, which also holds other people)",
+    "Reports $34,825.47",
+    "Optionally gives the total with them ($62,985.47) for contrast"
+   ]
+  },
+  {
+   "id": 10,
+   "name": "duplicates-no-delete",
+   "prompt": "Are there any duplicate transactions? Clean them up.",
+   "expected_output": "Lists the 9 possible duplicate groups with ids, explains that same-day repeats can be genuine, and asks which to remove; deletes nothing without confirmation.",
+   "files": [],
+   "assertions": [
+    "Finds the 9 possible duplicate groups (same date, type, amount, payee)",
+    "Shows record ids for each group",
+    "Asks the user to confirm before deleting anything; at most runs a dry-run delete",
+    "Row count of finance_Transactions is unchanged after the run (1102)"
+   ]
+  },
+  {
+   "id": 11,
+   "name": "payee-default-dry-run",
+   "prompt": "Make Woolworths always go to the Food category.",
+   "expected_output": "Dry run of payee-default Woolworths -> Food (and possibly categorize for its rows), shown to the user with a request to confirm; nothing written yet.",
+   "files": [],
+   "assertions": [
+    "Uses payee-default (sets the payee's Default Category) rather than editing transactions one by one",
+    "Shows a dry-run preview: current default (none) -> Food",
+    "Does not write without the user's confirmation (Woolworths Default Category is still empty after the run)"
+   ]
+  },
+  {
+   "id": 12,
+   "name": "budget-suggest",
+   "prompt": "Suggest a sensible monthly budget for me based on my history.",
+   "expected_output": "Per-category suggestions from complete months (e.g. Food ~$880, Insurance ~$280), method stated, using months up to August because September is partial; offers to set them but creates nothing.",
+   "files": [],
+   "assertions": [
+    "Uses per-category history over several complete months (median or average stated)",
+    "Avoids or flags the partial September month",
+    "Gives a per-category list with a total",
+    "Does not create budget rows without approval (finance_Budgets still has 0 rows)"
+   ]
+  },
+  {
+   "id": 13,
+   "name": "not-finance",
+   "prompt": "Add a task to my project to review the finance skill tomorrow.",
+   "expected_output": "Recognises this as project-management work (a task), not a finance write; does not touch finance tables.",
+   "files": [],
+   "assertions": [
+    "Does not run any finance write command",
+    "Routes to the project-management skill / tasks table (or says so)"
+   ]
+  }
+ ]
+}

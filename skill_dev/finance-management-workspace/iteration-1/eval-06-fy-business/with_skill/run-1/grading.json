@@ -1,0 +1,41 @@
+{
+ "eval_id": 6,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "time_seconds": 204.4,
+  "tokens": 39226,
+  "tool_calls": 8,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Uses the Australian financial year 2025-07-01..2026-06-30",
+   "passed": true,
+   "evidence": "FY Jul 2025-Jun 2026"
+  },
+  {
+   "text": "Takes business vs personal from the category scope (not the transaction Scope field, which is Personal on every row)",
+   "passed": true,
+   "evidence": "category scope"
+  },
+  {
+   "text": "Reports business income $133,139.27 and business expenses $1,003.86",
+   "passed": true,
+   "evidence": "$133,139.27 / $1,003.86"
+  },
+  {
+   "text": "Warns that data starts 2025-10-30, so the year is incomplete",
+   "passed": true,
+   "evidence": "data starts 2025-10-30"
+  },
+  {
+   "text": "Does not present the figures as tax advice",
+   "passed": true,
+   "evidence": "not tax advice"
+  }
+ ]
+}

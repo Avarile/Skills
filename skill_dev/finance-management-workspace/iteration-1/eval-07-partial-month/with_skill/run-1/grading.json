@@ -1,0 +1,31 @@
+{
+ "eval_id": 7,
+ "configuration": "with_skill",
+ "result": {
+  "pass_rate": 1.0,
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "time_seconds": 164.8,
+  "tokens": 38946,
+  "tool_calls": 8,
+  "errors": 0
+ },
+ "expectations": [
+  {
+   "text": "Reports $1,123.79",
+   "passed": true,
+   "evidence": "$1,123.79"
+  },
+  {
+   "text": "Explicitly says the September figure is partial because the data ends 2026-09-18",
+   "passed": true,
+   "evidence": "partial to 18 Sep"
+  },
+  {
+   "text": "Does not claim spending fell sharply in September",
+   "passed": true,
+   "evidence": "no false drop claim"
+  }
+ ]
+}
