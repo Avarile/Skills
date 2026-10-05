@@ -16,7 +16,7 @@ PROJECTS, GOALS, TASKS = "tbliD8gcOTRk9RZ9SmR", "tblbGSzWdR7KEtPVClg", "tblOMgDi
 # thresholds (keep in sync with references/reports.md)
 STALE_DAYS, STATUS_GAP_DAYS, GATE_OVERDUE_RED, OVERDUE_RATIO_RED, ONHOLD_RED_DAYS = 14, 10, 3, 0.25, 14
 SPI_AMBER, SPI_RED, INBOX_DAYS = 0.85, 0.70, 7
-DONE_T = {"finished_reviewing", "finished_validating"}
+DONE_T = {"finished_reviewing", "finished_validating", "closed"}
 DONE_P = {"finished-reviewing", "finished-validating", "finished-testing", "finalized"}
 TF = dict(title="fldGqUoXO7oyq6ufX2Y", ctx="fldaOhjcXqdiF3IRVB1", prog="fldG7fZN9XhOa0lMy33", prio="fldMTuydiWUFAgtqAPX",
           proj="fld6X3nrMTQlYiV5XSa", who="fld3ZGyfGzogzwHt5Md", active="fldJMclfBagyBukSxoy", created="fldYNEyagDaFRoxV8zF")

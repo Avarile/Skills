@@ -18,10 +18,10 @@ All numbers are computed from rows read in the same run, so agent and human see 
 
 ## Definitions
 
-- **Open task:** `is_active` and progress not in `finished_reviewing`, `finished_validating`, `cancelled`.
+- **Open task:** `is_active` and progress not in `finished_reviewing`, `finished_validating`, `closed`, `cancelled`.
 - **Due:** the `Due:` line in task `context` (or the due-date field if the probe found one). No due date -> counted as "undated", reported, not overdue.
 - **Overdue:** open and Due < today.
-- **Completion:** finished / (total - cancelled), where finished = `finished_reviewing` or `finished_validating`.
+- **Completion:** finished / (total - cancelled), where finished = `finished_reviewing`, `finished_validating` or `closed`.
 - **SPI:** tasks finished / tasks with Due <= today, optionally weighted by `Est:`.
 - **Project RAG:** Red if a gate/critical task is >3 days overdue, or overdue ratio >25%, or `onhold` >14 days, or the goal deadline has passed with the project unfinished. Amber if any task is overdue, SPI < 0.85, an open high-impact risk has no mitigation, or status gap >10 days. Otherwise Green. Say which rule fired.
 - **Goal:** average KR score, runway = days to `deadline`, projects by RAG.

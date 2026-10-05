@@ -95,12 +95,12 @@ title `fldi05ZCxsEFOEwJDlD`, context `fldtxhDAHpdRIwUZjjM`, type `fldX8DlWEqoxTA
 | `in-progress` | `finished_validating` | `normal` |
 | `finished-reviewing` | `onhold` | `can wait` |
 | `finished-validating` | `cancelled` | |
-| `finished-testing` | | |
+| `finished-testing` | `closed` | |
 | `finalized` | | |
 | `onhold` | | |
 | `cancelled` | | |
 
-Priority order: urgent > important > prioritise > normal > can wait. Tasks have no `finalized` or `finished_testing`.
+Priority order: urgent > important > prioritise > normal > can wait. Tasks have no `finalized` or `finished_testing`. Task `closed` (added by the owner 2026-10-05) is the final done state, set when the user asks to close tasks or at project close; it counts as finished everywhere.
 
 ## Link write shapes
 

@@ -56,7 +56,7 @@ Never auto-advance. Suggest: "all 6 tasks finished; move project to `finished-re
 - `context` line 1: `Due: YYYY-MM-DD`. Optional lines: `Gate: <what it unlocks>`, `Depends: Step 03`, `Est: 2d`, `Acceptance: ...`. Then `## Log` (append-only, dated, with evidence).
 - A **gate task** blocks every later DO task. Starting a DO task while its gate is unfinished is flagged, not silently allowed.
 - Every project has at least one CHECK and one ACT task (retro, lessons -> knowledge).
-- Status: default start `backlog`. "Done" = `finished_validating`; `finished_reviewing` = delivered, awaiting check.
+- Status: default start `backlog`. "Done" = `finished_validating`; `finished_reviewing` = delivered, awaiting check; `closed` = closed out (user asked to close, or project close).
 - Priority: `urgent` (today/blocking), `important`, `prioritise`, `normal` (default), `can wait`.
 
 ## Task skeleton templates (derived from the existing mock rows; Phase 1 stores them in `assets/templates/`)

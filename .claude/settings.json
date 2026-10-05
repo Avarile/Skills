@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 skill_dev/knowledge-management/scripts/kb.py *)",
+      "Bash(python3 .claude/skills/knowledge-management/scripts/kb.py *)"
+    ],
+    "ask": [
+      "Bash(python3 skill_dev/knowledge-management/scripts/kb.py * --yes*)",
+      "Bash(python3 .claude/skills/knowledge-management/scripts/kb.py * --yes*)"
+    ]
+  }
+}

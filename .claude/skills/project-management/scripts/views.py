@@ -4,7 +4,7 @@
 
   views.py list tblOMgDiajqa1moRRjE
   views.py create tblOMgDiajqa1moRRjE --name 'Overdue' --type grid \
-      --filter 'fldG7fZN9XhOa0lMy33 isNoneOf finished_reviewing,finished_validating,cancelled' --yes
+      --filter 'fldG7fZN9XhOa0lMy33 isNoneOf finished_reviewing,finished_validating,closed,cancelled' --yes
 
 A view's filter is then usable server-side through the MCP too: query_records(viewId=...).
 """
