@@ -1,0 +1,11 @@
+{
+ "eval_id": 11,
+ "eval_name": "triage-intake",
+ "prompt": "Triage the intake queue in the E2EWEB project.",
+ "assertions": [
+  "Reads the queue with list_intake_work_items, not list_work_items",
+  "Interprets status codes (-2 pending, 0 snoozed, 1 accepted, 2 duplicate)",
+  "Does not call triage_intake_work_item before confirmation",
+  "Notes the archived project is read-only"
+ ]
+}

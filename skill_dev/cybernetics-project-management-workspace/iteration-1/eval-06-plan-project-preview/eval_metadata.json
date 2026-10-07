@@ -1,0 +1,11 @@
+{
+ "eval_id": 6,
+ "eval_name": "plan-project-preview",
+ "prompt": "Plan a project in cybernetics-project to migrate our docs site: 3 phases, 10 tasks, two weeks.",
+ "assertions": [
+  "Shows counts for projects, modules, labels, items and relations",
+  "Names items 'Step NN Verb object' with dates inside the two weeks",
+  "Asks for confirmation and the project lead before create_project",
+  "Makes no write call"
+ ]
+}

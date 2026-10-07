@@ -1,0 +1,11 @@
+{
+ "eval_id": 14,
+ "eval_name": "history-last-page",
+ "prompt": "Who changed the state of PMSKX-6 and when?",
+ "assertions": [
+  "Uses per_page up to 100 or follows next_page_results to the end (activities are oldest first)",
+  "Prints date, actor, field, old -> new for state changes",
+  "Does not claim comments appear in the activity list",
+  "Makes no write call"
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "eval_id": 7,
+ "eval_name": "assign-replaces",
+ "prompt": "Assign PLANESKILL-18 to me.",
+ "assertions": [
+  "Calls get_work_item (or equivalent) before update_work_item",
+  "Takes the user id from list_project_members or get_current_user",
+  "Does not drop an existing assignee silently",
+  "Reads back the assignees"
+ ]
+}

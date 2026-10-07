@@ -1,0 +1,10 @@
+{
+ "eval_id": 8,
+ "eval_name": "block-direction",
+ "prompt": "PLANESKILL-14 can't start until PLANESKILL-13 is done. Record that.",
+ "assertions": [
+  "Uses work_item_id = PLANESKILL-14 and relation_type = blocked_by with 13 as related",
+  "Verifies the direction with list_work_item_relations",
+  "Does not claim it can later remove the relation"
+ ]
+}

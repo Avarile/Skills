@@ -1,0 +1,12 @@
+{
+ "eval_id": 1,
+ "eval_name": "plate-human",
+ "prompt": "What's on my plate in cybernetics-project this week?",
+ "assertions": [
+  "Filters server-side with assignees=['me'] and open state groups (no client-side filtering of an unfiltered dump)",
+  "Pages until next_offset is null or states the row count it used",
+  "Buckets by target_date against today's date from the conversation",
+  "Opens with decisions needed or says there are none",
+  "Makes no write call"
+ ]
+}

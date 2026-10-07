@@ -1,0 +1,11 @@
+{
+ "eval_id": 4,
+ "eval_name": "capture-inbox",
+ "prompt": "Add a task in cybernetics-project: renew the SSL certificate for staging, urgent.",
+ "assertions": [
+  "Uses priority value 'urgent' exactly",
+  "Resolves the backlog-group state id from list_states rather than a name guess",
+  "Does not invent labels",
+  "Reads the item back and reports its key"
+ ]
+}

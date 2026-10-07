@@ -1,6 +1,6 @@
 # Agent protocol
 
-For an AI agent (Claude Code or an agentic member) doing work tracked in Plane.
+For an AI agent (Claude Code or an agentic member) doing work tracked in cybernetics.
 
 ## Autonomy ceiling
 Allowed without asking: read anything; create items in a project you were assigned to; comment; move an item you own between unstarted, started and completed (with evidence); add links; add `blocked_by` relations.

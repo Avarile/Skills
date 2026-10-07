@@ -1,0 +1,11 @@
+{
+ "eval_id": 2,
+ "eval_name": "status-project",
+ "prompt": "How is the Plane PM Skill project doing?",
+ "assertions": [
+  "Resolves the project id via list_projects instead of guessing it",
+  "Excludes parent items from % done or states they are included",
+  "Names the RAG rule that fired and the number of rows used",
+  "Identifies the next incomplete parent item and its target_date"
+ ]
+}

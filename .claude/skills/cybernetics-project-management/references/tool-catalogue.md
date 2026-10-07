@@ -1,4 +1,4 @@
-# Tool catalogue: cybernetics-project-management (Plane)
+# Tool catalogue: cybernetics-project-management
 
 Prefix every name with `mcp__claude_ai_cybernetics-project-management__` (load with ToolSearch `select:`). Verified 2026-10-07 against the live schemas. Every call takes `workspace_slug` (here `cybernetics`); project-scoped calls also take `project_id` (UUID). `R` = required args beyond those two.
 

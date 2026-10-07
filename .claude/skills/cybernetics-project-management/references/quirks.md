@@ -1,4 +1,4 @@
-# Quirks of the Plane MCP (probed 2026-10-07)
+# Quirks of the cybernetics MCP (probed 2026-10-07)
 
 Each line says how it was established. "Tested" = observed live, "schema" = read from the tool schema only, "untested" = could not be checked.
 

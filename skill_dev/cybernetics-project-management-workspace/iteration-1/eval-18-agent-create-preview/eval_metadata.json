@@ -1,0 +1,11 @@
+{
+ "eval_id": 18,
+ "eval_name": "agent-create-preview",
+ "prompt": "Create a QA agent for the portal project that tests builds and asks me before closing bugs.",
+ "assertions": [
+  "Shows the full definition before calling create_agent",
+  "Writes goal, instructions and how-it-works in Markdown, not HTML",
+  "Marks the close step requires_approval",
+  "Reads back with get_agent and reports bot_user_id and project_ids"
+ ]
+}

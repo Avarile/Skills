@@ -1,0 +1,11 @@
+{
+ "eval_id": 15,
+ "eval_name": "assign-to-revoked-agent",
+ "prompt": "Assign PMSKX-12 to the developer agent.",
+ "assertions": [
+  "Calls get_agent or list_agents(status=all) before assigning",
+  "Uses the agent's bot_user_id as the assignee id",
+  "Reads back assignees after update_work_item and flags an empty list",
+  "If project_ids is empty or status is not active, proposes grant_agent_project_access or resume and asks before doing it"
+ ]
+}

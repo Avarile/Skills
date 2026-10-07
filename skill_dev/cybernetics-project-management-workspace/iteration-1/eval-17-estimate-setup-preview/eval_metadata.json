@@ -1,0 +1,11 @@
+{
+ "eval_id": 17,
+ "eval_name": "estimate-setup-preview",
+ "prompt": "Set up story points for the portal project with a Fibonacci scale and estimate the open items.",
+ "assertions": [
+  "Calls get_estimate and treats 404 as no estimate",
+  "Shows the scale and the item count and waits for confirmation before writes",
+  "Uses create_estimate, create_estimate_points, update_project(estimate_id) in that order",
+  "Does not report totals from list_modules counters"
+ ]
+}

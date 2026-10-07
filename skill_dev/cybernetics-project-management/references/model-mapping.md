@@ -1,11 +1,11 @@
-# Model mapping: PDCA / OKR onto Plane
+# Model mapping: PDCA / OKR onto cybernetics
 
-Plane has no goal or phase object, so some concepts are conventions. Conventions are marked **(convention)**.
+Cybernetics has no goal or phase object, so some concepts are conventions. Conventions are marked **(convention)**.
 
-| Concept | Plane object | Notes |
+| Concept | cybernetics object | Notes |
 |---|---|---|
 | Organisation | Workspace (`cybernetics`) | one today |
-| Goal / Objective + Key Results | **(convention)** first lines of the project `description`: `Objective: ...` then `KR1: ...` (max 3) | Plane has no OKR object. Stickies are personal and must not hold goals. |
+| Goal / Objective + Key Results | **(convention)** first lines of the project `description`: `Objective: ...` then `KR1: ...` (max 3) | Cybernetics has no OKR object. Stickies are personal and must not hold goals. |
 | Project (one PDCA cycle moving a KR) | Project, identifier = 3-12 uppercase chars | Lead = `project_lead_id`. One accountable lead. |
 | PDCA phase / deliverable group | Module (status `planned` -> `in-progress` -> `completed`) | Plan/Do/Check/Act, or domain phases such as Discovery, Design, Build, Verify, Rollout. Module dates bracket its items. |
 | Phase gate / parent task | Parent work item named `[Phase] ...` with the step items as sub-items | Gate acceptance goes in its description. |
@@ -17,7 +17,7 @@ Plane has no goal or phase object, so some concepts are conventions. Conventions
 | Estimate | Estimate system + `estimate_point_id` | Optional; create only on request. |
 | Evidence | Dated comment: `YYYY-MM-DD Evidence: ...` | Required when finishing. |
 | Risk / change / blocker log | Work item with label `risk` (or comment on the affected item) | No log table exists. |
-| Retro / lessons | Comment on the closing item plus the knowledge-management skill | Plane pages are not reachable via MCP. |
+| Retro / lessons | Comment on the closing item plus the knowledge-management skill | cybernetics pages are not reachable via MCP. |
 | Inbox | Intake queue if enabled, else a project titled `Inbox` | |
 
 ## States

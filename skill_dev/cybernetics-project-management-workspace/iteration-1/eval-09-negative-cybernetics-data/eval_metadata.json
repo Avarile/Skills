@@ -1,0 +1,9 @@
+{
+ "eval_id": 9,
+ "eval_name": "negative-cybernetics-data",
+ "prompt": "Show my goals and KRs in the cybernetics-data base.",
+ "assertions": [
+  "Does not call any cybernetics-project-management tool",
+  "Names project-management (cybernetics-data) as the right skill"
+ ]
+}

@@ -55,13 +55,13 @@ Key (`ABC-12`): `get_work_item(key)`. Words: `list_work_items(project_id, name_c
 Add: `add_work_item_comment` with escaped HTML; agent mode starts with `[handle]`. List is newest first. Editing leaves `edited_at` null, so say "edited" yourself if it matters. Confirm before editing or deleting a comment someone else wrote.
 
 ## history
-`list_work_item_activities(per_page=100)`; oldest first, so read to the last page (`next_page_results`). It has state, assignee, label, date and relation changes but no comments or links; read `list_work_item_comments` for those. Print `date actor: field old -> new`. For a project-wide "this week" view, state how many items were sampled.
+`list_work_item_activities(per_page=100)`; oldest first, so read to the last page (`next_page_results`). It has state, assignee, label, date, relation and link changes but no comments; read `list_work_item_comments` for those. Print `date actor: field old -> new`. For a project-wide "this week" view, state how many items were sampled.
 
 ## estimate
 1. `get_estimate`: 404 means none. 2. Preview the scale (for example 1, 2, 3, 5, 8, 13) and wait. 3. `create_estimate`, `create_estimate_points`, `update_project(estimate_id)`. 4. `update_work_item(estimate_point_id)` per item (count first). 5. Report points by module from `list_work_items(module_id)`, not from module counters (quirk 43). Changing a point's value changes it for every item that uses it.
 
 ## members (human mode only)
-`list_project_members` and `list_workspace_members` first; say who is admin. Never change the token owner's or the project lead's role, and never demote the last admin (quirk 36). Roles: admin, member, guest. Do not add archived agents (quirk 37). Adding an agent to a project goes through `agents`, not here.
+`list_project_members` and `list_workspace_members` first; say who is admin. Never change the token owner's or the project lead's role, and never demote the last admin (quirk 36). Roles: admin, member, guest. Do not add archived agents (quirk 37). Read `list_project_members` back after a removal and again after an unarchive; a removed member reappeared once (quirk 48). Adding an agent to a project goes through `agents`, not here.
 
 ## workflow (human mode only)
 States: `create_state(name, group, color)`; the group decides progress. Never rename the state that holds "done" to something else without saying; resolve done by group. Labels: nest with `parent_id`; renaming or recolouring touches every item that carries it. Show the plan, wait for yes, read back with `list_states` / `list_labels`.
@@ -70,7 +70,7 @@ States: `create_state(name, group, color)`; the group decides progress. Never re
 - **Create:** Markdown for every `_md` field, 3-6 workflow steps, `requires_approval` on steps that change shared state, `project_ids` for access, a handle `^[a-z0-9][a-z0-9_-]{1,47}$`. No secrets. Preview the definition first.
 - **Change:** `update_agent` with `change_note`. Definition changes bump the version and write a revision; pause and accept_assignments do not (quirk 33). `get_agent_context(version)` pins an older version.
 - **Pause or stop new work:** `status=paused` or `accept_assignments=false`; new assignments are then rejected with 400 (quirk 32); existing items stay.
-- **Access:** `grant_agent_project_access` / `revoke_agent_project_access`. After a revoke, assigning silently drops the assignee (quirk 34); after any assignment read back `assignees`.
+- **Access:** `grant_agent_project_access` / `revoke_agent_project_access`. Without access, assigning silently drops the assignee, including one already on the item (quirks 34, 47); check `get_agent.project_ids` first and read back `assignees` after.
 - **Retire:** list `list_agent_work_items`, re-assign or finish open items, then `archive_agent` (assignments stay otherwise, quirk 21).
 
 ## restore

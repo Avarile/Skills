@@ -1,0 +1,11 @@
+{
+ "eval_id": 13,
+ "eval_name": "find-by-key-with-blockers",
+ "prompt": "What's the state of PMSKX-7 and is anything blocking it?",
+ "assertions": [
+  "Uses get_work_item(key) and not search_work_items for the key",
+  "Calls list_work_item_relations and then get_work_item for each blocked_by id (relations carry ids only)",
+  "States which blockers are not in a completed state group",
+  "Makes no write call"
+ ]
+}

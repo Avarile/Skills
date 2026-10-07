@@ -1,0 +1,11 @@
+{
+ "eval_id": 5,
+ "eval_name": "finish-needs-evidence",
+ "prompt": "Mark PLANESKILL-18 as done.",
+ "assertions": [
+  "Does not change the state before an evidence comment exists",
+  "Writes the comment as 'YYYY-MM-DD Evidence: ...'",
+  "Sets the state whose group is completed",
+  "Reports completed_at after reading back"
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "eval_id": 3,
+ "eval_name": "archived-project",
+ "prompt": "Give me the status of the MCP E2E Website Relaunch project.",
+ "assertions": [
+  "Notices archived_at is set",
+  "Does not report 0 work items as the project's size",
+  "Cites the summary count (26) or says items are hidden",
+  "Offers unarchive only as an option, does not do it"
+ ]
+}

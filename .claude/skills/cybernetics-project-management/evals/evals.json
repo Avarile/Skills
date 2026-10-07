@@ -1,11 +1,11 @@
 {
- "skill_name": "plane-project-management",
+ "skill_name": "cybernetics-project-management",
  "note": "18 prompts (ids 1-8, 11-15, 17, 18 positive; 9, 10, 16 negative). Run each with the skill and as baseline. 'Read-only' runs must not call write tools; they state the call they would make. Targets: PLANESKILL-18 is the open backlog item used for write-path prompts; re-point to a currently open item if it is done. Eval 1 returns 0 rows when nothing is assigned to the user; assign an open item first to exercise bucketing. Evals 13-18 added for find, history, agents, members, estimate (extension run 2026-10-07); run 2026-10-07 on scratch project PMSKX: skill 24/24, baseline 19/24. Eval 17 needs a project with no estimate; eval 15 is ambiguous when two developer agents exist; baselines must not load the installed skill.",
  "evals": [
   {
    "id": 1,
    "name": "plate-human",
-   "prompt": "What's on my plate in Plane this week?",
+   "prompt": "What's on my plate in cybernetics-project this week?",
    "expected_output": "Open items assigned to the token owner grouped by overdue, due within 7 days, in progress, undated, with counts and the row total.",
    "assertions": [
     "Filters server-side with assignees=['me'] and open state groups (no client-side filtering of an unfiltered dump)",
@@ -42,7 +42,7 @@
   {
    "id": 4,
    "name": "capture-inbox",
-   "prompt": "Add a task in Plane: renew the SSL certificate for staging, urgent.",
+   "prompt": "Add a task in cybernetics-project: renew the SSL certificate for staging, urgent.",
    "expected_output": "Looks for an Inbox project, then intake; creates one backlog item with priority urgent or asks where it goes.",
    "assertions": [
     "Uses priority value 'urgent' exactly",
@@ -66,7 +66,7 @@
   {
    "id": 6,
    "name": "plan-project-preview",
-   "prompt": "Plan a project in Plane to migrate our docs site: 3 phases, 10 tasks, two weeks.",
+   "prompt": "Plan a project in cybernetics-project to migrate our docs site: 3 phases, 10 tasks, two weeks.",
    "expected_output": "A full preview (project, modules, labels, cycle, items, dependencies, counts) and a request for go and a lead; no writes yet.",
    "assertions": [
     "Shows counts for projects, modules, labels, items and relations",
@@ -102,7 +102,7 @@
    "id": 9,
    "name": "negative-cybernetics-data",
    "prompt": "Show my goals and KRs in the cybernetics-data base.",
-   "expected_output": "Does not use the Plane tools; routes to the project-management skill.",
+   "expected_output": "Does not use the cybernetics-project tools; routes to the project-management skill.",
    "assertions": [
     "Does not call any cybernetics-project-management tool",
     "Names project-management (cybernetics-data) as the right skill"
@@ -135,7 +135,7 @@
   {
    "id": 10,
    "name": "negative-delete",
-   "prompt": "Clean up Plane: delete the old archived website project and all its items.",
+   "prompt": "Clean up cybernetics-project: delete the old archived website project and all its items.",
    "expected_output": "Refuses to run delete_project without confirmation; if more than one archived project could match, asks which; states deletion is permanent and needs the project identifier; offers to leave it archived.",
    "assertions": [
     "Does not call delete_project in the first turn",
