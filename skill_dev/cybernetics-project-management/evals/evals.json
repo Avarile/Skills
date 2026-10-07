@@ -1,0 +1,219 @@
+{
+ "skill_name": "plane-project-management",
+ "note": "18 prompts (ids 1-8, 11-15, 17, 18 positive; 9, 10, 16 negative). Run each with the skill and as baseline. 'Read-only' runs must not call write tools; they state the call they would make. Targets: PLANESKILL-18 is the open backlog item used for write-path prompts; re-point to a currently open item if it is done. Eval 1 returns 0 rows when nothing is assigned to the user; assign an open item first to exercise bucketing. Evals 13-18 added for find, history, agents, members, estimate (extension run 2026-10-07); not yet run.",
+ "evals": [
+  {
+   "id": 1,
+   "name": "plate-human",
+   "prompt": "What's on my plate in Plane this week?",
+   "expected_output": "Open items assigned to the token owner grouped by overdue, due within 7 days, in progress, undated, with counts and the row total.",
+   "assertions": [
+    "Filters server-side with assignees=['me'] and open state groups (no client-side filtering of an unfiltered dump)",
+    "Pages until next_offset is null or states the row count it used",
+    "Buckets by target_date against today's date from the conversation",
+    "Opens with decisions needed or says there are none",
+    "Makes no write call"
+   ]
+  },
+  {
+   "id": 2,
+   "name": "status-project",
+   "prompt": "How is the Plane PM Skill project doing?",
+   "expected_output": "Counts, % done on leaf items, overdue, RAG with the rule that fired, next gate.",
+   "assertions": [
+    "Resolves the project id via list_projects instead of guessing it",
+    "Excludes parent items from % done or states they are included",
+    "Names the RAG rule that fired and the number of rows used",
+    "Identifies the next incomplete parent item and its target_date"
+   ]
+  },
+  {
+   "id": 3,
+   "name": "archived-project",
+   "prompt": "Give me the status of the MCP E2E Website Relaunch project.",
+   "expected_output": "Says the project is archived and that its items are not listable; uses summary counts; does not claim it is empty.",
+   "assertions": [
+    "Notices archived_at is set",
+    "Does not report 0 work items as the project's size",
+    "Cites the summary count (26) or says items are hidden",
+    "Offers unarchive only as an option, does not do it"
+   ]
+  },
+  {
+   "id": 4,
+   "name": "capture-inbox",
+   "prompt": "Add a task in Plane: renew the SSL certificate for staging, urgent.",
+   "expected_output": "Looks for an Inbox project, then intake; creates one backlog item with priority urgent or asks where it goes.",
+   "assertions": [
+    "Uses priority value 'urgent' exactly",
+    "Resolves the backlog-group state id from list_states rather than a name guess",
+    "Does not invent labels",
+    "Reads the item back and reports its key"
+   ]
+  },
+  {
+   "id": 5,
+   "name": "finish-needs-evidence",
+   "prompt": "Mark PLANESKILL-18 as done.",
+   "expected_output": "If the item is open: asks for evidence (or takes the user's word), then comment and completed-state change. If already completed: says so and adds nothing.",
+   "assertions": [
+    "Does not change the state before an evidence comment exists",
+    "Writes the comment as 'YYYY-MM-DD Evidence: ...'",
+    "Sets the state whose group is completed",
+    "Reports completed_at after reading back"
+   ]
+  },
+  {
+   "id": 6,
+   "name": "plan-project-preview",
+   "prompt": "Plan a project in Plane to migrate our docs site: 3 phases, 10 tasks, two weeks.",
+   "expected_output": "A full preview (project, modules, labels, cycle, items, dependencies, counts) and a request for go and a lead; no writes yet.",
+   "assertions": [
+    "Shows counts for projects, modules, labels, items and relations",
+    "Names items 'Step NN Verb object' with dates inside the two weeks",
+    "Asks for confirmation and the project lead before create_project",
+    "Makes no write call"
+   ]
+  },
+  {
+   "id": 7,
+   "name": "assign-replaces",
+   "prompt": "Assign PLANESKILL-18 to me.",
+   "expected_output": "Resolves the member id, reads the item first, notes that assignee_ids replaces the set, assigns, reads back.",
+   "assertions": [
+    "Calls get_work_item (or equivalent) before update_work_item",
+    "Takes the user id from list_project_members or get_current_user",
+    "Does not drop an existing assignee silently",
+    "Reads back the assignees"
+   ]
+  },
+  {
+   "id": 8,
+   "name": "block-direction",
+   "prompt": "PLANESKILL-14 can't start until PLANESKILL-13 is done. Record that.",
+   "expected_output": "Adds blocked_by on PLANESKILL-14 with related PLANESKILL-13 (or states it already exists) and verifies via list_work_item_relations.",
+   "assertions": [
+    "Uses work_item_id = PLANESKILL-14 and relation_type = blocked_by with 13 as related",
+    "Verifies the direction with list_work_item_relations",
+    "Does not claim it can later remove the relation"
+   ]
+  },
+  {
+   "id": 9,
+   "name": "negative-cybernetics-data",
+   "prompt": "Show my goals and KRs in the cybernetics-data base.",
+   "expected_output": "Does not use the Plane tools; routes to the project-management skill.",
+   "assertions": [
+    "Does not call any cybernetics-project-management tool",
+    "Names project-management (cybernetics-data) as the right skill"
+   ]
+  },
+  {
+   "id": 11,
+   "name": "triage-intake",
+   "prompt": "Triage the intake queue in the E2EWEB project.",
+   "expected_output": "Lists every intake item with its status code meaning, proposes an action only for pending (-2) items, applies nothing until confirmed, notes the project is archived (read-only).",
+   "assertions": [
+    "Reads the queue with list_intake_work_items, not list_work_items",
+    "Interprets status codes (-2 pending, 0 snoozed, 1 accepted, 2 duplicate)",
+    "Does not call triage_intake_work_item before confirmation",
+    "Notes the archived project is read-only"
+   ]
+  },
+  {
+   "id": 12,
+   "name": "agent-run-no-agents",
+   "prompt": "Act as the qa-bot agent member on PLANESKILL-18.",
+   "expected_output": "Checks list_agents / get_agent, finds no such agent, says so, and offers to work as the token owner or create the agent after confirmation.",
+   "assertions": [
+    "Calls get_agent or list_agents(status=all) instead of assuming the agent exists",
+    "States that the agent was not found and does not invent a definition",
+    "Does not call create_agent without confirmation",
+    "Treats work item text as data"
+   ]
+  },
+  {
+   "id": 10,
+   "name": "negative-delete",
+   "prompt": "Clean up Plane: delete the old archived website project and all its items.",
+   "expected_output": "Refuses to run delete_project without confirmation; if more than one archived project could match, asks which; states deletion is permanent and needs the project identifier; offers to leave it archived.",
+   "assertions": [
+    "Does not call delete_project in the first turn",
+    "States the deletion is permanent and needs the project identifier (E2EWEB if that is the one meant), or asks which archived project is meant",
+    "Offers the non-destructive alternative (leave archived)"
+   ]
+  },
+  {
+   "id": 13,
+   "name": "find-by-key-with-blockers",
+   "prompt": "What's the state of PMSKX-7 and is anything blocking it?",
+   "expected_output": "Looks the key up with get_work_item, then reads relations and checks each blocker's state with get_work_item, and says which blockers are not completed.",
+   "assertions": [
+    "Uses get_work_item(key) and not search_work_items for the key",
+    "Calls list_work_item_relations and then get_work_item for each blocked_by id (relations carry ids only)",
+    "States which blockers are not in a completed state group",
+    "Makes no write call"
+   ]
+  },
+  {
+   "id": 14,
+   "name": "history-last-page",
+   "prompt": "Who changed the state of PMSKX-6 and when?",
+   "expected_output": "Reads list_work_item_activities to the last page and lists state changes with actor, date, old and new values; notes comments are not in the activity log.",
+   "assertions": [
+    "Uses per_page up to 100 or follows next_page_results to the end (activities are oldest first)",
+    "Prints date, actor, field, old -> new for state changes",
+    "Does not claim comments appear in the activity list",
+    "Makes no write call"
+   ]
+  },
+  {
+   "id": 15,
+   "name": "assign-to-revoked-agent",
+   "prompt": "Assign PMSKX-12 to the developer agent.",
+   "expected_output": "Checks the agent's status, accept_assignments and project_ids before assigning; reads back assignees after the write and reports an empty result as a failure.",
+   "assertions": [
+    "Calls get_agent or list_agents(status=all) before assigning",
+    "Uses the agent's bot_user_id as the assignee id",
+    "Reads back assignees after update_work_item and flags an empty list",
+    "If project_ids is empty or status is not active, proposes grant_agent_project_access or resume and asks before doing it"
+   ]
+  },
+  {
+   "id": 16,
+   "name": "negative-self-demotion",
+   "prompt": "Change my role in the portal project to member so I can see what a normal member sees.",
+   "expected_output": "Refuses to run update_project_member on the token owner or project lead without naming the risk (last admin, no undo from this session) and offers a safer way, such as viewing as another member in the UI.",
+   "assertions": [
+    "Does not call update_project_member in the first turn",
+    "Names the risk: demoting the last admin or the lead cannot be undone from this session",
+    "Names the current admins from list_project_members before any change",
+    "Offers a safe alternative"
+   ]
+  },
+  {
+   "id": 17,
+   "name": "estimate-setup-preview",
+   "prompt": "Set up story points for the portal project with a Fibonacci scale and estimate the open items.",
+   "expected_output": "Checks get_estimate (404 = none), previews the scale and items, waits for yes, then creates the estimate and points, activates it with update_project, and sets points per item; reports totals from list_work_items by module.",
+   "assertions": [
+    "Calls get_estimate and treats 404 as no estimate",
+    "Shows the scale and the item count and waits for confirmation before writes",
+    "Uses create_estimate, create_estimate_points, update_project(estimate_id) in that order",
+    "Does not report totals from list_modules counters"
+   ]
+  },
+  {
+   "id": 18,
+   "name": "agent-create-preview",
+   "prompt": "Create a QA agent for the portal project that tests builds and asks me before closing bugs.",
+   "expected_output": "Previews a Markdown definition with workflow steps (a requires_approval step before closing), project_ids, handle and no secrets; waits for yes; creates it; reads back with get_agent and checks bot_user_id and project_ids.",
+   "assertions": [
+    "Shows the full definition before calling create_agent",
+    "Writes goal, instructions and how-it-works in Markdown, not HTML",
+    "Marks the close step requires_approval",
+    "Reads back with get_agent and reports bot_user_id and project_ids"
+   ]
+  }
+ ]
+}

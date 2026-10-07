@@ -1,0 +1,74 @@
+{
+ "desc": "Migration in waves with cutover runbooks, about 11 steps, 6-16 weeks.",
+ "min_days": 42,
+ "steps": [
+  {
+   "p": "PLAN",
+   "t": "Scope statement and acceptance criteria for the first tier",
+   "at": 0.03,
+   "pr": "prioritise"
+  },
+  {
+   "p": "PLAN",
+   "t": "Estimate as a range and list top 3 risks",
+   "at": 0.06,
+   "pr": "prioritise",
+   "g": "no DO task starts until this is finished"
+  },
+  {
+   "p": "DO",
+   "t": "Inventory and dependency discovery",
+   "at": 0.15,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Wave plan and cutover runbooks",
+   "at": 0.25,
+   "pr": "normal"
+  },
+  {
+   "p": "DO",
+   "t": "Mid-point check-point",
+   "at": 0.4,
+   "pr": "important"
+  },
+  {
+   "p": "DO",
+   "t": "Wave 1 migration and cutover",
+   "at": 0.52,
+   "pr": "important"
+  },
+  {
+   "p": "DO",
+   "t": "Wave 2 migration and cutover",
+   "at": 0.66,
+   "pr": "important"
+  },
+  {
+   "p": "DO",
+   "t": "Wave 3 migration and cutover",
+   "at": 0.8,
+   "pr": "important"
+  },
+  {
+   "p": "CHECK",
+   "t": "Cutover verification and performance review",
+   "at": 0.9,
+   "pr": "important"
+  },
+  {
+   "p": "CHECK",
+   "t": "Retrospective",
+   "at": 0.94,
+   "pr": "normal"
+  },
+  {
+   "p": "ACT",
+   "t": "Write lessons learned into the knowledge base",
+   "at": 0.98,
+   "pr": "normal"
+  }
+ ],
+ "name": "migration"
+}
