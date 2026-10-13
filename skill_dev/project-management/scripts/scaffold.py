@@ -120,7 +120,9 @@ def main():
     if not args.project_id:
         sys.exit("--create needs --project-id")
     proj = T.get_record("tbliD8gcOTRk9RZ9SmR", args.project_id, ["fldiDksJhyT8mDAhCBP", "fldmosZm5TTPkuyo5hr"])["fields"]
-    existing = len(proj.get("fldmosZm5TTPkuyo5hr") or [])
+    # the project's `tasks` link can lag right after a create, so also count tasks by their project link
+    existing = max(len(proj.get("fldmosZm5TTPkuyo5hr") or []),
+                   len(T.get_records(TASKS, T.and_filter(["%s is %s" % (F["project"], args.project_id)]), [F["title"]])))
     print("target project: %s (%d existing task(s))" % (proj.get("fldiDksJhyT8mDAhCBP"), existing))
     if existing and not args.force:
         sys.exit("refusing: project already has tasks (use --force to add anyway)")

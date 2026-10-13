@@ -13,7 +13,8 @@ def token():
     tok = os.environ.get("CYBERNETICS_DATA_API_TOKEN")
     if tok:
         return tok
-    for d in [Path.cwd(), *Path.cwd().parents]:
+    here = Path(__file__).resolve()  # a symlinked global install still finds the repo's .env
+    for d in dict.fromkeys([Path.cwd(), *Path.cwd().parents, *here.parents]):
         env = d / ".env"
         if env.is_file():
             for line in env.read_text().splitlines():

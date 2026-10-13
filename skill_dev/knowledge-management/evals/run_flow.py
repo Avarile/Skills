@@ -170,6 +170,10 @@ def main():
     check("capture --new-type --parent-type creates a nested type", bool(child_parent) and child_parent["id"] == tp, d)
     kb("type-set", "[TEST] km parent", "--parent-type", "[TEST] km child", code=1)
     check("type-set refuses a cycle", True)
+    # an untyped entry of our own, so group B never depends on the live data having one
+    r = T.call("POST", "/api/table/%s/record" % K, body={"fieldKeyType": "id", "records": [{"fields": {
+        TITLE: "[TEST] KM - Untyped", CTX: "## When to use\nuntyped"}}]})
+    created["k"].append(r["records"][0]["id"])
     d = kbj("doctor")
     check("doctor returns grouped findings incl. content risks (I)", {"A", "B", "E", "I"} <= {f["group"] for f in d.get("findings", [])}, d.get("summary"))
     raw = json.dumps(d, ensure_ascii=False)
