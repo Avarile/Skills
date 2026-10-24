@@ -5,7 +5,7 @@ description: Run projects, work items, cycles, modules, intake and agent assignm
 
 # Cybernetics Project Management
 
-Cybernetics project management is the single source of truth. This skill is stateless: read fresh, write, read back. Tools are `mcp__claude_ai_cybernetics-project-management__*`; load them with ToolSearch `select:` before calling (schemas are deferred). Workspace slug today: `cybernetics`. Mapping of PDCA/OKR onto cybernetics: `references/model-mapping.md`. Tool details: `references/tool-catalogue.md`. Verb to call sequence: `references/tool-map.md`. Behaviours that surprise: `references/quirks.md`.
+Cybernetics project management is the single source of truth. This skill is stateless: read fresh, write, read back. Tools are `mcp__cybernetics-project-management__*`; load them with ToolSearch `select:` before calling (schemas are deferred). Workspace slug today: `cybernetics`. Mapping of PDCA/OKR onto cybernetics: `references/model-mapping.md`. Tool details: `references/tool-catalogue.md`. Verb to call sequence: `references/tool-map.md`. Behaviours that surprise: `references/quirks.md`.
 
 ## Pick a mode
 - **Agent mode** (you are Claude Code or an agentic member doing work): terse, keys included (`ABC-12`), no narration, end with one line `changed: ...`. Follow `references/agent-protocol.md`.

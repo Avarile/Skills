@@ -1,6 +1,6 @@
 # Verb to tool map
 
-Prefix: `mcp__claude_ai_cybernetics-project-management__`. Always start with ID resolution (below). `W` = write, needs the confirmation level in the last column. Details of each tool: `tool-catalogue.md`; behaviours: `quirks.md`.
+Prefix: `mcp__cybernetics-project-management__`. Always start with ID resolution (below). `W` = write, needs the confirmation level in the last column. Details of each tool: `tool-catalogue.md`; behaviours: `quirks.md`.
 
 ## ID resolution (every verb)
 1. `list_workspaces` -> slug (cache for the session).
