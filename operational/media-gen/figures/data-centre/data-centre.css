@@ -1,0 +1,37 @@
+.dc-stage{touch-action:pan-y}
+.dc-stage:focus{outline:none}
+.dc-stage:focus-visible{outline:1px solid var(--anatomy-muted);outline-offset:6px}
+.dc-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.dc-items{--dc-glass:#d6d6d3;--dc-code:#4a4a4e;--dc-kw:#151517;--dc-glow:.12;--dc-panel-code:#3a3a3e;--dc-panel-glass:#cfd0cc}
+.iso:not([data-theme="light"]) .dc-items{--dc-glass:#070707;--dc-code:#8c8c8c;--dc-kw:#e8e8e8;--dc-glow:.22;--dc-panel-code:#b4b4b4;--dc-panel-glass:#1e1e1e}
+.dc-glass{fill:var(--dc-glass);stroke:none}
+.dc-code{fill:var(--dc-code);font-family:var(--anatomy-mono);white-space:pre;letter-spacing:.01em}
+.dc-kw{fill:var(--dc-kw)}
+.dc-sheen{fill:var(--anatomy-lit);opacity:.03;pointer-events:none}
+.dc-scroll{animation:dc-scroll var(--dur) linear infinite;animation-delay:var(--delay)}
+@keyframes dc-scroll{to{transform:translateY(var(--dy))}}
+.dc-still .dc-scroll{animation-play-state:paused}
+[data-log] text[data-new] .dc-kw,[data-log] text[data-new]{fill:var(--anatomy-lit)}
+.dc-led{fill:var(--anatomy-dot);opacity:.22;transition:opacity .25s var(--anatomy-ease)}
+.dc-led[data-on]{opacity:1;fill:var(--anatomy-hi)}
+.dc-ink{fill:var(--anatomy-mid);stroke:none}
+.dc-panel{pointer-events:none}
+.dc-panel:not([data-story])>*{opacity:.82}
+.dc-car{fill:var(--anatomy-shade-1);stroke:var(--anatomy-mid);stroke-width:.5px;stroke-linejoin:round}
+.dc-car[data-shade="0"]{fill:var(--anatomy-shade-0)}.dc-car[data-shade="2"]{fill:var(--anatomy-shade-2)}.dc-car[data-shade="3"]{fill:var(--anatomy-shade-3)}
+.dc-car-top{fill:var(--anatomy-top)}
+.dc-edge{fill:var(--anatomy-top);stroke:var(--anatomy-mid);stroke-width:.5px;stroke-linejoin:round}
+.dc-frame{fill:none;stroke:var(--anatomy-mid);stroke-width:.6px}
+.dc-panel[data-story] .dc-frame,.dc-panel[data-story] .dc-edge{stroke:var(--anatomy-lit)}
+.dc-panel[data-story] .dc-frame{stroke-width:.9px}
+.dc-panel .dc-code{fill:var(--dc-panel-code)}
+.dc-panel[data-story] .dc-glass{fill:var(--dc-panel-glass)}
+.dc-panel[data-story] .dc-kw{fill:var(--anatomy-lit)}
+[data-part="beacon"][data-on]>.iso-solid>.iso-top,[data-part="ag-eye"][data-on]>.iso-solid>.iso-top{fill:var(--anatomy-lit)}
+[data-part="beacon"][data-on]>.iso-solid>.iso-shade,[data-part="ag-eye"][data-on]>.iso-solid>.iso-shade{fill:var(--anatomy-lit-shade)}
+[data-part="beacon"][data-on]>.iso-solid>.iso-edge,[data-part="ag-eye"][data-on]>.iso-solid>.iso-edge{stroke:var(--anatomy-lit)}
+.it[data-name^="pod."],.it[data-name^="pm."],.it[data-name^="crm."],.it[data-name^="ag."]{cursor:pointer}
+[data-part="pm-card"]{transition:opacity .5s var(--anatomy-ease)}
+
+@media (prefers-reduced-motion:reduce){.dc-scroll{animation:none}.dc-led{transition:none}}
