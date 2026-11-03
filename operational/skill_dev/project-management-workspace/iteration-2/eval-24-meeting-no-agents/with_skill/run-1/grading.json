@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Does not create deep-work blocks for tasks assigned to Agentic Mind personas",
+   "passed": true,
+   "evidence": "It says \"none of them gets a block in your day\"; the only deep-work block is the user's own schema review task."
+  },
+  {
+   "text": "Does not suggest a meeting with an Agentic Mind persona",
+   "passed": true,
+   "evidence": "It says \"I won't book a slot or a meeting with an agent\", and `day.py meetings` returned no proposals."
+  },
+  {
+   "text": "Explains that agent work appears as review time once finished",
+   "passed": true,
+   "evidence": "It says \"finished agent work shows up as a review block the next time you plan, so I haven't reserved time for it today\"."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ }
+}

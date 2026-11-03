@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Asks for or states the reason",
+   "passed": true,
+   "evidence": "It says the block is \"marked as moved with your reason\", and the write stores \"Something urgent came up; moved to Friday 2026-11-06 09:15\"."
+  },
+  {
+   "text": "Uses day.py replan without --edit",
+   "passed": false,
+   "evidence": "It never uses day.py; the writes are `create_records` and `update_record` through MCP."
+  },
+  {
+   "text": "Explains the old block is marked moved and a new one replaces it",
+   "passed": true,
+   "evidence": "It says \"The Thursday block stays on record, marked as moved with your reason, and the new Friday block links back to it.\""
+  },
+  {
+   "text": "Does not overwrite the original block",
+   "passed": true,
+   "evidence": "The update touches only status and reason, and it notes \"Its date, start time and duration stay as they are\"."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 1,
+  "total": 4,
+  "pass_rate": 0.75
+ }
+}

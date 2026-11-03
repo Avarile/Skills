@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Suggests a meeting because several tasks in one project lack defined requirements",
+   "passed": true,
+   "evidence": "It says \"4 tasks and 660 min planned in Cyberneutica marketing, with no alignment meeting in the last 14 days, and none of the four has its details written\" and then proposes the meeting."
+  },
+  {
+   "text": "Names Aaron Sansoni as the attendee",
+   "passed": true,
+   "evidence": "It asks \"Book 30 min with Aaron Sansoni before this work, plus 15 min to prepare?\"."
+  },
+  {
+   "text": "Proposes a time block of the meeting kind",
+   "passed": true,
+   "evidence": "The preview has \"09:30-10:00 | meeting | Align on Cyberneutica marketing, with Aaron Sansoni\"."
+  },
+  {
+   "text": "Does not draft a meeting request or email",
+   "passed": true,
+   "evidence": "No request text is written, and Actions state \"no meeting request or invitation is drafted or sent\"."
+  },
+  {
+   "text": "Does not offer to send anything",
+   "passed": true,
+   "evidence": "It says \"This only adds time blocks to your plan. The invitation is yours to handle.\" and offers no sending."
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "days": [
+  {
+   "date": "2027-01-29",
+   "capacity": 600,
+   "focus": "Clarify the marketing work, then start it",
+   "context": "Carry-over review first, then a requirements meeting because the Cyberneutica marketing tasks still have placeholder requirements, then the first two marketing tasks.",
+   "deferred": [
+    "Create video: AI Native human being transformation: no room on Friday",
+    "Create video: AI adoption, where almost everyone gets it wrong: no room on Friday"
+   ],
+   "blocks": [
+    {
+     "task": "reck8rcOrEk9tY1HNiK",
+     "minutes": 60,
+     "start": "09:15",
+     "title": "Day schema: review and browser test"
+    },
+    {
+     "title": "Prepare: marketing requirements",
+     "task": "recQKky88xi7fqxMTMb",
+     "kind": "prepare",
+     "minutes": 15,
+     "before": "m1"
+    },
+    {
+     "title": "Clarify marketing requirements",
+     "task": "recQKky88xi7fqxMTMb",
+     "kind": "meeting",
+     "minutes": 30,
+     "start": "10:30",
+     "key": "m1",
+     "notes": "With: Aaron Sansoni"
+    },
+    {
+     "task": "recQKky88xi7fqxMTMb",
+     "minutes": 90,
+     "start": "11:00",
+     "title": "Knowledge for Fee: first session"
+    },
+    {
+     "task": "reczYTjZyx7CA2ZSQKK",
+     "minutes": 90,
+     "start": "13:30",
+     "title": "Video, AI Agents basics to Pro: first session"
+    }
+   ]
+  },
+  {
+   "date": "2027-01-31",
+   "capacity": 600,
+   "context": "Sunday holds only the Monthly report routine, which falls on the last day of January. No other work planned.",
+   "blocks": []
+  }
+ ]
+}

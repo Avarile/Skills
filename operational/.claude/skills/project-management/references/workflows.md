@@ -1,6 +1,6 @@
 # Workflows
 
-IDs and enum spellings: `schema.md`. Block formats: `context-blocks.md`. Formulas: `reports.md`. Phase 0 workflows are complete; Phase 1+ sections are marked and give the required shape until expanded.
+IDs and enum spellings: `schema.md`. Block formats: `context-blocks.md`. Formulas: `reports.md`. Day planning (`plan-day`, `replan`, `review-day`, `routine`): `day-planning.md`. Task execution (`do`, `now`): `execution.md`.
 
 ## capture
 0. If the user names a person ("for Anastasia", "assign to the designer"), resolve the contact with `teable.resolve_contact` semantics (exact name, unique partial, else ask) before creating.
@@ -11,7 +11,8 @@ IDs and enum spellings: `schema.md`. Block formats: `context-blocks.md`. Formula
 ## plate
 1. Page `tasks` with `projection` = title, progress, priority, belong_project, assigned_to, started_at, finished_at, is_active, context (for `Due:`). Check `list_views` for a suitable view first.
 2. If a person is named, use `assign.py tasks --contact <name>` instead. Drop inactive (`is_active` not `true`). Keep open tasks only unless asked otherwise. Group per `reports.md` (Overdue, Due in 7 days, In progress, Blocked, Unassigned, Undated). Scope to one project/assignee if named.
-3. Report row count and how many were excluded.
+3. If asked about the user's own plate, add today's blocks from `day.py now`. `assign.py tasks` also lists tasks the person collaborates on.
+4. Report row count and how many were excluded.
 
 ## status
 Find the project (`search`). Run `python3 scripts/rollup.py project <recId>` (add `--json` for agents). It computes completion, overdue, undated, SPI, RAG with the rule that fired, next gate, open risks and last status date exactly as `reports.md` defines, and states its row basis. For a goal: `rollup.py goal <recId>` (KR scores from `## Key Results`, runway to `deadline`, each project's RAG). Add "Suggested next step" (advance the project? escalate? unblock?) but make no writes. If the token is missing, compute from MCP reads using the same definitions and say so.
@@ -49,6 +50,7 @@ Report-only. Scan goals, projects, tasks (`projection` limited to what each chec
 - open tasks with no `Due:`
 - rows still marked `_Mock data._`
 - projects past `preparing` with empty `refer_knowledge`; `finalized` projects with an empty `## Lessons`
+- day tables: run `python3 scripts/day.py check` (duplicate days, overlaps, unreviewed days, moved blocks with no reason or replacement, routine blocks with no link, adhoc blocks with planned minutes, planned blocks on finished tasks, routines that can never fall, planned over capacity)
 Each finding gets a proposed fix. Apply fixes only after the user approves them, with a count first.
 
 ## plan-goal
@@ -68,7 +70,8 @@ Each finding gets a proposed fix. Apply fixes only after the user approves them,
 Append the block from `context-blocks.md` with `scripts/write.py ctx-append` (section `## Change Log`, `## Risk Register` or `## Blockers`). Change: state scope/time/cost impact; impact >5% -> written notice within 24 h and the escalation level; re-baselining due dates is a bulk write (`write.py bulk-update`, count first, confirm). Risk: a high-impact risk without a mitigation turns the project AMBER in `rollup.py`.
 
 ## review
-- **report (weekly):** run `rollup.py project`, then write the PDCA-format report from `reports.md` (RAG + one sentence, accomplished 3-5, planned 3-5 with owners, risks and issues, decisions needed, metrics). Offer to append it to `## Status Log` with `ctx-append` (entry heading `### YYYY-MM-DD · <emoji> <RAG>`). The status-gap rule resets when an entry is appended.
+- **report (weekly):** run `rollup.py project`, then write the PDCA-format report from `reports.md` (RAG + one sentence, accomplished 3-5, planned 3-5 with owners, risks and issues, decisions needed, metrics). Add the time line from `day.py time --from D --to D`. Offer to append it to `## Status Log` with `ctx-append` (entry heading `### YYYY-MM-DD · <emoji> <RAG>`). The status-gap rule resets when an entry is appended.
+- **monthly report:** the format in `reports.md`, from `rollup.py portfolio` and `day.py time` for the month.
 - **checkin (OKR):** read `## Key Results`; ask the user for current values (or compute only when a KR is directly measurable from the database); score = (current - baseline) / (target - baseline), clipped 0-1; flag KRs that dropped >0.2 since the last check-in or are below 0.4 at the midpoint; list blocked initiatives (projects not GREEN). Show the new table and append `### YYYY-MM-DD · avg <x>` to `## Check-ins`; replacing the KR table is a read-modify-verify edit of that block only.
 - **healthcheck:** for projects >3 months or at 50% of the timeline: run `rollup.py`, then walk the six questions in `context-blocks.md` with the user, append the findings under `## Health Check`.
 
@@ -88,4 +91,4 @@ Entry: the project is in a CHECK state (`finished-reviewing` or later) or the us
 Agents may run `check` and `stats` and draft, but retro content, lessons, `finalized`, and any new `knowledge_type` need the user's confirmation.
 
 ## Automated acceptance test
-`python3 evals/run_flow.py` creates `[TEST]` rows, exercises scaffold, rollup (GREEN/AMBER/RED rules), the write guards, trace and views, deletes only what it created and checks the baseline is restored. Run it after any change to the scripts or to `reports.md` thresholds.
+`python3 evals/run_flow.py` creates `[TEST]` rows, exercises scaffold, rollup (GREEN/AMBER/RED rules), the write guards, trace and views, deletes only what it created and checks the baseline is restored. `python3 evals/run_day_flow.py` does the same for day planning, on dates in 2099. `python3 evals/test_day.py` and `evals/test_fixes.py` need no database. Run them after any change to the scripts or to the thresholds.

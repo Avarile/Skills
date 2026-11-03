@@ -51,7 +51,7 @@ def check(pid):
         ("## Retro has content", meaningful(R.section(ctx, "## Retro")), "empty or TBD"),
         ("## Lessons has at least one entry", bool(re.search(r"^\s*[-*]\s+\S", R.section(ctx, "## Lessons"), re.M)), "none"),
         ("project links to a lessons knowledge entry (refer_knowledge)", len(links) > 0, "no knowledge linked"),
-        ("## Estimation Record row written", bool(est_rows), "section missing (run `close.py stats`, append the row)"),
+        ("## Estimation Record row written", bool(est_rows), "no table row (run `close.py stats`, append the row under `## Estimation Record`)"),
     ]
     ok = all(c[1] for c in crit)
     for name, passed, why in crit:

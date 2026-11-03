@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Finds Code review --- analysis and check the existing implementation of the Skill running",
+   "passed": true,
+   "evidence": "It names Task #612 \"Code review --- analysis and check the existing implementation of the Skill running\"."
+  },
+  {
+   "text": "Uses taskctx.py",
+   "passed": false,
+   "evidence": "No taskctx.py call appears; Actions show only MCP reads and local Python."
+  },
+  {
+   "text": "Chooses a report as the output",
+   "passed": false,
+   "evidence": "It says the review \"isn't done yet\", gives interim findings, and proposes only a progress change and a log line, so no report is chosen as the output."
+  },
+  {
+   "text": "Notes that the task is assigned to Agentic Mind (Developer)",
+   "passed": true,
+   "evidence": "It lists \"Assigned to: Agentic Mind (Developer), with you as collaborator\"."
+  },
+  {
+   "text": "Would store the output with write.py gen-append, not by overwriting agentic_generation",
+   "passed": false,
+   "evidence": "It proposes no gen-append or any write to agentic_generation; the writes are `progress` and an appended `context` log through MCP."
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 3,
+  "total": 5,
+  "pass_rate": 0.4
+ }
+}

@@ -1,0 +1,12 @@
+{"days": [{"date": "2026-11-03", "capacity": 600,
+  "context": "Started at 15:00 with 124 plannable minutes. Close out the daily-tracking review first, since it is the only carry-over, then use what is left to define Knowledge for Fee.",
+  "deferred": [
+    "Create video: How to use AI Agents, from the basics to Pro: no room today",
+    "Create video: AI Native human being transformation: no room today",
+    "Create video: AI adoption, where almost everyone gets it wrong: no room today"
+  ],
+  "declined_meetings": [{"project": "rechNbMPaXlSq47ZcVQ", "signal": "unclear", "reason": "Details are the owner's to write; 30 min alone to decide them instead"}],
+  "blocks": [
+    {"title": "Review daily-tracking schema and run browser test", "task": "reck8rcOrEk9tY1HNiK", "kind": "deep-work", "minutes": 90, "start": "15:00"},
+    {"title": "Knowledge for Fee: write the missing details", "task": "recQKky88xi7fqxMTMb", "kind": "deep-work", "minutes": 30}
+  ]}]}

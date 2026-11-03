@@ -1,0 +1,10 @@
+{
+ "eval_id": 21,
+ "eval_name": "plan-weekend-routine-flag",
+ "prompt": "Plan 29 January to 31 January 2027.",
+ "assertions": [
+  "Keeps the Monthly report on 2027-01-31",
+  "Flags that it falls on a Sunday",
+  "Does not move it to another day without asking"
+ ]
+}

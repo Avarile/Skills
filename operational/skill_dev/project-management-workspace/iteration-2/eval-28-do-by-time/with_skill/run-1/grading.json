@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Uses day.py now or taskctx.py now",
+   "passed": true,
+   "evidence": "Actions list `day.py now` and `taskctx.py now`, the latter resolving to `reck8rcOrEk9tY1HNiK`."
+  },
+  {
+   "text": "Names one item, not the whole day",
+   "passed": true,
+   "evidence": "It opens with one item, \"Do the review and browser test of the daily-plan schema work\", and does not lay out the day."
+  },
+  {
+   "text": "Offers plan-day if there is no block",
+   "passed": true,
+   "evidence": "It says \"You have no plan for today\" and asks \"start this now, or plan the rest of the afternoon first?\"."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ }
+}

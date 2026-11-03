@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Keeps the Monthly report on 2027-01-31",
+   "passed": false,
+   "evidence": "The final plan moves it to \"Monthly report (moved from Sunday)\" on Fri 29 Jan and writes no block on 31 Jan."
+  },
+  {
+   "text": "Flags that it falls on a Sunday",
+   "passed": true,
+   "evidence": "It states \"Monthly report falls on Sunday\" and gives 31 January as the date."
+  },
+  {
+   "text": "Does not move it to another day without asking",
+   "passed": true,
+   "evidence": "It asks \"Should I move it to Friday at 14:00?\" and moves it only after the simulated yes."
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ }
+}

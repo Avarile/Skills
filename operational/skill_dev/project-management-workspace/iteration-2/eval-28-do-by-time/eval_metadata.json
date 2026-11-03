@@ -1,0 +1,10 @@
+{
+ "eval_id": 28,
+ "eval_name": "do-by-time",
+ "prompt": "What should I do now?",
+ "assertions": [
+  "Uses day.py now or taskctx.py now",
+  "Names one item, not the whole day",
+  "Offers plan-day if there is no block"
+ ]
+}

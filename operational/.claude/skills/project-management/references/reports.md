@@ -13,6 +13,7 @@ All numbers are computed from rows read in the same run, so agent and human see 
 | On-hold red | `onhold` longer than 14 days |
 | SPI amber / red | below 0.85 / below 0.70 |
 | Inbox age | Inbox tasks older than 7 days are flagged |
+| Day planning | buffer, block size and meeting thresholds are constants in `scripts/day.py`, described in `day-planning.md` |
 | Escalation | impact >5% needs written notice within 24 h |
 | WIP limit | more than 3 in-progress tasks per person is flagged in `assign.py workload` (constant `WIP_LIMIT`) |
 
@@ -42,5 +43,11 @@ Decisions needed: ...
 ```
 
 **Weekly report (PDCA format):** Overall status (RAG + one sentence), Accomplished this week (3-5), Planned next week (3-5 with owners), Risks and issues, Decisions needed, Metrics (completion, SPI, overdue, blockers). Offer to append it to `## Status Log`.
+
+**Time (weekly and monthly):** one line from `day.py time`: planned, actual and unplanned minutes, by kind, and how many blocks have no outcome. Do not draw conclusions from days with no recorded outcomes; say how many there are.
+
+**Monthly report:** Overall status across goals (RAG + one sentence), Goals and Key Results moved, Projects finished or started, Time planned vs actual by kind, Risks and issues carried forward, Decisions needed, Focus for next month.
+
+**Standup note:** Yesterday (blocks done or partial, tasks finished), Today (today's blocks with tasks), Blockers. Three short lists.
 
 **Agent mode:** same content as compact lines with IDs, no prose. **Human mode:** open with Decisions needed, then the block above.

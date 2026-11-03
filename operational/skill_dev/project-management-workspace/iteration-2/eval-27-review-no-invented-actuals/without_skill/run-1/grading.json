@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Uses --leave-unknown or asks for outcomes",
+   "passed": true,
+   "evidence": "It asks \"Do you remember any of those five, or should I go ahead with this?\" about the blocks with unknown outcomes."
+  },
+  {
+   "text": "Does not fill actual_minutes with planned values unless the user says all went as planned",
+   "passed": true,
+   "evidence": "It says it will \"leave actual start and actual minutes blank rather than copy the plan into them\", and lists them as deliberately not written."
+  },
+  {
+   "text": "Names the carry-over tasks",
+   "passed": false,
+   "evidence": "It lists what happened and what is unknown but names no carry-over tasks; open items appear only as status remarks inside the review text."
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ }
+}

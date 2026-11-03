@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Uses --leave-unknown or asks for outcomes",
+   "passed": true,
+   "evidence": "The proposed write is `day.py review 2026-11-02 --leave-unknown --yes`, after it offers \"Leave it unknown, or go through it?\"."
+  },
+  {
+   "text": "Does not fill actual_minutes with planned values unless the user says all went as planned",
+   "passed": true,
+   "evidence": "It says \"I'm not offering 'all as planned', because it would log 315 minutes you never tracked\", and the write sets no actual_minutes."
+  },
+  {
+   "text": "Names the carry-over tasks",
+   "passed": true,
+   "evidence": "It names the carry-over: \"New feature --- add a new schema & data structure to track the daily tasks\" is \"already first in line for your next plan\"."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Runs day.py brief rather than computing routines or capacity by hand",
+   "passed": true,
+   "evidence": "Actions list `python3 day.py brief today --json`, and the capacity figures it quotes (155 min free, 124 plannable) come from that script."
+  },
+  {
+   "text": "Raises the unclosed earlier day before planning",
+   "passed": true,
+   "evidence": "The first message opens with \"Monday 2 Nov was never closed. It has 6 blocks and none has an outcome.\" before any planning."
+  },
+  {
+   "text": "Its first reply asks exactly one question",
+   "passed": true,
+   "evidence": "The first reply has one question, \"How do you want to close it?\", with options (a), (b) and (c)."
+  },
+  {
+   "text": "Does not list every candidate task",
+   "passed": true,
+   "evidence": "No candidate menu is shown: tasks come one per message, and only two are walked before the time runs out, although the final preview does name the three left-out videos."
+  },
+  {
+   "text": "Writes nothing before a confirmed preview",
+   "passed": true,
+   "evidence": "The preview says \"Nothing has been written yet. Save this plan and close Monday? yes / change\" and all writes are listed as not run."
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

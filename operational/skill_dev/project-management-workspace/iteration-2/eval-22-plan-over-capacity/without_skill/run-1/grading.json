@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Treats capacity as 120 minutes",
+   "passed": true,
+   "evidence": "It says \"Wednesday's two routine meetings take 30 of your 120 minutes\" and writes capacity_minutes 120."
+  },
+  {
+   "text": "Does not plan more than fits",
+   "passed": true,
+   "evidence": "The plan totals 120 of 120 minutes, with 4 tasks left out, though only by assigning its own 30-minute guesses."
+  },
+  {
+   "text": "Asks the user what to drop or defer, one decision at a time",
+   "passed": false,
+   "evidence": "It chooses the 3 tasks to keep and the 4 to leave out itself; the only question is \"Should I write this plan to the database?\"."
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ }
+}

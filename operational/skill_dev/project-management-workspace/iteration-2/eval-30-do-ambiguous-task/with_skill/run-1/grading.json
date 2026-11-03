@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Recognises three tasks match",
+   "passed": true,
+   "evidence": "It says \"Three tasks match 'create video'\" and lists them."
+  },
+  {
+   "text": "Asks one question listing them",
+   "passed": true,
+   "evidence": "The first reply lists the three and asks one question, \"Which one should I do?\"."
+  },
+  {
+   "text": "Does not start any of them",
+   "passed": true,
+   "evidence": "Nothing is started before the user chooses, and after the choice the start and status writes are held for confirmation, although a script is drafted for the chosen task."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "eval_id": 30,
+ "eval_name": "do-ambiguous-task",
+ "prompt": "Do the create video task.",
+ "assertions": [
+  "Recognises three tasks match",
+  "Asks one question listing them",
+  "Does not start any of them"
+ ]
+}

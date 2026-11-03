@@ -147,6 +147,8 @@ def cmd_tasks(a):
     today = dt.date.fromisoformat(a.today) if a.today else T.today()
     cid, cname = T.resolve_contact(a.contact)
     mine = [t for t in load(a.project) if t["active"] and t["prog"] not in R.DONE_T and t["prog"] != "cancelled" and t["who_id"] == cid]
+    collab = T.get_records(R.TASKS, T.and_filter(["%s hasAnyOf %s" % (T.TASK_X["collab"], cid)]), [R.TF["title"], R.TF["prog"], R.TF["active"]], take=100000)
+    collab = [r for r in collab if r["fields"].get(R.TF["active"]) is True and r["fields"].get(R.TF["prog"]) not in R.DONE_T | {"cancelled"} and r["id"] not in {t["id"] for t in mine}]
     far = dt.date.max
     key = lambda t: (PRIO.get(t["prio"], 3), t["due"] or far, t["step"] or 0)
     sec = [("Overdue", [t for t in mine if t["due"] and t["due"] < today]),
@@ -155,7 +157,7 @@ def cmd_tasks(a):
            ("Blocked / on hold", [t for t in mine if t["prog"] == "onhold"]),
            ("Undated", [t for t in mine if not t["due"]])]
     if a.json:
-        print(json.dumps(dict(contact=cname, open=len(mine), sections={n: [dict(id=t["id"], title=t["title"], prio=t["prio"], due=t["due"].isoformat() if t["due"] else None) for t in sorted(ts, key=key)] for n, ts in sec}), ensure_ascii=False, indent=1))
+        print(json.dumps(dict(contact=cname, open=len(mine), collaborating=[dict(id=r["id"], title=r["fields"].get(R.TF["title"]), progress=r["fields"].get(R.TF["prog"])) for r in collab], sections={n: [dict(id=t["id"], title=t["title"], prio=t["prio"], due=t["due"].isoformat() if t["due"] else None) for t in sorted(ts, key=key)] for n, ts in sec}), ensure_ascii=False, indent=1))
         return
     print("%s · %d open task(s) · %s" % (cname, len(mine), today))
     for n, ts in sec:
@@ -163,6 +165,10 @@ def cmd_tasks(a):
             print(n + ":")
             for t in sorted(ts, key=key):
                 print("  [%s] %s%s (%s)" % (t["prio"], t["title"], " due " + t["due"].isoformat() if t["due"] else "", t["id"]))
+    if collab:
+        print("Collaborating on:")
+        for r in collab:
+            print("  %s · %s (%s)" % (r["fields"].get(R.TF["title"]), r["fields"].get(R.TF["prog"]), r["id"]))
 
 
 def main():

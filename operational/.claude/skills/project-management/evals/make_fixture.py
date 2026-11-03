@@ -4,6 +4,8 @@
   make_fixture.py create    builds a goal, projects 'Website Refresh', 'k3s Migration', 'Inbox' with tasks
   make_fixture.py drop      deletes exactly what `create` made (ids in evals/fixture_manifest.json; every
                             goal/project is re-checked for the EVAL-FIXTURE marker before deletion)
+  make_fixture.py day-create   two future plans with one [TEST] block each, for the replan evals (ids 25, 26)
+  make_fixture.py day-drop     deletes exactly what day-create made, re-checking the [TEST] title on each block
 
 Links point at REAL contacts (Avarile, Anastasia Wang, Agentic Mind (Developer)); `drop` removes the tasks and
 projects, which clears those links. Nothing else is modified.
@@ -109,5 +111,34 @@ def drop():
     print("fixture dropped: %d task(s), %d project(s), 1 goal" % (n_t, len(m["projects"])))
 
 
+DAY_MANIFEST = HERE / "day_fixture_manifest.json"
+
+
+def day_create():
+    if DAY_MANIFEST.exists():
+        sys.exit("day fixture already exists; run day-drop first")
+    made = dict(plans=[], blocks=[])
+    for date, title, minute, kind, minutes in (("2026-11-05", "[TEST] Design work", 810, "deep-work", 120), ("2026-11-19", "[TEST] Review block", 840, "review-agent-output", 45)):
+        day = dt.date.fromisoformat(date)
+        if [p for p in T.get_records(T.PLANS, T.and_filter(["%s is date:%s" % (T.PLAN["date"], date)]), [])]:
+            sys.exit("a plan already exists on %s; not touching it" % date)
+        pid = T.create(T.PLANS, [{T.PLAN["date"]: date, T.PLAN["status"]: "planned", T.PLAN["capacity"]: 600}])[0]["id"]
+        made["plans"].append(pid)
+        made["blocks"].append(T.create(T.BLOCKS, [{T.BLOCK["title"]: title, T.BLOCK["day"]: {"id": pid}, T.BLOCK["kind"]: kind, T.BLOCK["status"]: "planned", T.BLOCK["source"]: "plan", T.BLOCK["start"]: T.utc_iso(day, minute), T.BLOCK["minutes"]: minutes, T.BLOCK["order"]: 0}])[0]["id"])
+    DAY_MANIFEST.write_text(json.dumps(made))
+    print("day fixture created:", made)
+
+
+def day_drop():
+    m = json.loads(DAY_MANIFEST.read_text())
+    for b in m["blocks"]:
+        if not str(T.get_record(T.BLOCKS, b, [T.BLOCK["title"]])["fields"].get(T.BLOCK["title"], "")).startswith("[TEST]"):
+            sys.exit("refusing: block %s is not a [TEST] block" % b)
+    T.delete_records(T.BLOCKS, m["blocks"])
+    T.delete_records(T.PLANS, m["plans"])
+    DAY_MANIFEST.unlink()
+    print("day fixture dropped: %d plan(s), %d block(s)" % (len(m["plans"]), len(m["blocks"])))
+
+
 if __name__ == "__main__":
-    {"create": create, "drop": drop}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: sys.exit(__doc__))()
+    {"create": create, "drop": drop, "day-create": day_create, "day-drop": day_drop}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: sys.exit(__doc__))()

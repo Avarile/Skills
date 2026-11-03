@@ -6,6 +6,8 @@ Use MCP for creating records and for single-record updates. Use this for what MC
   bulk-update   change the same fields on many records (MCP update_record is one record per call)
   ctx-append    append to (or create) a '## Section' inside a markdown `context` field without
                 re-emitting the whole field, and without overwriting a concurrent human edit
+  gen-append    append one generated output to `agentic_generation` on a task or project, in the same header format the
+                platform writes, never overwriting earlier entries
 
 Examples:
   write.py bulk-update tblOMgDiajqa1moRRjE --filter 'fldJMclfBagyBukSxoy is true' \
@@ -153,6 +155,44 @@ def cmd_ctx_append(a):
     print("applied; verified (all other sections unchanged)")
 
 
+def gen_entry(prompt, body, context=None, model=None, when=None):
+    """One agentic_generation entry, matching the platform's '### ◆ <UTC time> · <prompt>' header."""
+    when = when or dt.datetime.now(dt.timezone.utc)
+    head = " ".join(prompt.split())
+    out = ["### ◆ %s UTC · %s" % (when.strftime("%Y-%m-%d %H:%M"), head[:100]), "- Prompt: %s" % head]
+    if context:
+        out.append("- Context: %s" % context)
+    if model:
+        out.append("- Model: %s" % model)
+    return "\n".join(out) + "\n\n" + body.strip() + "\n"
+
+
+def cmd_gen_append(a):
+    field = {T.PROJECTS_ID: T.PROJECT_X["gen"], T.TASKS_ID: T.TASK_X["gen"]}.get(a.table)
+    if not field:
+        sys.exit("gen-append works on tasks and projects only")
+    body = open(a.text_file).read() if a.text_file else a.text
+    if not body or not body.strip():
+        sys.exit("empty text")
+    before = T.get_record(a.table, a.record, [field]).get("fields", {}).get(field) or ""
+    entry = gen_entry(a.prompt, body, a.context, a.model)
+    after = (before.rstrip("\n") + "\n\n" if before.strip() else "") + entry
+    print("record %s · agentic_generation · +%d chars (%d existing kept)" % (a.record, len(after) - len(before), len(before)))
+    print(entry[:400] + ("…" if len(entry) > 400 else ""))
+    if not a.yes:
+        print("DRY RUN: nothing written. Re-run with --yes to apply.")
+        return
+    again = T.get_record(a.table, a.record, [field]).get("fields", {}).get(field) or ""
+    if again != before:
+        sys.exit("ABORT: agentic_generation changed while preparing the append. Re-run to append to the new text.")
+    T.update(a.table, a.record, {field: after})
+    got = T.get_record(a.table, a.record, [field]).get("fields", {}).get(field) or ""
+    if got.strip() != after.strip():
+        print("VERIFY FAILED: stored text differs from expected; previous text follows for manual restore:\n" + before)
+        sys.exit(1)
+    print("applied; verified (earlier entries unchanged)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -174,6 +214,17 @@ def main():
     g.add_argument("--text-file")
     c.add_argument("--yes", action="store_true")
     c.set_defaults(fn=cmd_ctx_append)
+    g2 = sub.add_parser("gen-append")
+    g2.add_argument("table", help="tasks or projects table id")
+    g2.add_argument("record")
+    g2.add_argument("--prompt", required=True, help="what was asked for; becomes the entry header")
+    g2.add_argument("--context", help="what the output was built from, e.g. 'task + project charter + 2 knowledge'")
+    g2.add_argument("--model", help="the generating model")
+    g3 = g2.add_mutually_exclusive_group(required=True)
+    g3.add_argument("--text")
+    g3.add_argument("--text-file")
+    g2.add_argument("--yes", action="store_true")
+    g2.set_defaults(fn=cmd_gen_append)
     a = p.parse_args()
     a.fn(a)
 

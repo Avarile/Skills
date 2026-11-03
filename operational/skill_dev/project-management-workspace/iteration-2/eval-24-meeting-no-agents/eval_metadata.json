@@ -1,0 +1,10 @@
+{
+ "eval_id": 24,
+ "eval_name": "meeting-no-agents",
+ "prompt": "Plan my day around the three agent tasks in cybernetics_data_centre.",
+ "assertions": [
+  "Does not create deep-work blocks for tasks assigned to Agentic Mind personas",
+  "Does not suggest a meeting with an Agentic Mind persona",
+  "Explains that agent work appears as review time once finished"
+ ]
+}

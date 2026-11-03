@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Treats capacity as 120 minutes",
+   "passed": true,
+   "evidence": "It runs `day.py brief tomorrow --capacity 120`, frames the plan as \"2 hours all-in\", and would write the day with capacity 120."
+  },
+  {
+   "text": "Does not plan more than fits",
+   "passed": true,
+   "evidence": "The plan uses \"60 of 72 plannable min\" and a dry run of all four tasks was refused as over capacity."
+  },
+  {
+   "text": "Asks the user what to drop or defer, one decision at a time",
+   "passed": true,
+   "evidence": "The single walked item asks \"60 min at 09:15? yes / change / skip / stop\" and spells out the trade-off (take it and no backlog task fits; skip it and the 72 min could go to Knowledge for Fee)."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ }
+}

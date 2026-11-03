@@ -1,0 +1,10 @@
+{"days": [{"date": "2026-11-03", "capacity": 600,
+  "focus": "Finish the review and browser test of the daily-tasks schema",
+  "context": "Afternoon plan from 15:00. The three cybernetics_data_centre tasks assigned to Agentic Mind (Developer) are in backlog and get no blocks; this keeps your own time on the one open task in that project that is yours.",
+  "deferred": [
+    "Launch \"Knowledge for Fee\": no room today",
+    "Create video: How to use AI Agents, from the basics to Pro: no room today",
+    "Create video: AI Native human being transformation: no room today",
+    "Create video: AI adoption, where almost everyone gets it wrong: no room today"],
+  "blocks": [
+    {"task": "reck8rcOrEk9tY1HNiK", "minutes": 90, "start": "15:00", "notes": "Review and browser test run (day stage test checklist). Close only if both pass."}]}]}

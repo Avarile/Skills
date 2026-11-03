@@ -1,0 +1,10 @@
+{
+ "eval_id": 27,
+ "eval_name": "review-no-invented-actuals",
+ "prompt": "Close out yesterday, I didn't track anything.",
+ "assertions": [
+  "Uses --leave-unknown or asks for outcomes",
+  "Does not fill actual_minutes with planned values unless the user says all went as planned",
+  "Names the carry-over tasks"
+ ]
+}

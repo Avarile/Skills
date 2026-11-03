@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Recognises a direct edit is allowed here",
+   "passed": true,
+   "evidence": "It says \"Because that day hasn't started, I could instead just change the start time on the existing block\", though it recommends against that."
+  },
+  {
+   "text": "Says the change is made in place, if it uses --edit",
+   "passed": false,
+   "evidence": "It never uses --edit and proposes a moved block plus a new block, so it never says the change is made in place as its action."
+  },
+  {
+   "text": "Would refuse --edit for a block today or one already started",
+   "passed": false,
+   "evidence": "It does not use or discuss --edit and says nothing about refusing a direct edit for today or a started block."
+  }
+ ],
+ "summary": {
+  "passed": 1,
+  "failed": 2,
+  "total": 3,
+  "pass_rate": 0.33
+ }
+}

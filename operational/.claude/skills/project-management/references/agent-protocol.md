@@ -1,6 +1,6 @@
 # Agent protocol (Claude Code and other agents)
 
-Goal: an agent doing real work leaves the database accurate without the user having to tell it to.
+Goal: an agent doing real work leaves the database accurate without the user having to tell it to. To work on one task with everything linked to it, use `scripts/taskctx.py <id> --json` and `references/execution.md`.
 
 ## Session protocol
 
@@ -28,8 +28,13 @@ An agent works as a contact (e.g. `Agentic Mind (Developer)`). Pass `--as "<cont
 | Project status above `in-progress` | | always |
 | Assign an unassigned task to itself, assign newly created tasks inside an existing project | yes | |
 | Reassign tasks held by others, change `lead_by`, create or edit contacts | | always |
+| Read a day's plan and blocks; start or finish a block for work the agent is doing; log an `adhoc` block for it; append to `agentic_generation` | yes | |
+| Write `actual_minutes` for the user's own time | | always; agent runtime is not their working time |
+| Create, move or drop blocks on the user's plan, change a routine, write or close a day | | always |
 | Create goal or project, bulk create/update, re-parent, cancel, archive, schema or view changes | | always |
-| `credentials`, `access_token`, `credential_*` knowledge | never | |
+| Send anything outside this database: meeting requests, email, messages | never | |
+| `system_info.access_token` | never | |
+| Credential knowledge entries | only through `kb.py get` when the task needs them; never repeat values unprompted | |
 
 ## Output style
 

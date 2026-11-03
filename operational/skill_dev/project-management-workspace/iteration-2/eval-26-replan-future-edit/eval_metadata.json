@@ -1,0 +1,10 @@
+{
+ "eval_id": 26,
+ "eval_name": "replan-future-edit",
+ "prompt": "The review block on Thursday 19 November should be 30 minutes later.",
+ "assertions": [
+  "Recognises a direct edit is allowed here",
+  "Says the change is made in place, if it uses --edit",
+  "Would refuse --edit for a block today or one already started"
+ ]
+}

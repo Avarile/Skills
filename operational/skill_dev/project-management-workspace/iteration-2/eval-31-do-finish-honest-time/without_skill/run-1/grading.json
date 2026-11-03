@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Asks for the user's actual minutes rather than recording agent runtime",
+   "passed": false,
+   "evidence": "It never asks first and would write actual_minutes 1, \"rounded up from 40 seconds\", which it describes as \"the agent's run time only\"."
+  },
+  {
+   "text": "Sets the task to finished_reviewing at most unless there is objective evidence",
+   "passed": true,
+   "evidence": "It changes no task status because no task was found (`task` left blank), so nothing goes beyond finished_reviewing."
+  },
+  {
+   "text": "Adds evidence to the log",
+   "passed": false,
+   "evidence": "No log entry is proposed; the only record is a `notes` value on a new block."
+  }
+ ],
+ "summary": {
+  "passed": 1,
+  "failed": 2,
+  "total": 3,
+  "pass_rate": 0.33
+ }
+}

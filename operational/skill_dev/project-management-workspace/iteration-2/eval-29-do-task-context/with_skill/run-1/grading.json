@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Finds Code review --- analysis and check the existing implementation of the Skill running",
+   "passed": true,
+   "evidence": "It identifies \"Code review --- analysis and check the existing implementation of the Skill running\" (`recFuV9dxDfqOEdZPir`)."
+  },
+  {
+   "text": "Uses taskctx.py",
+   "passed": true,
+   "evidence": "Actions list `taskctx.py recFuV9dxDfqOEdZPir`, and again with --json, after three title searches."
+  },
+  {
+   "text": "Chooses a report as the output",
+   "passed": true,
+   "evidence": "It states \"I'm producing a report on how skills run and whether the code interpreter can be used\" and delivers one."
+  },
+  {
+   "text": "Notes that the task is assigned to Agentic Mind (Developer)",
+   "passed": true,
+   "evidence": "It says the task is \"assigned to Agentic Mind (Developer)\"."
+  },
+  {
+   "text": "Would store the output with write.py gen-append, not by overwriting agentic_generation",
+   "passed": true,
+   "evidence": "The proposed write is `write.py gen-append tblOMgDiajqa1moRRjE recFuV9dxDfqOEdZPir ... --yes`, described as \"keeping anything already there\"."
+  }
+ ],
+ "summary": {
+  "passed": 5,
+  "failed": 0,
+  "total": 5,
+  "pass_rate": 1.0
+ }
+}

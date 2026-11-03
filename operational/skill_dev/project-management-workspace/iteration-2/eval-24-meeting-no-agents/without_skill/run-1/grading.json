@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Does not create deep-work blocks for tasks assigned to Agentic Mind personas",
+   "passed": true,
+   "evidence": "Agent tasks get only `prepare` and `review-agent-output` blocks; the one deep-work block is the user's own schema task."
+  },
+  {
+   "text": "Does not suggest a meeting with an Agentic Mind persona",
+   "passed": true,
+   "evidence": "The only meetings are the two routines, and none involves an Agentic Mind persona."
+  },
+  {
+   "text": "Explains that agent work appears as review time once finished",
+   "passed": true,
+   "evidence": "It says \"your time goes on briefing them and reviewing what they produce\" and times review blocks after the runs, moving one if \"a report isn't ready\", though it pre-books them."
+  }
+ ],
+ "summary": {
+  "passed": 3,
+  "failed": 0,
+  "total": 3,
+  "pass_rate": 1.0
+ }
+}

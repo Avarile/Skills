@@ -1,0 +1,9 @@
+{"days":[{"date":"2026-11-04","capacity":120,
+"context":"Only 2 hours available, all-in. Standup and end-of-day meeting take 30, leaving 72 plannable. The day schema review comes first because it is prioritised and waiting on the user; no backlog task fits.",
+"deferred":[
+"Launch \"Knowledge for Fee\": over the 2-hour limit, details still to be completed by the owner",
+"Create video: How to use AI Agents, from the basics to Pro: over the 2-hour limit, details still to be completed by the owner",
+"Create video: AI Native human being transformation: over the 2-hour limit, details still to be completed by the owner",
+"Create video: AI adoption, where almost everyone gets it wrong: over the 2-hour limit, details still to be completed by the owner"],
+"blocks":[
+{"title":"Review and browser-test the day schema","task":"reck8rcOrEk9tY1HNiK","minutes":60,"start":"09:15"}]}]}

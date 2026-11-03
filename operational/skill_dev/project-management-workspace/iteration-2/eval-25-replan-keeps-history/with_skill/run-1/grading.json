@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Asks for or states the reason",
+   "passed": true,
+   "evidence": "It states the block stays on record \"with the reason 'Something urgent came up'\"."
+  },
+  {
+   "text": "Uses day.py replan without --edit",
+   "passed": true,
+   "evidence": "The proposed write is `day.py replan rec4KNQZad9N3KNL4h7 --reason \"Something urgent came up\" --date 2026-11-06 --start 09:15 --yes`, with no --edit."
+  },
+  {
+   "text": "Explains the old block is marked moved and a new one replaces it",
+   "passed": true,
+   "evidence": "It says the Thursday block \"stays on record as `moved`\" and \"The Friday block links back to it\"."
+  },
+  {
+   "text": "Does not overwrite the original block",
+   "passed": true,
+   "evidence": "The write sets status `moved` on the original and creates a new row that replaces it, leaving the original on the Thursday plan."
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ }
+}

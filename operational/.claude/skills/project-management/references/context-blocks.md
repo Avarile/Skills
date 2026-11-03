@@ -90,3 +90,31 @@ Acceptance: <observable condition>                  (optional)
 - 2026-10-02 · in-progress · started
 - 2026-10-03 · finished_reviewing · PR #12 merged, tests pass (commit abc1234)
 ```
+
+## Daily plan
+
+`day.py apply` writes these sections of `daily_plans.context`. `Meetings declined` is read back to keep declined suggestions quiet for 7 days, so keep the shape.
+
+```
+## Plan
+Why this plan, in a line or two.
+
+## Deferred
+- Video scripts: no room this week
+
+## Meetings declined
+- 2026-11-03 · rec... · alignment · already spoke
+```
+
+## Generated output
+
+`tasks.agentic_generation` and `projects.agentic_generation` hold entries newest last. Append with `write.py gen-append`, never by re-emitting the field.
+
+```
+### ◆ 2026-11-03 01:02 UTC · <prompt>
+- Prompt: <prompt>
+- Context: <what it was built from>
+- Model: <model>
+
+<the output>
+```

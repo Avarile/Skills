@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Uses the range next-week, Monday to Friday of the following week",
+   "passed": true,
+   "evidence": "It says \"I've taken 'next week' as Monday 9 to Friday 13 November\" and leaves the weekend empty."
+  },
+  {
+   "text": "Mentions the Friday Weekly report routine or its effect on Friday's time",
+   "passed": true,
+   "evidence": "It lists \"Weekly report on Friday 13 November at 16:00, 60 minutes\" and includes it in Friday's table."
+  },
+  {
+   "text": "Does not ask a separate capacity question per day",
+   "passed": true,
+   "evidence": "It asks no capacity question at all, using a single 600-a-day figure for the whole week."
+  },
+  {
+   "text": "Asks one question per message",
+   "passed": true,
+   "evidence": "The two messages each ask one question: \"How do you want to split the week?\" and \"Shall I save it as shown?\"."
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ }
+}

@@ -150,3 +150,53 @@ def contact_name(cid):
     if _CN is None or cid not in _CN:
         _CN = contact_names()
     return _CN.get(cid)
+
+
+# --- day planning tables (daily_plans, day_blocks, routines) ---------------------------------------------------------
+TASKS_ID, PROJECTS_ID = "tblOMgDiajqa1moRRjE", "tbliD8gcOTRk9RZ9SmR"
+PLANS, BLOCKS, ROUTINES = "tblwUxgw2YgU0Zm67e6", "tbl8nr9z2dZEJHcEiUn", "tblwb4WWe9Hw7r3BIzn"
+PLAN = dict(date="fldJ7lDiVIaMgpEJmDj", goal="fldSHFsOcQRq1YXGfqM", focus="fldWtTWlVudAAaQwhuy", status="fld2abfT6ehoPtdWTa4",
+            capacity="fldiby5lp2qT2IU3IVs", ctx="fldXmne6mW8Xpkmq7EA", review="fld1nag746vMJc3UvEE", notes="fldeKU7bUxELTBcagmt",
+            active="fldTAzKHlDaUvRsh53T", deleted="fldIr1WNg6g45K8UrUc", blocks="fldnz1MisFxXbFISvSf")
+BLOCK = dict(title="fldtRZW60moxChIA1mb", day="fldKasFde0zQQLEb4qi", task="fldOQcUAwEzRbhCy0vV", kind="fldK1gAFmolw5ZNHTWM",
+             status="fldStji12ZpAomeQhPz", order="fldA9KGAERqhstiX1H1", start="fld5BHdbS7RVL2qQILK", minutes="fldrGrVgBmWXDShODOt",
+             actual_start="fldnxj4thkYKgMyJvcK", actual_minutes="fldf7pKThqQLnJ6G7uX", reason="flde9uVADhsWsQlJ7ey", notes="fldV7saC9Pn6QXMn02A",
+             active="fldEjEBUiVdmbkjTiAK", deleted="fldRDTx4aBvdoVmajhH", source="fldreE16ZFdJ1rcc1MV", routine="fld15qEPrgEoKSqAJkQ",
+             replaces="fldiuowC8CC70d5IRrN")
+ROUTINE = dict(title="fldw3FxsebE1ztrGIgP", kind="fldRJZXQYHKHM5Dp2Px", freq="fldFxLJaPuTXVx2pehW", weekdays="fldGZj2x13i1OSGULT2",
+               month_day="fld9zqW2uL3heMqnfFL", start="fldMDbrc8V3wBUZJm7L", minutes="fldGCx4sZKzr7pX1Rj2", valid_from="fldh4UPUsDzSORZRBaK",
+               valid_until="fldQltwtwKYFjTulBof", active="fldByDXoUfOy1H4Z6I0", notes="fldiyNJpR9T5DdxqVZf", task="fldr9Purk0NhK1qwciM")
+TASK_X = dict(notes="fldfsST2ZFpRjmPeqmk", collab="fld8kFQbfW9VIv6V1AB", gen="fldzaFydh9DtnOPvZA7", blocks="fldJvbs2pOhdg5xcq4I",
+              know="fldJzsKyzBaDFt7bHIu", started="fldj3Xb1g9nUX4iFqE0", finished="fldn95wbkTqefn18WdO")
+PROJECT_X = dict(notes="fld3QM0WdioiHSb7GVe", collab="fldgB1KhSop61Qpyssn", gen="fldxNdiG9qUupVLW0iF", know="fldCw3cnpw8EWs09C1v")
+CONTACT_TYPE = "fldDFnZypupBS2dbhqG"
+
+
+def now():
+    return dt.datetime.now(ZoneInfo(TZ))
+
+
+def local_dt(iso):
+    """UTC timestamp from the API -> aware Melbourne datetime. None-safe."""
+    if not iso:
+        return None
+    return dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(ZoneInfo(TZ))
+
+
+def utc_iso(day, minute):
+    """Local date + minutes since local midnight -> the UTC timestamp the API stores. zoneinfo handles daylight saving."""
+    local = dt.datetime(day.year, day.month, day.day, minute // 60, minute % 60, tzinfo=ZoneInfo(TZ))
+    return local.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+
+def create(table, rows):
+    """Create records (list of {fieldId: value}); returns the created records. Batches of 100."""
+    out = []
+    for i in range(0, len(rows), 100):
+        res = call("POST", "/api/table/%s/record" % table, body={"fieldKeyType": "id", "records": [{"fields": r} for r in rows[i:i + 100]]})
+        out += res["records"]
+    return out
+
+
+def update(table, rec_id, fields):
+    return call("PATCH", "/api/table/%s/record/%s" % (table, rec_id), body={"fieldKeyType": "id", "record": {"fields": fields}})

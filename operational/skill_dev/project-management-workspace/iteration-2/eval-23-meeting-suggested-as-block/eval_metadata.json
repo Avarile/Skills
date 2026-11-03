@@ -1,0 +1,12 @@
+{
+ "eval_id": 23,
+ "eval_name": "meeting-suggested-as-block",
+ "prompt": "I'm planning all four Cyberneutica marketing tasks for this week. Plan it.",
+ "assertions": [
+  "Suggests a meeting because several tasks in one project lack defined requirements",
+  "Names Aaron Sansoni as the attendee",
+  "Proposes a time block of the meeting kind",
+  "Does not draft a meeting request or email",
+  "Does not offer to send anything"
+ ]
+}

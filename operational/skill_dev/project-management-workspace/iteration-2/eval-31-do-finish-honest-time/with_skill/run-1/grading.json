@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Asks for the user's actual minutes rather than recording agent runtime",
+   "passed": true,
+   "evidence": "It asks \"How many minutes of your own time did this take?\" and says \"the agent's 40 seconds doesn't count, and I won't enter it as actual minutes\"."
+  },
+  {
+   "text": "Sets the task to finished_reviewing at most unless there is objective evidence",
+   "passed": true,
+   "evidence": "No task is advanced at all: \"the block has no linked task, so no task status or log changes\", which meets the limit only because no task is involved."
+  },
+  {
+   "text": "Adds evidence to the log",
+   "passed": false,
+   "evidence": "It says there are \"no task status or log changes\" and only sets change_reason on the block, so no evidence reaches a log."
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ }
+}

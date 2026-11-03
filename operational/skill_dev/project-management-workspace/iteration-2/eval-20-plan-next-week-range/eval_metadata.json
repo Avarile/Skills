@@ -1,0 +1,11 @@
+{
+ "eval_id": 20,
+ "eval_name": "plan-next-week-range",
+ "prompt": "Help me plan next week.",
+ "assertions": [
+  "Uses the range next-week, Monday to Friday of the following week",
+  "Mentions the Friday Weekly report routine or its effect on Friday's time",
+  "Does not ask a separate capacity question per day",
+  "Asks one question per message"
+ ]
+}

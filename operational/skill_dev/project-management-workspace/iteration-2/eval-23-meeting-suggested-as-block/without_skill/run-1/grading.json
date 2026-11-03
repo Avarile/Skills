@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Suggests a meeting because several tasks in one project lack defined requirements",
+   "passed": false,
+   "evidence": "The Aaron check-in is justified by going public and possible overlap (\"whether he has a view, or whether any of this overlaps with Sansoni work\"), not by the missing requirements."
+  },
+  {
+   "text": "Names Aaron Sansoni as the attendee",
+   "passed": true,
+   "evidence": "It proposes \"A 30-minute check-in with Aaron Sansoni on Wednesday at 09:30\"."
+  },
+  {
+   "text": "Proposes a time block of the meeting kind",
+   "passed": true,
+   "evidence": "The plan has \"09:30-10:00 | Check-in with Aaron Sansoni ... | Meeting\", and the write uses kind `meeting`."
+  },
+  {
+   "text": "Does not draft a meeting request or email",
+   "passed": true,
+   "evidence": "It adds an agenda-preparation block but no request or email text: \"I wouldn't invite or message him\"."
+  },
+  {
+   "text": "Does not offer to send anything",
+   "passed": true,
+   "evidence": "It says \"I wouldn't invite or message him, so you'd need to ask him yourself\" and Actions confirm nothing is sent to Aaron."
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 1,
+  "total": 5,
+  "pass_rate": 0.8
+ }
+}

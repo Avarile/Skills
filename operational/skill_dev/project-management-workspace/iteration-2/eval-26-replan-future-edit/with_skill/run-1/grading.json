@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Recognises a direct edit is allowed here",
+   "passed": true,
+   "evidence": "It says \"I'd edit the block in place because it's on a future day and hasn't started\"."
+  },
+  {
+   "text": "Says the change is made in place, if it uses --edit",
+   "passed": true,
+   "evidence": "It uses `--edit` and tells the user the edit is in place: \"This means the old 14:00 time won't be kept on record.\""
+  },
+  {
+   "text": "Would refuse --edit for a block today or one already started",
+   "passed": false,
+   "evidence": "It gives the conditions for this edit (future day, not started) but never says it would refuse --edit for a block today or one already started."
+  }
+ ],
+ "summary": {
+  "passed": 2,
+  "failed": 1,
+  "total": 3,
+  "pass_rate": 0.67
+ }
+}

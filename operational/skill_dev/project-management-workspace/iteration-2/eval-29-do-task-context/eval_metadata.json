@@ -1,0 +1,12 @@
+{
+ "eval_id": 29,
+ "eval_name": "do-task-context",
+ "prompt": "Work on the task about checking how skills run in the existing code.",
+ "assertions": [
+  "Finds Code review --- analysis and check the existing implementation of the Skill running",
+  "Uses taskctx.py",
+  "Chooses a report as the output",
+  "Notes that the task is assigned to Agentic Mind (Developer)",
+  "Would store the output with write.py gen-append, not by overwriting agentic_generation"
+ ]
+}

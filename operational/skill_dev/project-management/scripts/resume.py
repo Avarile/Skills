@@ -20,6 +20,26 @@ import rollup as R
 PRIO = {"urgent": 0, "important": 1, "prioritise": 2, "normal": 3, "can wait": 4}
 
 
+def open_blockers(section_text):
+    """Blockers are append-only lines `- DATE · <blocker> · owner · status open|cleared DATE`. A line is resolved if it says
+    cleared, or if a later cleared line's blocker text matches it (one text contains the other, case-insensitive)."""
+    entries = []
+    for l in section_text.splitlines():
+        if not l.strip().startswith("-"):
+            continue
+        parts = [x.strip() for x in l.strip().lstrip("- ").split(" · ")]
+        key = (parts[1] if len(parts) > 1 else parts[0]).lower()
+        entries.append((l.strip("- ").strip(), key, "cleared" in l.lower()))
+    out = []
+    for i, (text, key, cleared) in enumerate(entries):
+        if cleared:
+            continue
+        if any(c and (k in key or key in k) for _, k, c in entries[i + 1:]):
+            continue
+        out.append(text)
+    return out
+
+
 def norm_url(u):
     u = u.strip().lower().rstrip("/")
     u = re.sub(r"\.git$", "", u)
@@ -78,8 +98,7 @@ def build(project, today, me=None):
         unassigned = sorted([t for t in ts if not t["who_id"] and t["prog"] != "in-progress"], key=order)
         ts = [t for t in ts if t["who_id"] == me[0]]
     nxt = sorted([t for t in ts if t["prog"] != "in-progress"], key=order)[:3]
-    blockers = [l.strip("- ").strip() for l in R.section(project["fields"].get(R.PF["ctx"]) or "", "## Blockers").splitlines()
-                if l.strip().startswith("-") and "cleared" not in l.lower()]
+    blockers = open_blockers(R.section(project["fields"].get(R.PF["ctx"]) or "", "## Blockers"))
     brief = dict(project=dict(id=project["id"], title=roll["title"], progress=roll["progress"], rag=roll["rag"], rules=roll["rules"]),
                  charter=charter_excerpt(project["fields"].get(R.PF["ctx"]) or ""),
                  in_progress=[dict(id=t["id"], title=t["title"], due=t["due"].isoformat() if t["due"] else None) for t in ts if t["prog"] == "in-progress"],

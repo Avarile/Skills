@@ -1,0 +1,30 @@
+{
+ "expectations": [
+  {
+   "text": "Uses the range next-week, Monday to Friday of the following week",
+   "passed": true,
+   "evidence": "It runs `day.py brief next-week --json` and states \"Next week, Mon 9 to Fri 13 Nov\"."
+  },
+  {
+   "text": "Mentions the Friday Weekly report routine or its effect on Friday's time",
+   "passed": true,
+   "evidence": "It says Friday has 348 plannable min against 396 \"after standup, the end-of-day meeting, Friday's weekly report and the 20% buffer\"."
+  },
+  {
+   "text": "Does not ask a separate capacity question per day",
+   "passed": true,
+   "evidence": "Capacity is one summary line for the week (\"396 plannable minutes a day Mon to Thu and 348 on Fri\") with no per-day capacity question."
+  },
+  {
+   "text": "Asks one question per message",
+   "passed": true,
+   "evidence": "Each simulated message carries one question, such as \"How do you want to close it?\" and \"90 min, Mon 9 Nov at 09:15?\", through to \"Write this? yes / change\"."
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 0,
+  "total": 4,
+  "pass_rate": 1.0
+ }
+}

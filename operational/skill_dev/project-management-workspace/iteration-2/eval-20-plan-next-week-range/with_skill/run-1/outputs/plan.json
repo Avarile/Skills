@@ -1,0 +1,21 @@
+{"days": [
+ {"date": "2026-11-09", "capacity": 600,
+  "context": "Close out the daily-plan schema review, then align with Aaron before the marketing work starts.",
+  "blocks": [
+   {"title": "Review and browser test: daily plan schema", "task": "reck8rcOrEk9tY1HNiK", "minutes": 90, "start": "09:15"},
+   {"title": "Align on Cyberneutica marketing", "task": "recQKky88xi7fqxMTMb", "kind": "meeting", "minutes": 30, "start": "14:00", "key": "m1", "notes": "With: Aaron Sansoni"},
+   {"title": "Prepare marketing alignment", "task": "recQKky88xi7fqxMTMb", "kind": "prepare", "minutes": 15, "before": "m1"}
+  ]},
+ {"date": "2026-11-10", "capacity": 600,
+  "context": "First pass at the Knowledge for Fee offer. Task details are still to be completed by the owner.",
+  "blocks": [{"title": "Knowledge for Fee: first pass", "task": "recQKky88xi7fqxMTMb", "minutes": 120, "start": "09:15"}]},
+ {"date": "2026-11-11", "capacity": 600,
+  "context": "Outline and script only. Recording gets planned once the format is agreed.",
+  "blocks": [{"title": "Video script: How to use AI Agents", "task": "reczYTjZyx7CA2ZSQKK", "minutes": 120, "start": "09:15"}]},
+ {"date": "2026-11-12", "capacity": 600,
+  "context": "Outline and script only. Recording gets planned once the format is agreed.",
+  "blocks": [{"title": "Video script: AI Native human being", "task": "recdp55tcK2GDrfMgfX", "minutes": 120, "start": "09:15"}]},
+ {"date": "2026-11-13", "capacity": 600,
+  "context": "Outline and script only. Recording gets planned once the format is agreed.",
+  "blocks": [{"title": "Video script: AI adoption", "task": "recxFtZh95Hq6UjTktV", "minutes": 120, "start": "09:15"}]}
+]}

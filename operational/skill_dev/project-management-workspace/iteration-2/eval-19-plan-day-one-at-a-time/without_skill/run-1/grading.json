@@ -1,0 +1,35 @@
+{
+ "expectations": [
+  {
+   "text": "Runs day.py brief rather than computing routines or capacity by hand",
+   "passed": false,
+   "evidence": "No day.py call appears; Actions show raw `mcp__cyb-data__*` queries and the 165 minutes was worked out by hand."
+  },
+  {
+   "text": "Raises the unclosed earlier day before planning",
+   "passed": true,
+   "evidence": "The second message says \"Yesterday's plan (2 November) is still open\" and asks how to close it before the plan is presented."
+  },
+  {
+   "text": "Its first reply asks exactly one question",
+   "passed": true,
+   "evidence": "The first reply has one question, \"Are you working through to the 17:30 end-of-day meeting?\"."
+  },
+  {
+   "text": "Does not list every candidate task",
+   "passed": true,
+   "evidence": "No candidate menu is shown: it proposes a chosen plan and groups the rest under \"Left out today\", for example \"The 4 marketing tasks\" without listing each."
+  },
+  {
+   "text": "Writes nothing before a confirmed preview",
+   "passed": true,
+   "evidence": "It ends with \"Shall I write this plan and close out yesterday?\" and lists the writes as \"none made\"."
+  }
+ ],
+ "summary": {
+  "passed": 4,
+  "failed": 1,
+  "total": 5,
+  "pass_rate": 0.8
+ }
+}

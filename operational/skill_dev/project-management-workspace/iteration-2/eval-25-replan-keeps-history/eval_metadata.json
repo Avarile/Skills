@@ -1,0 +1,11 @@
+{
+ "eval_id": 25,
+ "eval_name": "replan-keeps-history",
+ "prompt": "Something urgent came up, push Thursday's 13:30 block to Friday morning.",
+ "assertions": [
+  "Asks for or states the reason",
+  "Uses day.py replan without --edit",
+  "Explains the old block is marked moved and a new one replaces it",
+  "Does not overwrite the original block"
+ ]
+}

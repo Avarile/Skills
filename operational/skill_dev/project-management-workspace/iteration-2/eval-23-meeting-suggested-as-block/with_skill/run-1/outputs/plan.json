@@ -1,0 +1,24 @@
+{"days": [
+ {"date": "2026-11-04", "capacity": 600, "focus": "Cyberneutica marketing: align with Aaron, then Knowledge for Fee and the first video", "focus_goal": "recMSfwALS4gN7m4DAR",
+  "context": "User asked to plan all four Cyberneutica marketing tasks this week. All four still read 'Details to be completed by the owner', so alignment comes first.",
+  "deferred": ["Schema and data structure for daily tasks (reck8rcOrEk9tY1HNiK): carried over, waiting on review; kept out because this plan is scoped to marketing"],
+  "blocks": [
+   {"title": "Align on Cyberneutica marketing", "task": "recQKky88xi7fqxMTMb", "kind": "meeting", "minutes": 30, "start": "09:30", "key": "m1", "notes": "With: Aaron Sansoni"},
+   {"title": "Prepare Cyberneutica marketing alignment", "task": "recQKky88xi7fqxMTMb", "kind": "prepare", "minutes": 15, "before": "m1"},
+   {"task": "recQKky88xi7fqxMTMb", "minutes": 120, "start": "10:00"},
+   {"title": "Video: How to use AI Agents (1/2)", "task": "reczYTjZyx7CA2ZSQKK", "minutes": 120, "start": "13:00"},
+   {"title": "Video: How to use AI Agents (2/2)", "task": "reczYTjZyx7CA2ZSQKK", "minutes": 60, "start": "15:15"}
+  ]},
+ {"date": "2026-11-05", "capacity": 600, "focus": "Cyberneutica marketing: AI Native video", "focus_goal": "recMSfwALS4gN7m4DAR",
+  "context": "Second video, in the morning clear of the existing 13:30 block.",
+  "blocks": [
+   {"title": "Video: AI Native transformation (1/2)", "task": "recdp55tcK2GDrfMgfX", "minutes": 120, "start": "09:15"},
+   {"title": "Video: AI Native transformation (2/2)", "task": "recdp55tcK2GDrfMgfX", "minutes": 60, "start": "11:30"}
+  ]},
+ {"date": "2026-11-06", "capacity": 600, "focus": "Cyberneutica marketing: AI adoption video", "focus_goal": "recMSfwALS4gN7m4DAR",
+  "context": "Third video, finished before the 16:00 Weekly report.",
+  "blocks": [
+   {"title": "Video: AI adoption (1/2)", "task": "recxFtZh95Hq6UjTktV", "minutes": 120, "start": "09:15"},
+   {"title": "Video: AI adoption (2/2)", "task": "recxFtZh95Hq6UjTktV", "minutes": 60, "start": "11:30"}
+  ]}
+]}

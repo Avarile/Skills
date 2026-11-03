@@ -1,0 +1,12 @@
+{
+ "eval_id": 19,
+ "eval_name": "plan-day-one-at-a-time",
+ "prompt": "Plan my day.",
+ "assertions": [
+  "Runs day.py brief rather than computing routines or capacity by hand",
+  "Raises the unclosed earlier day before planning",
+  "Its first reply asks exactly one question",
+  "Does not list every candidate task",
+  "Writes nothing before a confirmed preview"
+ ]
+}

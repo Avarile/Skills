@@ -1,0 +1,25 @@
+{
+ "expectations": [
+  {
+   "text": "Uses day.py now or taskctx.py now",
+   "passed": false,
+   "evidence": "Neither command was run; Actions show only MCP reads and a local date call."
+  },
+  {
+   "text": "Names one item, not the whole day",
+   "passed": false,
+   "evidence": "It leads with one item but adds \"Here's how I'd use the rest of the afternoon\" with a schedule table and further agent-task advice."
+  },
+  {
+   "text": "Offers plan-day if there is no block",
+   "passed": true,
+   "evidence": "It says \"There is no plan for today\" and asks \"Do you want me to put this on today's plan?\", then drafts one."
+  }
+ ],
+ "summary": {
+  "passed": 1,
+  "failed": 2,
+  "total": 3,
+  "pass_rate": 0.33
+ }
+}

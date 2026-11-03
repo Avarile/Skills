@@ -1,0 +1,10 @@
+{
+ "eval_id": 22,
+ "eval_name": "plan-over-capacity",
+ "prompt": "Plan tomorrow with all the backlog tasks, I only have 2 hours.",
+ "assertions": [
+  "Treats capacity as 120 minutes",
+  "Does not plan more than fits",
+  "Asks the user what to drop or defer, one decision at a time"
+ ]
+}

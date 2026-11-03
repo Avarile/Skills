@@ -38,8 +38,9 @@ def main():
         params.append(("filter", json.dumps(flt)))
     if args.order:
         params.append(("orderBy", json.dumps([{"fieldId": o.split(":")[0], "order": (o.split(":") + ["asc"])[1]} for o in args.order])))
-    if args.search:
-        params.append(("search", args.search))
+    if args.search:  # the API wants [value, fieldId, exact]; search the primary field
+        primary = next(f["id"] for f in T.call("GET", "/api/table/%s/field" % args.table) if f.get("isPrimary"))
+        params += [("search[]", args.search), ("search[]", primary), ("search[]", "true")]
 
     records, skip = [], 0
     while True:
